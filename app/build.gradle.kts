@@ -62,7 +62,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("com.google.http-client:google-http-client-gson:1.45.3")
     implementation("com.google.api-client:google-api-client-android:2.7.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev20240910-2.0.0")
+    // implementation("com.google.apis:google-api-services-drive:v3-rev20240910-2.0.0") // Temporarily disabled: version not found in Maven Central
 
     // PDF
     implementation("com.itextpdf:itext7-core:8.0.5")
