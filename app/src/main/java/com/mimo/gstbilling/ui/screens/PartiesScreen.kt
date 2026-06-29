@@ -1,12 +1,13 @@
 package com.mimo.gstbilling.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,104 +17,187 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 
+data class Party(
+    val name: String,
+    val balance: String,
+    val date: String,
+    val isPositive: Boolean = true
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PartiesScreen(navController: NavController) {
-    var showAddDialog by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
-    val parties = remember { mutableStateListOf(
-        Party("ABC Enterprises", "9876543210", "GSTIN1234567890", "Customer", "Rs. 12,450 Cr"),
-        Party("XYZ Traders", "8765432109", "GSTIN0987654321", "Supplier", "Rs. 5,200 Dr"),
-        Party("Global Solutions", "7654321098", "GSTIN1122334455", "Customer", "Rs. 25,000 Cr"),
-    ) }
+    var showMoreOptions by remember { mutableStateOf(false) }
+
+    val parties = remember {
+        mutableStateListOf(
+            Party("dignitary defence academy", "22,570.00", "19 Jun 26"),
+            Party("Sha Khimji & Premji Co Market Yard", "21,100.00", "02 Jun 26"),
+            Party("Sanman enterprises", "1,15,227.00", "09 May 26"),
+            Party("Adv. pramod Bendre", "36,640.00", "27 Apr 26"),
+            Party("Agad logistics & supply chain", "6,380.00", "20 Apr 26"),
+            Party("Ishwar Heart Clinic", "370.00", "16 Apr 26"),
+            Party("Taste of irani", "7,350.00", "15 Mar 26"),
+            Party("Ibhraim Himly", "4,93,240.00", "07 Mar 26"),
+            Party("Pramod thakkar", "550.00", "16 Feb 26"),
+            Party("Sg promotors", "2,050.00", "10 Feb 26"),
+            Party("Digital task force", "5,504.00", "05 Feb 26")
+        )
+    }
+
+    val filteredParties = parties.filter {
+        it.name.contains(searchQuery, ignoreCase = true)
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Parties", fontWeight = FontWeight.Bold) },
+                title = { Text("All Parties", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
+                actions = {
+                    IconButton(onClick = { showMoreOptions = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BlueHeader)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Secondary) {
-                Icon(Icons.Default.Add, contentDescription = "Add Party")
+            FloatingActionButton(
+                onClick = { },
+                containerColor = RedAccent,
+                contentColor = OnPrimary,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.PersonAdd, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add new party")
+                }
             }
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Background)
+        ) {
+            // Search Bar
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                label = { Text("Search parties") },
-                modifier = Modifier.fillMaxWidth()
+                placeholder = { Text("Search Parties") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.FilterList, contentDescription = "Filter")
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn {
-                items(parties.size) { index ->
-                    val party = parties[index]
-                    PartyCard(party)
-                    Spacer(modifier = Modifier.height(8.dp))
+
+            // Party List
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(filteredParties.size) { index ->
+                    val party = filteredParties[index]
+                    PartyListItem(party)
+                    if (index < filteredParties.lastIndex) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    }
                 }
             }
         }
     }
 
-    if (showAddDialog) {
-        AddPartyDialog(onDismiss = { showAddDialog = false }, onAdd = { name, phone, gstin, type ->
-            parties.add(Party(name, phone, gstin, type, "Rs. 0.00"))
-            showAddDialog = false
-        })
-    }
-}
+    // More Options Bottom Sheet
+    if (showMoreOptions) {
+        ModalBottomSheet(
+            onDismissRequest = { showMoreOptions = false }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    "More Options",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-@Composable
-private fun PartyCard(party: Party) {
-    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Surface)) {
-        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Person, contentDescription = "Party", tint = Primary, modifier = Modifier.size(40.dp))
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(party.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
-                Text(party.phone, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                Text(party.gstin ?: "", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                if (party.type == "Customer") {
-                    Text(party.type, style = MaterialTheme.typography.bodySmall, color = Success)
-                } else {
-                    Text(party.type, style = MaterialTheme.typography.bodySmall, color = Error)
-                }
+                ListItem(
+                    headlineContent = { Text("Bulk Payment Reminder") },
+                    leadingContent = { Icon(Icons.Default.Payment, contentDescription = null) },
+                    modifier = Modifier.clickable { showMoreOptions = false }
+                )
+                ListItem(
+                    headlineContent = { Text("Bulk Message") },
+                    leadingContent = { Icon(Icons.Default.Message, contentDescription = null) },
+                    modifier = Modifier.clickable { showMoreOptions = false }
+                )
+                ListItem(
+                    headlineContent = { Text("Sort by Name [A-Z]") },
+                    leadingContent = { Icon(Icons.Default.Sort, contentDescription = null) },
+                    trailingContent = { Checkbox(checked = false, onCheckedChange = null) },
+                    modifier = Modifier.clickable { showMoreOptions = false }
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            Text(party.balance, fontWeight = FontWeight.Bold, color = if (party.balance.contains("Cr")) Success else Error)
         }
     }
 }
 
 @Composable
-private fun AddPartyDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var gstin by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf("Customer") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add New Party") },
-        text = {
-            Column {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name*") }, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone") }, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = gstin, onValueChange = { gstin = it }, label = { Text("GSTIN") }, modifier = Modifier.fillMaxWidth())
-            }
-        },
-        confirmButton = { TextButton(onClick = { onAdd(name, phone, gstin, type) }) { Text("Add") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
-    )
+private fun PartyListItem(party: Party) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { }
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                party.name,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                party.date,
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                "\u20B9 ${party.balance}",
+                fontWeight = FontWeight.Bold,
+                color = GreenBalance
+            )
+            Text(
+                "You'll Get",
+                style = MaterialTheme.typography.bodySmall,
+                color = GreenBalance
+            )
+        }
+    }
 }
-
-data class Party(val name: String, val phone: String, val gstin: String?, val type: String, val balance: String)

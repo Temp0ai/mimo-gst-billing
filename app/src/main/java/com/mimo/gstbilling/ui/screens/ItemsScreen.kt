@@ -1,10 +1,13 @@
 package com.mimo.gstbilling.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,97 +17,174 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 
+data class Product(
+    val name: String,
+    val salePrice: String,
+    val purchasePrice: String,
+    val stock: String,
+    val isLowStock: Boolean = false
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemsScreen(navController: NavController) {
-    var showAddDialog by remember { mutableStateOf(false) }
-    val items = remember { mutableStateListOf(
-        InventoryItem("Laptop Dell XPS", "8471", 65000.0, 18.0, "Pcs", 10.0),
-        InventoryItem("Wireless Mouse", "8472", 500.0, 18.0, "Pcs", 50.0),
-        InventoryItem("Mechanical Keyboard", "8473", 3500.0, 18.0, "Pcs", 25.0),
-        InventoryItem("Monitor 27 inch", "8528", 25000.0, 28.0, "Pcs", 15.0),
-    ) }
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("PRODUCTS", "SERVICES", "CATEGORIES", "UNITS")
+
+    val products = remember {
+        mutableStateListOf(
+            Product("150ml R Cup", "2.20", "0.00", "3,000.00"),
+            Product("2 option vending machine", "1,00,000.00", "0.00", "532.00"),
+            Product("210ml R cup", "3,000.00", "0.00", "2.70", isLowStock = true),
+            Product("3 lane machine", "11,800.00", "0.00", "2.00", isLowStock = true),
+            Product("3 option vending machine", "12,500.00", "0.00", "12.00"),
+            Product("4 option vending machine", "14,500.00", "0.00", "0.00", isLowStock = true)
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Items & Services", fontWeight = FontWeight.Bold) },
+                title = { Text("Items", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary)
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.FilterList, contentDescription = "Filter")
+                    }
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "More")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = BlueHeader)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Secondary) {
-                Icon(Icons.Default.Add, contentDescription = "Add Item")
+            FloatingActionButton(
+                onClick = { },
+                containerColor = RedAccent,
+                contentColor = OnPrimary,
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add Product")
+                }
             }
         }
     ) { paddingValues ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp)) {
-            items(items.size) { index ->
-                val item = items[index]
-                ItemCard(item)
-                Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .background(Background)
+        ) {
+            // Tabs
+            TabRow(
+                selectedTabIndex = selectedTab,
+                containerColor = Surface,
+                contentColor = Primary
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = {
+                            Text(
+                                title,
+                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
+                    )
+                }
+            }
+
+            // Search Bar
+            OutlinedTextField(
+                value = "",
+                onValueChange = { },
+                placeholder = { Text("Search Items by Name or Code") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+
+            // Product List
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 16.dp)
+            ) {
+                items(products.size) { index ->
+                    ProductListItem(products[index])
+                    if (index < products.lastIndex) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                    }
+                }
             }
         }
-    }
-
-    if (showAddDialog) {
-        AddItemDialog(onDismiss = { showAddDialog = false }, onAdd = { name, hsn, price, gst, unit, stock ->
-            items.add(InventoryItem(name, hsn, price, gst, unit, stock))
-            showAddDialog = false
-        })
     }
 }
 
 @Composable
-private fun ItemCard(item: InventoryItem) {
-    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Surface)) {
+private fun ProductListItem(product: Product) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { }
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = Surface)
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(item.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
-                    Text("HSN: " + (item.hsnCode ?: "N/A"), style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    Text("Rs. " + String.format("%.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary)
-                    Text("GST: " + item.gstRate + "%", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    product.name,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { }, modifier = Modifier.size(24.dp)) {
+                    Icon(Icons.Default.Share, contentDescription = "Share", modifier = Modifier.size(18.dp))
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Row {
-                Text("Stock: " + item.stockQuantity + " " + item.unit, style = MaterialTheme.typography.bodySmall)
-                Spacer(modifier = Modifier.weight(1f))
-                Text("Purchase: Rs. " + String.format("%.2f", item.purchasePrice), style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Sale Price", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                    Text("\u20B9 ${product.salePrice}", fontWeight = FontWeight.Bold)
+                }
+                Column {
+                    Text("Purchase Price", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                    Text("\u20B9 ${product.purchasePrice}", fontWeight = FontWeight.Bold)
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text("In Stock", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                    Text(
+                        product.stock,
+                        fontWeight = FontWeight.Bold,
+                        color = if (product.isLowStock) Error else GreenBalance
+                    )
+                }
             }
         }
     }
 }
-
-@Composable
-private fun AddItemDialog(onDismiss: () -> Unit, onAdd: (String, String?, Double, Double, String, Double) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var hsn by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
-    var unit by remember { mutableStateOf("Pcs") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Add New Item") },
-        text = {
-            Column {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Item Name*") }, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = hsn, onValueChange = { hsn = it }, label = { Text("HSN Code") }, modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(8.dp))
-                OutlinedTextField(value = price, onValueChange = { price = it }, label = { Text("Sale Price*") }, modifier = Modifier.fillMaxWidth())
-            }
-        },
-        confirmButton = { TextButton(onClick = { onAdd(name, hsn, price.toDoubleOrNull() ?: 0.0, 18.0, unit, 0.0) }) { Text("Add") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } }
-    )
-}
-
-data class InventoryItem(val name: String, val hsnCode: String?, val salePrice: Double, val gstRate: Double, val unit: String, val stockQuantity: Double, val purchasePrice: Double = 0.0)

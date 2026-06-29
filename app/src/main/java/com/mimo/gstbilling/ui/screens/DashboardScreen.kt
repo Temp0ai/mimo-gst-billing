@@ -1,24 +1,16 @@
 package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Assessment
-import androidx.compose.material.icons.filled.People
-import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,44 +21,227 @@ import com.mimo.gstbilling.ui.navigation.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Mimo GST Billing", color = OnPrimary, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary),
-                actions = {
-                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = OnPrimary)
-                    }
-                }
-            )
-        },
-        bottomBar = { BottomNavBar(navController) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                containerColor = Secondary,
-                contentColor = OnPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Create Invoice")
-            }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            DrawerContent(navController, drawerState)
         }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Background)
-        ) {
-            item { SummaryCardsSection() }
-            item { QuickActionsSection(navController) }
-            item { RecentActivitySection() }
+    ) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("Mimo GST Billing", fontWeight = FontWeight.Bold) },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = BlueHeader),
+                    navigationIcon = {
+                        IconButton(onClick = { /* open drawer */ }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                        }
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Default.Share, contentDescription = "Share")
+                        }
+                    }
+                )
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                    containerColor = RedAccent,
+                    contentColor = OnPrimary,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = "Add Sale")
+                }
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .background(Background)
+            ) {
+                item { SummarySection() }
+                item { QuickActionsSection(navController) }
+                item { RecentPartiesSection() }
+            }
         }
     }
 }
 
 @Composable
-private fun SummaryCardsSection() {
+private fun DrawerContent(navController: NavController, drawerState: DrawerState) {
+    var expandedParties by remember { mutableStateOf(false) }
+    var expandedSale by remember { mutableStateOf(false) }
+    var expandedPurchase by remember { mutableStateOf(false) }
+    var expandedCashBank by remember { mutableStateOf(false) }
+
+    ModalDrawerSheet {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Company Header
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(BlueHeader)
+                    .padding(16.dp)
+            ) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Store,
+                            contentDescription = null,
+                            tint = OnPrimary,
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                "Arihant Enterprises",
+                                color = OnPrimary,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                "enterprises.arihant87@gmail.c...",
+                                color = OnPrimary.copy(alpha = 0.8f),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.clickable { },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Change Company",
+                            color = OnPrimary,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Icon(
+                            Icons.Default.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = OnPrimary
+                        )
+                    }
+                }
+            }
+
+            // Menu Items
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.People, contentDescription = null) },
+                label = { Text("Parties") },
+                badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
+                selected = false,
+                onClick = { expandedParties = !expandedParties }
+            )
+
+            if (expandedParties) {
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.PersonAdd, contentDescription = null) },
+                    label = { Text("Party Details") },
+                    selected = false,
+                    onClick = { navController.navigate(Screen.Parties.route) }
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.CardGiftcard, contentDescription = null) },
+                    label = { Text("Loyalty Points") },
+                    badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
+                    selected = false,
+                    onClick = { }
+                )
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.NetworkCheck, contentDescription = null) },
+                    label = { Text("Vyapar Network") },
+                    selected = false,
+                    onClick = { }
+                )
+            }
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.List, contentDescription = null) },
+                label = { Text("Items") },
+                selected = false,
+                onClick = { navController.navigate(Screen.Items.route) }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
+                label = { Text("Business Dashboard") },
+                selected = false,
+                onClick = { }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Assessment, contentDescription = null) },
+                label = { Text("Reports") },
+                selected = false,
+                onClick = { navController.navigate(Screen.Reports.route) }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Receipt, contentDescription = null) },
+                label = { Text("Sale") },
+                selected = false,
+                onClick = { expandedSale = !expandedSale }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
+                label = { Text("Purchase") },
+                selected = false,
+                onClick = { expandedPurchase = !expandedPurchase }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
+                label = { Text("Expense") },
+                selected = false,
+                onClick = { }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.AccountBalance, contentDescription = null) },
+                label = { Text("Cash & Bank") },
+                selected = false,
+                onClick = { expandedCashBank = !expandedCashBank }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Store, contentDescription = null) },
+                label = { Text("My Online Store") },
+                selected = false,
+                onClick = { }
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                label = { Text("Settings") },
+                badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
+                selected = false,
+                onClick = { navController.navigate(Screen.Settings.route) }
+            )
+
+            NavigationDrawerItem(
+                icon = { Icon(Icons.Default.Backup, contentDescription = null) },
+                label = { Text("Backup/Restore") },
+                selected = false,
+                onClick = { }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SummarySection() {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             "Business Overview",
@@ -82,7 +257,6 @@ private fun SummaryCardsSection() {
                 title = "Total Sales",
                 amount = "Rs. 1,24,500",
                 color = Success,
-                icon = Icons.Default.ShoppingCart,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(12.dp))
@@ -90,7 +264,6 @@ private fun SummaryCardsSection() {
                 title = "Total Purchase",
                 amount = "Rs. 45,200",
                 color = Error,
-                icon = Icons.Default.ShoppingCart,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -102,16 +275,14 @@ private fun SummaryCardsSection() {
             SummaryCard(
                 title = "Receivable",
                 amount = "Rs. 34,800",
-                color = Warning,
-                icon = Icons.Default.Receipt,
+                color = GreenBalance,
                 modifier = Modifier.weight(1f)
             )
             Spacer(modifier = Modifier.width(12.dp))
             SummaryCard(
                 title = "Payable",
                 amount = "Rs. 12,300",
-                color = Primary,
-                icon = Icons.Default.Assessment,
+                color = RedAccent,
                 modifier = Modifier.weight(1f)
             )
         }
@@ -122,8 +293,7 @@ private fun SummaryCardsSection() {
 private fun SummaryCard(
     title: String,
     amount: String,
-    color: Color,
-    icon: ImageVector,
+    color: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -132,15 +302,11 @@ private fun SummaryCard(
         colors = CardDefaults.cardColors(containerColor = Surface)
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(icon, contentDescription = title, tint = color, modifier = Modifier.size(24.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(title, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-            }
+            Text(title, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 amount,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = color
             )
@@ -161,10 +327,10 @@ private fun QuickActionsSection(navController: NavController) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            ActionButton("Sales", Icons.Default.ShoppingCart, Primary) {
+            ActionButton("Sale", Icons.Default.Receipt, RedAccent) {
                 navController.navigate(Screen.CreateInvoice.route)
             }
-            ActionButton("Purchase", Icons.Default.Receipt, Secondary) { }
+            ActionButton("Purchase", Icons.Default.ShoppingCart, Primary) { }
         }
         Spacer(modifier = Modifier.height(12.dp))
         Row(
@@ -178,16 +344,6 @@ private fun QuickActionsSection(navController: NavController) {
                 navController.navigate(Screen.Items.route)
             }
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ActionButton("Reports", Icons.Default.BarChart, PrimaryDark) {
-                navController.navigate(Screen.Reports.route)
-            }
-            ActionButton("Expenses", Icons.Default.Assessment, Error) { }
-        }
     }
 }
 
@@ -195,7 +351,7 @@ private fun QuickActionsSection(navController: NavController) {
 private fun ActionButton(
     text: String,
     icon: ImageVector,
-    color: Color,
+    color: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit
 ) {
     Card(
@@ -217,7 +373,7 @@ private fun ActionButton(
 }
 
 @Composable
-private fun RecentActivitySection() {
+private fun RecentPartiesSection() {
     Card(
         modifier = Modifier.padding(16.dp),
         shape = RoundedCornerShape(12.dp),
@@ -225,86 +381,34 @@ private fun RecentActivitySection() {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Recent Activity",
+                "Recent Parties",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(12.dp))
-            RecentActivityItem(
-                "Invoice #00123", "ABC Enterprises",
-                "Rs. 12,450", "2 hours ago", Success
-            )
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            RecentActivityItem(
-                "Payment Received", "XYZ Traders",
-                "Rs. 8,200", "5 hours ago", Success
-            )
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            RecentActivityItem(
-                "Invoice #00122", "Global Solutions",
-                "Rs. 25,000", "Yesterday", Primary
-            )
+            PartyRow("dignitary defence academy", "Rs. 22,570", "19 Jun 26")
+            PartyRow("Sha Khimji & Premji Co", "Rs. 21,100", "02 Jun 26")
+            PartyRow("Sanman enterprises", "Rs. 1,15,227", "09 May 26")
         }
     }
 }
 
 @Composable
-private fun RecentActivityItem(
-    title: String,
-    party: String,
-    amount: String,
-    time: String,
-    color: Color
-) {
+private fun PartyRow(name: String, amount: String, date: String) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(party, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-            Text(time, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+            Text(name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
+            Text(date, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
         }
-        Text(
-            amount,
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
-    }
-}
-
-@Composable
-private fun BottomNavBar(navController: NavController) {
-    NavigationBar(containerColor = Surface) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Home") },
-            label = { Text("Home") },
-            selected = true,
-            onClick = { }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.People, contentDescription = "Parties") },
-            label = { Text("Parties") },
-            selected = false,
-            onClick = { navController.navigate(Screen.Parties.route) }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Receipt, contentDescription = "Invoices") },
-            label = { Text("Invoices") },
-            selected = false,
-            onClick = { navController.navigate(Screen.CreateInvoice.route) }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.BarChart, contentDescription = "Reports") },
-            label = { Text("Reports") },
-            selected = false,
-            onClick = { navController.navigate(Screen.Reports.route) }
-        )
+        Column(horizontalAlignment = Alignment.End) {
+            Text(amount, fontWeight = FontWeight.Bold, color = GreenBalance)
+            Text("You'll Get", style = MaterialTheme.typography.bodySmall, color = GreenBalance)
+        }
     }
 }
