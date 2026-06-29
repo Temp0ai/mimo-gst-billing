@@ -38,20 +38,11 @@ jobs:
     - name: Build Debug APK
       run: gradle assembleDebug --no-daemon --stacktrace
 
-    - name: Build Release APK
-      run: gradle assembleRelease --no-daemon --stacktrace
-
-    - name: Upload Debug APK
+    - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: app-debug
+        name: MimoGstBilling
         path: app/build/outputs/apk/debug/app-debug.apk
-
-    - name: Upload Release APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
 
     - name: Create Release
       if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
@@ -59,6 +50,6 @@ jobs:
       with:
         artifacts: "app/build/outputs/apk/debug/app-debug.apk"
         tag: "v${{ github.run_number }}"
-        name: "Build v${{ github.run_number }}"
+        name: "Mimo GST Billing v${{ github.run_number }}"
         body: "Automatically built APK from commit ${{ github.sha }}"
         allowUpdates: true
