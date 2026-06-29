@@ -66,7 +66,7 @@ private fun ItemCard(item: InventoryItem) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {
-                   无边框 Text(item.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
+                    Text(item.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
                     Text("HSN: " + (item.hsnCode ?: "N/A"), style = MaterialTheme.typography.bodySmall, color = TextSecondary)
                 }
                 Column(horizontalAlignment = Alignment.End) {

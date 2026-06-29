@@ -33,7 +33,7 @@ fun CreateInvoiceScreen(navController: NavController) {
 
     Scaffold(
         topBar = {
- eff TopAppBar(
+            TopAppBar(
                 title = { Text("Create Invoice", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
