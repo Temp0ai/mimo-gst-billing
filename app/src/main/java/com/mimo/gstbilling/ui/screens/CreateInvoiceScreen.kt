@@ -16,6 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,7 +51,12 @@ fun CreateInvoiceScreen(navController: NavController) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("Total: ", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.weight(1f))
-                    Text("Rs. ${String.format(\"%.2f\", grandTotal)}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = Primary)
+                    Text(
+                        text = "Rs. " + String.format(Locale.US, "%.2f", grandTotal),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Primary
+                    )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
@@ -104,7 +110,10 @@ fun CreateInvoiceScreen(navController: NavController) {
                             }
                         }
                         Row {
-                            Text("GST (${item.gstRate}%): Rs. ${String.format(\"%.2f\", item.gstAmount)}", style = MaterialTheme.typography.bodySmall)
+                            Text(
+                                text = "GST (${item.gstRate}%): Rs. " + String.format(Locale.US, "%.2f", item.gstAmount),
+                                style = MaterialTheme.typography.bodySmall
+                            )
                         }
                     }
                 }
