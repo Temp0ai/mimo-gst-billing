@@ -21,7 +21,7 @@ private val LightColors = lightColorScheme(
 fun MimoGstBillingTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = LightColors,
-        typography = Typography(),
+        typography = AppTypography,
         content = content
     )
 }
