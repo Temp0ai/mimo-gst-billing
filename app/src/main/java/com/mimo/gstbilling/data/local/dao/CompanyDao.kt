@@ -1,7 +1,7 @@
 package com.mimo.gstbilling.data.local.dao
 
 import androidx.room.*
-import com.mimo.gstbilling.data.local.CompanyEntity
+import com.mimo.gstbilling.data.local.entity.CompanyEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

@@ -1,8 +1,8 @@
 package com.mimo.gstbilling.data.local.dao
 
 import androidx.room.*
-import com.mimo.gstbilling.data.local.InvoiceEntity
-import kotlinx.coroutines crushers.Flow
+import com.mimo.gstbilling.data.local.entity.InvoiceEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface InvoiceDao {

@@ -1,7 +1,7 @@
 package com.mimo.gstbilling.data.local.dao
 
 import androidx.room.*
-import com.mimo.gstbilling.data.local.InvoiceItemEntity
+import com.mimo.gstbilling.data.local.entity.InvoiceItemEntity
 
 @Dao
 interface InvoiceItemDao {
