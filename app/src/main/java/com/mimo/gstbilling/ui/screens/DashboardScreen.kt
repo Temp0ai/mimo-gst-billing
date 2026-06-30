@@ -2,62 +2,302 @@ package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Bank
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Category
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.People
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.theme.BlueHeader
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.Secondary
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
+import kotlinx.coroutines.launch
+
+data class DrawerMenuItem(
+    val title: String,
+    val icon: ImageVector,
+    val hasExpand: Boolean = false,
+    val hasNewBadge: Boolean = false,
+    val subItems: List<String> = emptyList()
+)
+
+data class PartySummary(
+    val name: String,
+    val balance: Double,
+    val isPositive: Boolean = true
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(navController: NavController) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    var expandedSection by remember { mutableStateOf("") }
+
+    val menuItems = listOf(
+        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, hasNewBadge = true, subItems = listOf("All Parties", "Receivable", "Payable")),
+        DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services")),
+        DrawerMenuItem("Business Dashboard", Icons.Filled.PieChart),
+        DrawerMenuItem("Reports", Icons.Filled.Description),
+        DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Sales Return")),
+        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
+        DrawerMenuItem("Expense", Icons.Filled.Receipt),
+        DrawerMenuItem("Cash & Bank", Icons.Filled.Bank),
+        DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
+        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning)
+    )
+
+    val recentParties = listOf(
+        PartySummary("Dignitary Defence Academy", 22570.0),
+        PartySummary("Sha Khimji & Premji Co", 21100.0),
+        PartySummary("Sanman Enterprises", 115227.0),
+        PartySummary("Adv. Pramod Bendre", 36640.0),
+        PartySummary("Agad Logistics", 6380.0),
+        PartySummary("Ishwar Heart Clinic", 370.0),
+        PartySummary("Taste of Irani", 7350.0)
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(navController, drawerState)
+            ModalDrawerSheet(
+                modifier = Modifier.width(300.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(BlueHeader)
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "Dignitary Defence Academy",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "dignitarydefence@gmail.com",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 13.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Change Company",
+                        color = Color.White,
+                        fontSize = 13.sp,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White.copy(alpha = 0.2f))
+                            .clickable { }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                menuItems.forEach { item ->
+                    Column {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    if (item.hasExpand) {
+                                        expandedSection = if (expandedSection == item.title) "" else item.title
+                                    } else {
+                                        scope.launch { drawerState.close() }
+                                        when (item.title) {
+                                            "Parties" -> navController.navigate(Screen.Parties.route)
+                                            "Items" -> navController.navigate(Screen.Items.route)
+                                            "Reports" -> navController.navigate(Screen.Reports.route)
+                                            "Sale" -> navController.navigate(Screen.Sales.route)
+                                            "Purchase" -> navController.navigate(Screen.Purchases.route)
+                                            "Expense" -> navController.navigate(Screen.Expenses.route)
+                                            "Cash & Bank" -> navController.navigate(Screen.CashBank.route)
+                                            "Settings" -> navController.navigate(Screen.Settings.route)
+                                        }
+                                    }
+                                }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.title,
+                                tint = TextPrimary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Text(
+                                text = item.title,
+                                modifier = Modifier.weight(1f),
+                                fontSize = 15.sp,
+                                color = TextPrimary
+                            )
+                            if (item.hasNewBadge) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(RedAccent, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text("NEW", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            if (item.hasExpand) {
+                                Icon(
+                                    imageVector = if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.ChevronRight,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+                        if (item.hasExpand && expandedSection == item.title) {
+                            item.subItems.forEach { subItem ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            scope.launch { drawerState.close() }
+                                        }
+                                        .padding(start = 52.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Circle,
+                                        contentDescription = null,
+                                        tint = TextSecondary,
+                                        modifier = Modifier.size(6.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = subItem,
+                                        fontSize = 14.sp,
+                                        color = TextSecondary
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     ) {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("Mimo GST Billing", fontWeight = FontWeight.Bold) },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = BlueHeader),
+                    title = {
+                        Text("Dashboard", fontWeight = FontWeight.Bold)
+                    },
                     navigationIcon = {
-                        IconButton(onClick = { /* open drawer */ }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
                         }
                     },
                     actions = {
                         IconButton(onClick = { }) {
-                            Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
                         }
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.Share, contentDescription = "Share")
-                        }
-                    }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Primary,
+                        titleContentColor = Color.White,
+                        navigationIconContentColor = Color.White,
+                        actionIconContentColor = Color.White
+                    )
                 )
             },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { navController.navigate(Screen.CreateInvoice.route) },
                     containerColor = RedAccent,
-                    contentColor = OnPrimary,
-                    shape = RoundedCornerShape(16.dp)
+                    contentColor = Color.White
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = "Add Sale")
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Add Sale", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         ) { paddingValues ->
@@ -65,350 +305,273 @@ fun DashboardScreen(navController: NavController) {
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Background)
+                    .background(Color(0xFFF5F5F5))
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                item { SummarySection() }
-                item { QuickActionsSection(navController) }
-                item { RecentPartiesSection() }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DrawerContent(navController: NavController, drawerState: DrawerState) {
-    var expandedParties by remember { mutableStateOf(false) }
-    var expandedSale by remember { mutableStateOf(false) }
-    var expandedPurchase by remember { mutableStateOf(false) }
-    var expandedCashBank by remember { mutableStateOf(false) }
-
-    ModalDrawerSheet {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Company Header
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(BlueHeader)
-                    .padding(16.dp)
-            ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            Icons.Default.Store,
-                            contentDescription = null,
-                            tint = OnPrimary,
-                            modifier = Modifier.size(40.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                "Arihant Enterprises",
-                                color = OnPrimary,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(
-                                "enterprises.arihant87@gmail.c...",
-                                color = OnPrimary.copy(alpha = 0.8f),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
+                item {
+                    Text(
+                        text = "Business Overview",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                item {
                     Row(
-                        modifier = Modifier.clickable { },
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(
-                            "Change Company",
-                            color = OnPrimary,
-                            style = MaterialTheme.typography.bodyMedium
+                        SummaryCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Total Sales",
+                            amount = "2,85,430",
+                            color = Primary
                         )
-                        Icon(
-                            Icons.Default.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = OnPrimary
+                        SummaryCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Total Purchase",
+                            amount = "1,42,200",
+                            color = RedAccent
                         )
                     }
                 }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        SummaryCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Receivable",
+                            amount = "2,09,637",
+                            color = GreenBalance,
+                            subtitle = "You'll Get"
+                        )
+                        SummaryCard(
+                            modifier = Modifier.weight(1f),
+                            title = "Payable",
+                            amount = "78,500",
+                            color = RedAccent,
+                            subtitle = "You'll Pay"
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Quick Actions",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        QuickActionButton(
+                            modifier = Modifier.weight(1f),
+                            title = "Sale",
+                            icon = Icons.Filled.TrendingUp,
+                            color = Primary
+                        ) {
+                            navController.navigate(Screen.CreateInvoice.route)
+                        }
+                        QuickActionButton(
+                            modifier = Modifier.weight(1f),
+                            title = "Purchase",
+                            icon = Icons.Filled.ShoppingCart,
+                            color = RedAccent
+                        ) {
+                            navController.navigate(Screen.Purchases.route)
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        QuickActionButton(
+                            modifier = Modifier.weight(1f),
+                            title = "Parties",
+                            icon = Icons.Filled.People,
+                            color = GreenBalance
+                        ) {
+                            navController.navigate(Screen.Parties.route)
+                        }
+                        QuickActionButton(
+                            modifier = Modifier.weight(1f),
+                            title = "Items",
+                            icon = Icons.Filled.Inventory,
+                            color = Color(0xFFFF9800)
+                        ) {
+                            navController.navigate(Screen.Items.route)
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Recent Parties",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = TextPrimary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                items(recentParties) { party ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                navController.navigate(Screen.Parties.route)
+                            },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(Primary.copy(alpha = 0.1f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Business,
+                                    contentDescription = null,
+                                    tint = Primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = party.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = "You'll Get",
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
+                                )
+                            }
+                            Text(
+                                text = String.format("Rs.%,.0f", party.balance),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = GreenBalance
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(80.dp))
+                }
             }
-
-            // Menu Items
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.People, contentDescription = null) },
-                label = { Text("Parties") },
-                badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
-                selected = false,
-                onClick = { expandedParties = !expandedParties }
-            )
-
-            if (expandedParties) {
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.PersonAdd, contentDescription = null) },
-                    label = { Text("Party Details") },
-                    selected = false,
-                    onClick = { navController.navigate(Screen.Parties.route) }
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.CardGiftcard, contentDescription = null) },
-                    label = { Text("Loyalty Points") },
-                    badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
-                    selected = false,
-                    onClick = { }
-                )
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.NetworkCheck, contentDescription = null) },
-                    label = { Text("Vyapar Network") },
-                    selected = false,
-                    onClick = { }
-                )
-            }
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.List, contentDescription = null) },
-                label = { Text("Items") },
-                selected = false,
-                onClick = { navController.navigate(Screen.Items.route) }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Dashboard, contentDescription = null) },
-                label = { Text("Business Dashboard") },
-                selected = false,
-                onClick = { }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Assessment, contentDescription = null) },
-                label = { Text("Reports") },
-                selected = false,
-                onClick = { navController.navigate(Screen.Reports.route) }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Receipt, contentDescription = null) },
-                label = { Text("Sale") },
-                selected = false,
-                onClick = { expandedSale = !expandedSale }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
-                label = { Text("Purchase") },
-                selected = false,
-                onClick = { expandedPurchase = !expandedPurchase }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.AccountBalanceWallet, contentDescription = null) },
-                label = { Text("Expense") },
-                selected = false,
-                onClick = { }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.AccountBalance, contentDescription = null) },
-                label = { Text("Cash & Bank") },
-                selected = false,
-                onClick = { expandedCashBank = !expandedCashBank }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Store, contentDescription = null) },
-                label = { Text("My Online Store") },
-                selected = false,
-                onClick = { }
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                label = { Text("Settings") },
-                badge = { Badge(containerColor = RedAccent) { Text("NEW") } },
-                selected = false,
-                onClick = { navController.navigate(Screen.Settings.route) }
-            )
-
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Default.Backup, contentDescription = null) },
-                label = { Text("Backup/Restore") },
-                selected = false,
-                onClick = { }
-            )
         }
     }
 }
 
 @Composable
-private fun SummarySection() {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            "Business Overview",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SummaryCard(
-                title = "Total Sales",
-                amount = "Rs. 1,24,500",
-                color = Success,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            SummaryCard(
-                title = "Total Purchase",
-                amount = "Rs. 45,200",
-                color = Error,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            SummaryCard(
-                title = "Receivable",
-                amount = "Rs. 34,800",
-                color = GreenBalance,
-                modifier = Modifier.weight(1f)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            SummaryCard(
-                title = "Payable",
-                amount = "Rs. 12,300",
-                color = RedAccent,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun SummaryCard(
+fun SummaryCard(
+    modifier: Modifier = Modifier,
     title: String,
     amount: String,
-    color: androidx.compose.ui.graphics.Color,
-    modifier: Modifier = Modifier
+    color: Color,
+    subtitle: String = ""
 ) {
     Card(
-        modifier = modifier.padding(4.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Surface)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
-            Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
             Text(
-                amount,
-                style = MaterialTheme.typography.titleMedium,
+                text = title,
+                fontSize = 12.sp,
+                color = TextSecondary
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "Rs." + amount,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
             )
-        }
-    }
-}
-
-@Composable
-private fun QuickActionsSection(navController: NavController) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            "Quick Actions",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ActionButton("Sale", Icons.Default.Receipt, RedAccent) {
-                navController.navigate(Screen.CreateInvoice.route)
-            }
-            ActionButton("Purchase", Icons.Default.ShoppingCart, Primary) { }
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            ActionButton("Parties", Icons.Default.People, Success) {
-                navController.navigate(Screen.Parties.route)
-            }
-            ActionButton("Items", Icons.Default.Inventory, Warning) {
-                navController.navigate(Screen.Items.route)
+            if (subtitle.isNotEmpty()) {
+                Text(
+                    text = subtitle,
+                    fontSize = 11.sp,
+                    color = color,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
     }
 }
 
 @Composable
-private fun ActionButton(
-    text: String,
+fun QuickActionButton(
+    modifier: Modifier = Modifier,
+    title: String,
     icon: ImageVector,
-    color: androidx.compose.ui.graphics.Color,
+    color: Color,
     onClick: () -> Unit
 ) {
     Card(
-        onClick = onClick,
-        modifier = Modifier.size(width = 160.dp, height = 80.dp),
+        modifier = modifier.clickable(onClick = onClick),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Surface)
+        colors = CardDefaults.cardColors(containerColor = color),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Icon(icon, contentDescription = text, tint = color, modifier = Modifier.size(32.dp))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text, style = MaterialTheme.typography.bodyMedium, color = TextPrimary)
-        }
-    }
-}
-
-@Composable
-private fun RecentPartiesSection() {
-    Card(
-        modifier = Modifier.padding(16.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Surface)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                "Recent Parties",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            PartyRow("dignitary defence academy", "Rs. 22,570", "19 Jun 26")
-            PartyRow("Sha Khimji & Premji Co", "Rs. 21,100", "02 Jun 26")
-            PartyRow("Sanman enterprises", "Rs. 1,15,227", "09 May 26")
-        }
-    }
-}
-
-@Composable
-private fun PartyRow(name: String, amount: String, date: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-            Text(date, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-        }
-        Column(horizontalAlignment = Alignment.End) {
-            Text(amount, fontWeight = FontWeight.Bold, color = GreenBalance)
-            Text("You'll Get", style = MaterialTheme.typography.bodySmall, color = GreenBalance)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }
