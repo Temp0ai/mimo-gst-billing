@@ -111,7 +111,7 @@ class InvoiceViewModel @Inject constructor(
 
     fun updateItemQuantity(index: Int, qty: Double) {
         _uiState.update { state ->
-            if (index < 0 || index >= state.items) return@update state
+            if (index < 0 || index >= state.items.size) return@update state
             val item = state.items[index]
             val taxable = item.price * qty
             val cgst = taxable * item.gstRate / 200
@@ -132,7 +132,7 @@ class InvoiceViewModel @Inject constructor(
 
     fun removeItem(index: Int) {
         _uiState.update { state ->
-            if (index < 0 || index >= state.items) return@update state
+            if (index < 0 || index >= state.items.size) return@update state
             val items = state.items.toMutableList()
             items.removeAt(index)
             state.copy(items = items).recalculate()
@@ -178,6 +178,7 @@ class InvoiceViewModel @Inject constructor(
                 partyId = state.partyId,
                 invoiceNumber = state.invoiceNumber,
                 invoiceDate = state.invoiceDate,
+                dueDate = null,
                 subTotal = state.items.sumOf { it.totalAmount },
                 discount = state.discount,
                 discountType = state.discountType,
