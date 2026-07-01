@@ -21,7 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.Bank
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -184,7 +184,7 @@ fun CashBankScreen(navController: NavController) {
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.Bank,
+                                imageVector = Icons.Filled.AccountBalance,
                                 contentDescription = null,
                                 tint = Primary,
                                 modifier = Modifier.size(22.dp)

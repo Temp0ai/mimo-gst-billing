@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.TrendingUp
@@ -61,7 +62,7 @@ data class ReportCard(
 fun ReportsScreen(navController: NavController) {
     val reports = listOf(
         ReportCard("Sales Report", "View all sales transactions", Icons.Filled.TrendingUp, Primary),
-        ReportCard("Purchase Report", "View all purchase transactions", Icons.Filled.ShoppingCart, Color(0xFFFF9800)),
+        ReportCard("Purchase Report", "View all purchase transactions", Icons.Filled.LocalShipping, Color(0xFFFF9800)),
         ReportCard("Profit & Loss", "Track your business profit and loss", Icons.Filled.PieChart, Color(0xFF4CAF50)),
         ReportCard("GST Report", "View GST collected and paid", Icons.Filled.Receipt, Color(0xFF9C27B0)),
         ReportCard("Stock Summary", "Current inventory status", Icons.Filled.Inventory, Color(0xFF00BCD4)),

@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Bank
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Category
@@ -38,7 +38,7 @@ import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -109,9 +109,9 @@ fun DashboardScreen(navController: NavController) {
         DrawerMenuItem("Business Dashboard", Icons.Filled.PieChart),
         DrawerMenuItem("Reports", Icons.Filled.Description),
         DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Sales Return")),
-        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
+        DrawerMenuItem("Purchase", Icons.Filled.LocalShipping, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
         DrawerMenuItem("Expense", Icons.Filled.Receipt),
-        DrawerMenuItem("Cash & Bank", Icons.Filled.Bank),
+        DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance),
         DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
         DrawerMenuItem("Backup/Restore", Icons.Filled.Warning)
     )
@@ -388,7 +388,7 @@ fun DashboardScreen(navController: NavController) {
                         QuickActionButton(
                             modifier = Modifier.weight(1f),
                             title = "Purchase",
-                            icon = Icons.Filled.ShoppingCart,
+                            icon = Icons.Filled.LocalShipping,
                             color = RedAccent
                         ) {
                             navController.navigate(Screen.Purchases.route)

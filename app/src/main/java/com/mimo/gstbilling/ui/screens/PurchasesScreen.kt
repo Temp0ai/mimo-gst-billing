@@ -22,7 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Pending
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -133,7 +133,7 @@ fun PurchasesScreen(navController: NavController) {
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.ShoppingCart,
+                                imageVector = Icons.Filled.LocalShipping,
                                 contentDescription = null,
                                 tint = Color(0xFFFF9800),
                                 modifier = Modifier.size(22.dp)
