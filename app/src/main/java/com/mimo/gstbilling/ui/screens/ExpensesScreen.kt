@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -33,11 +34,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,38 +52,50 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
-
-data class ExpenseEntry(
-    val category: String,
-    val description: String,
-    val amount: Double,
-    val date: String
-)
+import com.mimo.gstbilling.ui.viewmodel.ExpenseViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpensesScreen(navController: NavController) {
+fun ExpensesScreen(
+    navController: NavController,
+    viewModel: ExpenseViewModel = hiltViewModel()
+) {
+    val expenses by viewModel.expenses.collectAsState()
+    val totalExpenses by viewModel.totalExpenses.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var showAddDialog by remember { mutableStateOf(false) }
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
 
-    val expensesList = listOf(
-        ExpenseEntry("Rent", "Office Rent - June 2026", 15000.0, "01 Jun 2026"),
-        ExpenseEntry("Utilities", "Electricity Bill", 3500.0, "05 Jun 2026"),
-        ExpenseEntry("Transport", "Delivery Vehicle Fuel", 2800.0, "10 Jun 2026"),
-        ExpenseEntry("Office Supplies", "Printer Cartridges & Paper", 1200.0, "12 Jun 2026"),
-        ExpenseEntry("Staff", "Part-time Helper Salary", 8000.0, "15 Jun 2026"),
-        ExpenseEntry("Maintenance", "Machine Servicing", 4500.0, "20 Jun 2026"),
-        ExpenseEntry("Marketing", "Flex Banner & Pamphlets", 2500.0, "25 Jun 2026")
-    )
+    val filteredExpenses = if (searchQuery.isEmpty()) expenses
+    else expenses.filter {
+        it.category.contains(searchQuery, ignoreCase = true) ||
+            (it.description?.contains(searchQuery, ignoreCase = true) == true)
+    }
 
-    val totalExpenses = expensesList.sumOf { it.amount }
-
-    val filteredExpenses = if (searchQuery.isEmpty()) expensesList
-    else expensesList.filter { it.category.contains(searchQuery, ignoreCase = true) || it.description.contains(searchQuery, ignoreCase = true) }
+    if (showAddDialog) {
+        AddExpenseDialog(
+            onDismiss = { showAddDialog = false },
+            onAdd = { category, amount, description ->
+                viewModel.addExpense(
+                    category = category,
+                    amount = amount,
+                    date = System.currentTimeMillis(),
+                    description = description,
+                    paymentMode = "cash"
+                )
+                showAddDialog = false
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -132,7 +148,7 @@ fun ExpensesScreen(navController: NavController) {
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
-                    onClick = { },
+                    onClick = { showAddDialog = true },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(25.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
@@ -165,7 +181,7 @@ fun ExpensesScreen(navController: NavController) {
                 ) {
                     Text("Total Expenses", fontSize = 14.sp, color = TextSecondary)
                     Text(
-                        String.format(java.util.Locale.US, "\u20B9%,.2f", totalExpenses),
+                        String.format(Locale.US, "\u20B9%,.2f", totalExpenses),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = RedAccent
                     )
                 }
@@ -185,35 +201,111 @@ fun ExpensesScreen(navController: NavController) {
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                items(filteredExpenses) { expense ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .clickable { }
-                            .padding(horizontal = 16.dp, vertical = 14.dp)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(expense.category, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(expense.description, fontSize = 14.sp, color = TextPrimary)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(expense.date, fontSize = 12.sp, color = TextSecondary)
+            if (filteredExpenses.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No expenses yet", fontSize = 16.sp, color = TextSecondary)
+                    Text("Tap 'Add Expense' to record one", fontSize = 13.sp, color = TextSecondary)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    items(filteredExpenses) { expense ->
+                        val dateStr = dateFormat.format(Date(expense.date))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                                .clickable { }
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(expense.category, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(expense.description ?: "", fontSize = 14.sp, color = TextPrimary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(dateStr, fontSize = 12.sp, color = TextSecondary)
+                                }
+                                Text(
+                                    String.format(Locale.US, "\u20B9%,.2f", expense.amount),
+                                    fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
+                                )
                             }
-                            Text(
-                                String.format(java.util.Locale.US, "\u20B9%,.2f", expense.amount),
-                                fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
-                            )
                         }
                     }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }
+}
+
+@Composable
+fun AddExpenseDialog(
+    onDismiss: () -> Unit,
+    onAdd: (category: String, amount: Double, description: String) -> Unit
+) {
+    var category by remember { mutableStateOf("") }
+    var amount by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Expense", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = category,
+                    onValueChange = { category = it },
+                    label = { Text("Category *") },
+                    placeholder = { Text("e.g. Rent, Utilities") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { amount = it },
+                    label = { Text("Amount *") },
+                    placeholder = { Text("0.00") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text("Description") },
+                    placeholder = { Text("Optional description") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val amountVal = amount.toDoubleOrNull() ?: 0.0
+                    if (category.isNotBlank() && amountVal > 0) {
+                        onAdd(category, amountVal, description)
+                    }
+                },
+                enabled = category.isNotBlank() && (amount.toDoubleOrNull() ?: 0.0) > 0
+            ) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }

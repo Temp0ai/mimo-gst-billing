@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -50,48 +51,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
-
-data class ItemData(
-    val id: Long,
-    val name: String,
-    val salePrice: Double,
-    val purchasePrice: Double,
-    val stock: Int,
-    val isLowStock: Boolean = false
-)
+import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ItemsScreen(navController: NavController) {
+fun ItemsScreen(
+    navController: NavController,
+    viewModel: ItemViewModel = hiltViewModel()
+) {
+    val allItems by viewModel.allItems.collectAsState()
+    val products by viewModel.products.collectAsState()
+    val services by viewModel.services.collectAsState()
+    val lowStockItems by viewModel.lowStockItems.collectAsState()
+    val itemCount by viewModel.itemCount.collectAsState()
+    val lowStockCount by viewModel.lowStockCount.collectAsState()
+    val serviceCount by viewModel.serviceCount.collectAsState()
+
     var selectedTab by remember { mutableIntStateOf(0) }
     var searchQuery by remember { mutableStateOf("") }
     val tabs = listOf("Products", "Services", "Categories", "Units")
 
-    val items = listOf(
-        ItemData(1, "150ml R Cup", 2.20, 1.80, 3000),
-        ItemData(2, "2 Option Vending Machine", 100000.0, 85000.0, 532),
-        ItemData(3, "210ml R Cup", 3000.0, 2500.0, 2, isLowStock = true),
-        ItemData(4, "3 Lane Machine", 11800.0, 10000.0, 2, isLowStock = true),
-        ItemData(5, "3 Option Vending Machine", 12500.0, 11000.0, 12),
-        ItemData(6, "4 Option Vending Machine", 14500.0, 12500.0, 0, isLowStock = true)
-    )
-
-    val totalItems = items.size
-    val lowStockCount = items.count { it.isLowStock }
-
-    val filteredItems = if (searchQuery.isEmpty()) {
-        items
-    } else {
-        items.filter { it.name.contains(searchQuery, ignoreCase = true) }
+    val currentList = when (selectedTab) {
+        0 -> products
+        1 -> services
+        2 -> emptyList()
+        3 -> emptyList()
+        else -> allItems
     }
+
+    val filteredItems = if (searchQuery.isEmpty()) currentList
+    else currentList.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
     Scaffold(
         topBar = {
@@ -143,7 +140,7 @@ fun ItemsScreen(navController: NavController) {
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = totalItems.toString(),
+                            text = itemCount.toString(),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = Primary
@@ -161,7 +158,7 @@ fun ItemsScreen(navController: NavController) {
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = (totalItems - lowStockCount).toString(),
+                            text = (itemCount - lowStockCount).toString(),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             color = GreenBalance
@@ -251,59 +248,54 @@ fun ItemsScreen(navController: NavController) {
                     verticalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     items(filteredItems) { item ->
-                        VyaparItemRow(item = item)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                                .clickable { }
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.Top
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = item.name,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = TextPrimary
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row {
+                                        Text(
+                                            text = "Sale: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice),
+                                            fontSize = 12.sp,
+                                            color = TextSecondary
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            text = "Purchase: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice),
+                                            fontSize = 12.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(
+                                        text = "In Stock: ${item.stockQuantity.toInt()}",
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = if (item.stockQuantity <= 5) RedAccent else GreenBalance
+                                    )
+                                    if (item.stockQuantity <= 5) {
+                                        Text("Low Stock!", fontSize = 11.sp, color = RedAccent)
+                                    }
+                                }
+                            }
+                        }
                     }
                     item { Spacer(modifier = Modifier.height(16.dp)) }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun VyaparItemRow(item: ItemData) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(Color.White)
-            .clickable { }
-            .padding(horizontal = 16.dp, vertical = 14.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = TextPrimary
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row {
-                    Text(
-                        text = "Sale: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice),
-                        fontSize = 12.sp,
-                        color = TextSecondary
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Purchase: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice),
-                        fontSize = 12.sp,
-                        color = TextSecondary
-                    )
-                }
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Text(
-                    text = "In Stock: ${item.stock}",
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (item.isLowStock) RedAccent else GreenBalance
-                )
-                if (item.isLowStock) {
-                    Text("Low Stock!", fontSize = 11.sp, color = RedAccent)
                 }
             }
         }

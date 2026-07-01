@@ -12,6 +12,15 @@ interface ItemDao {
     @Query("SELECT * FROM items WHERE id = :itemId")
     suspend fun getItemById(itemId: Long): ItemEntity?
 
+    @Query("SELECT * FROM items WHERE companyId = :companyId AND isService = 0 ORDER BY name ASC")
+    fun getProductsByCompany(companyId: Long): Flow<List<ItemEntity>>
+
+    @Query("SELECT * FROM items WHERE companyId = :companyId AND isService = 1 ORDER BY name ASC")
+    fun getServicesByCompany(companyId: Long): Flow<List<ItemEntity>>
+
+    @Query("SELECT * FROM items WHERE companyId = :companyId AND stockQuantity <= 5 ORDER BY name ASC")
+    fun getLowStockItems(companyId: Long): Flow<List<ItemEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItem(item: ItemEntity): Long
 
@@ -23,4 +32,13 @@ interface ItemDao {
 
     @Query("SELECT COUNT(*) FROM items WHERE companyId = :companyId")
     suspend fun getItemCount(companyId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM items WHERE companyId = :companyId AND isService = 0")
+    suspend fun getProductCount(companyId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM items WHERE companyId = :companyId AND isService = 1")
+    suspend fun getServiceCount(companyId: Long): Int
+
+    @Query("SELECT COUNT(*) FROM items WHERE companyId = :companyId AND stockQuantity <= 5")
+    suspend fun getLowStockCount(companyId: Long): Int
 }

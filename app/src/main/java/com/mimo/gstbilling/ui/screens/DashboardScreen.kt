@@ -58,6 +58,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,15 +72,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.Secondary
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.viewmodel.DashboardViewModel
 import kotlinx.coroutines.launch
 
 data class DrawerMenuItem(
@@ -90,15 +92,13 @@ data class DrawerMenuItem(
     val subItems: List<String> = emptyList()
 )
 
-data class PartySummary(
-    val name: String,
-    val balance: Double,
-    val isPositive: Boolean = true
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(navController: NavController) {
+fun DashboardScreen(
+    navController: NavController,
+    viewModel: DashboardViewModel = hiltViewModel()
+) {
+    val data by viewModel.data.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
@@ -116,16 +116,6 @@ fun DashboardScreen(navController: NavController) {
         DrawerMenuItem("Backup/Restore", Icons.Filled.Warning)
     )
 
-    val recentParties = listOf(
-        PartySummary("Dignitary Defence Academy", 22570.0),
-        PartySummary("Sha Khimji & Premji Co", 21100.0),
-        PartySummary("Sanman Enterprises", 115227.0),
-        PartySummary("Adv. Pramod Bendre", 36640.0),
-        PartySummary("Agad Logistics", 6380.0),
-        PartySummary("Ishwar Heart Clinic", 370.0),
-        PartySummary("Taste of Irani", 7350.0)
-    )
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -139,14 +129,14 @@ fun DashboardScreen(navController: NavController) {
                         .padding(20.dp)
                 ) {
                     Text(
-                        text = "Dignitary Defence Academy",
+                        text = data.companyName,
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "dignitarydefence@gmail.com",
+                        text = "GST Registered Business",
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 13.sp
                     )
@@ -327,13 +317,13 @@ fun DashboardScreen(navController: NavController) {
                         SummaryCard(
                             modifier = Modifier.weight(1f),
                             title = "Total Sales",
-                            amount = "2,85,430",
+                            amount = String.format(java.util.Locale.US, "%.0f", data.totalSales),
                             color = Primary
                         )
                         SummaryCard(
                             modifier = Modifier.weight(1f),
                             title = "Total Purchase",
-                            amount = "1,42,200",
+                            amount = String.format(java.util.Locale.US, "%.0f", data.totalPurchases),
                             color = RedAccent
                         )
                     }
@@ -347,14 +337,14 @@ fun DashboardScreen(navController: NavController) {
                         SummaryCard(
                             modifier = Modifier.weight(1f),
                             title = "Receivable",
-                            amount = "2,09,637",
+                            amount = String.format(java.util.Locale.US, "%.0f", data.pendingReceivables),
                             color = GreenBalance,
                             subtitle = "You'll Get"
                         )
                         SummaryCard(
                             modifier = Modifier.weight(1f),
                             title = "Payable",
-                            amount = "78,500",
+                            amount = String.format(java.util.Locale.US, "%.0f", data.pendingPayables),
                             color = RedAccent,
                             subtitle = "You'll Pay"
                         )
@@ -432,57 +422,72 @@ fun DashboardScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                items(recentParties) { party ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate(Screen.Parties.route)
-                            },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
+                if (data.recentParties.isEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(Icons.Filled.People, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(48.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text("No parties yet", fontSize = 14.sp, color = TextSecondary)
+                                Text("Add a party to get started", fontSize = 12.sp, color = TextSecondary)
+                            }
+                        }
+                    }
+                } else {
+                    items(data.recentParties) { party ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .clickable { navController.navigate(Screen.Parties.route) },
+                            shape = RoundedCornerShape(10.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                         ) {
-                            Box(
+                            Row(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(Primary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Business,
-                                    contentDescription = null,
-                                    tint = Primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(20.dp))
+                                        .background(Primary.copy(alpha = 0.1f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Business,
+                                        contentDescription = null,
+                                        tint = Primary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = party.name,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = TextPrimary
+                                    )
+                                    Text(
+                                        text = party.phone ?: "No phone",
+                                        fontSize = 12.sp,
+                                        color = TextSecondary
+                                    )
+                                }
                             }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = party.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = TextPrimary
-                                )
-                                Text(
-                                    text = "You'll Get",
-                                    fontSize = 12.sp,
-                                    color = TextSecondary
-                                )
-                            }
-                            Text(
-                                text = String.format("Rs.%,.0f", party.balance),
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = GreenBalance
-                            )
                         }
                     }
                 }
@@ -521,7 +526,7 @@ fun SummaryCard(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Rs." + amount,
+                text = "\u20B9" + amount,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = color

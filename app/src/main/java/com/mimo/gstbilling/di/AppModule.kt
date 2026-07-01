@@ -38,4 +38,10 @@ object AppModule {
 
     @Provides
     fun provideInvoiceItemDao(database: AppDatabase) = database.invoiceItemDao()
+
+    @Provides
+    fun provideTransactionDao(database: AppDatabase) = database.transactionDao()
+
+    @Provides
+    fun provideExpenseDao(database: AppDatabase) = database.expenseDao()
 }

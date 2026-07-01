@@ -27,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -35,21 +37,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemScreen(navController: NavController) {
+fun AddItemScreen(
+    navController: NavController,
+    viewModel: ItemViewModel = hiltViewModel()
+) {
     var itemName by remember { mutableStateOf("") }
     var hsnCode by remember { mutableStateOf("") }
     var salePrice by remember { mutableStateOf("") }
@@ -59,9 +67,13 @@ fun AddItemScreen(navController: NavController) {
     var stock by remember { mutableStateOf("") }
     var gstExpanded by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
+    var isService by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val gstRates = listOf("0%", "5%", "12%", "18%", "28%")
-    val units = listOf("Piece", "Kg", "Liter", "Meter", "Box", "Dozen")
+    val gstValues = listOf(0.0, 5.0, 12.0, 18.0, 28.0)
+    val units = listOf("Piece", "Kg", "Liter", "Meter", "Box", "Dozen", "Pcs", "Nos")
 
     Scaffold(
         topBar = {
@@ -80,7 +92,8 @@ fun AddItemScreen(navController: NavController) {
                     navigationIconContentColor = Color.White
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -272,7 +285,20 @@ fun AddItemScreen(navController: NavController) {
             item {
                 Button(
                     onClick = {
-                        navController.popBackStack()
+                        if (itemName.isNotBlank()) {
+                            viewModel.addItem(
+                                name = itemName,
+                                hsnCode = hsnCode,
+                                description = null,
+                                salePrice = salePrice.toDoubleOrNull() ?: 0.0,
+                                purchasePrice = purchasePrice.toDoubleOrNull() ?: 0.0,
+                                gstRate = gstValues[gstRate],
+                                unit = unit,
+                                stockQuantity = stock.toDoubleOrNull() ?: 0.0,
+                                isService = isService
+                            )
+                            navController.popBackStack()
+                        }
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),

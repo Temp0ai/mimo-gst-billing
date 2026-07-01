@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,40 +50,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
-
-data class PurchaseEntry(
-    val entryNo: String,
-    val partyName: String,
-    val amount: Double,
-    val date: String,
-    val isPaid: Boolean
-)
+import com.mimo.gstbilling.ui.viewmodel.PurchaseViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PurchasesScreen(navController: NavController) {
+fun PurchasesScreen(
+    navController: NavController,
+    viewModel: PurchaseViewModel = hiltViewModel()
+) {
+    val purchaseInvoices by viewModel.purchaseInvoices.collectAsState()
+    val totalPurchases by viewModel.totalPurchases.collectAsState()
+    val paidAmount by viewModel.paidAmount.collectAsState()
+    val pendingAmount by viewModel.pendingAmount.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
 
-    val purchaseList = listOf(
-        PurchaseEntry("PUR-001", "Supplier A - Raw Materials", 35000.0, "29 Jun 2026", true),
-        PurchaseEntry("PUR-002", "Supplier B - Packaging", 12500.0, "27 Jun 2026", false),
-        PurchaseEntry("PUR-003", "Supplier C - Machines", 85000.0, "24 Jun 2026", true),
-        PurchaseEntry("PUR-004", "Supplier D - Accessories", 8700.0, "21 Jun 2026", false),
-        PurchaseEntry("PUR-005", "Supplier E - Chemicals", 5500.0, "19 Jun 2026", true)
-    )
-
-    val totalPurchase = purchaseList.sumOf { it.amount }
-    val paidAmount = purchaseList.filter { it.isPaid }.sumOf { it.amount }
-    val pendingAmount = purchaseList.filter { !it.isPaid }.sumOf { it.amount }
-
-    val filteredPurchases = if (searchQuery.isEmpty()) purchaseList
-    else purchaseList.filter { it.partyName.contains(searchQuery, ignoreCase = true) || it.entryNo.contains(searchQuery, ignoreCase = true) }
+    val filteredPurchases = if (searchQuery.isEmpty()) purchaseInvoices
+    else purchaseInvoices.filter {
+        it.invoiceNumber.contains(searchQuery, ignoreCase = true)
+    }
 
     Scaffold(
         topBar = {
@@ -168,21 +164,21 @@ fun PurchasesScreen(navController: NavController) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Total Purchase", fontSize = 11.sp, color = TextSecondary)
                         Text(
-                            String.format(java.util.Locale.US, "\u20B9%,.0f", totalPurchase),
+                            String.format(Locale.US, "\u20B9%,.0f", totalPurchases),
                             fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
                         )
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Paid", fontSize = 11.sp, color = TextSecondary)
                         Text(
-                            String.format(java.util.Locale.US, "\u20B9%,.0f", paidAmount),
+                            String.format(Locale.US, "\u20B9%,.0f", paidAmount),
                             fontSize = 16.sp, fontWeight = FontWeight.Bold, color = GreenBalance
                         )
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Pending", fontSize = 11.sp, color = TextSecondary)
                         Text(
-                            String.format(java.util.Locale.US, "\u20B9%,.0f", pendingAmount),
+                            String.format(Locale.US, "\u20B9%,.0f", pendingAmount),
                             fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
                         )
                     }
@@ -203,51 +199,68 @@ fun PurchasesScreen(navController: NavController) {
                 }
             }
 
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(0.dp)
-            ) {
-                items(filteredPurchases) { purchase ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.White)
-                            .clickable { }
-                            .padding(horizontal = 16.dp, vertical = 14.dp)
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(purchase.entryNo, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(purchase.partyName, fontSize = 14.sp, color = TextPrimary)
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(purchase.date, fontSize = 12.sp, color = TextSecondary)
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text(
-                                    String.format(java.util.Locale.US, "\u20B9%,.2f", purchase.amount),
-                                    fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        if (purchase.isPaid) Icons.Filled.CheckCircle else Icons.Filled.Pending,
-                                        contentDescription = null,
-                                        tint = if (purchase.isPaid) GreenBalance else RedAccent,
-                                        modifier = Modifier.size(14.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
+            if (filteredPurchases.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No purchases yet", fontSize = 16.sp, color = TextSecondary)
+                    Text("Create your first purchase to see it here", fontSize = 13.sp, color = TextSecondary)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    items(filteredPurchases) { invoice ->
+                        val isPaid = invoice.paymentStatus == "paid"
+                        val dateStr = dateFormat.format(Date(invoice.invoiceDate))
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(Color.White)
+                                .clickable { }
+                                .padding(horizontal = 16.dp, vertical = 14.dp)
+                        ) {
+                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(invoice.invoiceNumber, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text("Party ID: ${invoice.partyId}", fontSize = 14.sp, color = TextPrimary)
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(dateStr, fontSize = 12.sp, color = TextSecondary)
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
                                     Text(
-                                        if (purchase.isPaid) "Paid" else "Pending",
-                                        fontSize = 12.sp,
-                                        color = if (purchase.isPaid) GreenBalance else RedAccent
+                                        String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount),
+                                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            if (isPaid) Icons.Filled.CheckCircle else Icons.Filled.Pending,
+                                            contentDescription = null,
+                                            tint = if (isPaid) GreenBalance else RedAccent,
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(
+                                            if (isPaid) "Paid" else "Pending",
+                                            fontSize = 12.sp,
+                                            color = if (isPaid) GreenBalance else RedAccent
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }
