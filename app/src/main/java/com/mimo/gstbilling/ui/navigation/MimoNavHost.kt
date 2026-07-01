@@ -8,18 +8,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mimo.gstbilling.ui.screens.AddItemScreen
 import com.mimo.gstbilling.ui.screens.AddPartyScreen
+import com.mimo.gstbilling.ui.screens.BarcodeScannerScreen
 import com.mimo.gstbilling.ui.screens.CashBankScreen
 import com.mimo.gstbilling.ui.screens.CreateInvoiceScreen
 import com.mimo.gstbilling.ui.screens.DashboardScreen
 import com.mimo.gstbilling.ui.screens.ExpensesScreen
 import com.mimo.gstbilling.ui.screens.InvoiceDetailScreen
 import com.mimo.gstbilling.ui.screens.ItemsScreen
+import com.mimo.gstbilling.ui.screens.ManufacturingScreen
 import com.mimo.gstbilling.ui.screens.PartiesScreen
 import com.mimo.gstbilling.ui.screens.PartyDetailScreen
 import com.mimo.gstbilling.ui.screens.PurchasesScreen
 import com.mimo.gstbilling.ui.screens.ReportsScreen
 import com.mimo.gstbilling.ui.screens.SalesScreen
 import com.mimo.gstbilling.ui.screens.SettingsScreen
+import com.mimo.gstbilling.ui.screens.StoreManagementScreen
 
 @Composable
 fun MimoNavHost(navController: NavHostController) {
@@ -77,6 +80,15 @@ fun MimoNavHost(navController: NavHostController) {
             arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })
         ) {
             InvoiceDetailScreen(navController)
+        }
+        composable(Screen.Manufacturing.route) {
+            ManufacturingScreen(navController)
+        }
+        composable(Screen.StoreManagement.route) {
+            StoreManagementScreen(navController)
+        }
+        composable(Screen.BarcodeScanner.route) {
+            BarcodeScannerScreen(navController)
         }
     }
 }

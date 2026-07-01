@@ -77,6 +77,15 @@ dependencies {
     // PDF
     implementation("com.itextpdf:itext7-core:8.0.5")
 
+    // CameraX for barcode scanning
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
+
+    // ML Kit Barcode
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
 

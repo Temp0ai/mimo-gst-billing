@@ -44,4 +44,10 @@ object AppModule {
 
     @Provides
     fun provideExpenseDao(database: AppDatabase) = database.expenseDao()
+
+    @Provides
+    fun provideStoreDao(database: AppDatabase) = database.storeDao()
+
+    @Provides
+    fun provideManufacturingDao(database: AppDatabase) = database.manufacturingDao()
 }

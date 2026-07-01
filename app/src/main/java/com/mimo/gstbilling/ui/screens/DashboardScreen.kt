@@ -41,6 +41,9 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -104,15 +107,17 @@ fun DashboardScreen(
     var expandedSection by remember { mutableStateOf("") }
 
     val menuItems = listOf(
-        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, hasNewBadge = true, subItems = listOf("All Parties", "Receivable", "Payable")),
+        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Receivable", "Payable")),
         DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services")),
-        DrawerMenuItem("Business Dashboard", Icons.Filled.PieChart),
-        DrawerMenuItem("Reports", Icons.Filled.Description),
-        DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Sales Return")),
+        DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
         DrawerMenuItem("Purchase", Icons.Filled.LocalShipping, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
         DrawerMenuItem("Expense", Icons.Filled.Receipt),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance),
-        DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
+        DrawerMenuItem("Reports", Icons.Filled.Description),
+        DrawerMenuItem("Manufacturing", Icons.Filled.Build, hasNewBadge = true),
+        DrawerMenuItem("Store Management", Icons.Filled.Store, hasNewBadge = true),
+        DrawerMenuItem("Barcode Scanner", Icons.Filled.CameraAlt, hasNewBadge = true),
+        DrawerMenuItem("Settings", Icons.Filled.Settings),
         DrawerMenuItem("Backup/Restore", Icons.Filled.Warning)
     )
 
@@ -174,6 +179,9 @@ fun DashboardScreen(
                                             "Expense" -> navController.navigate(Screen.Expenses.route)
                                             "Cash & Bank" -> navController.navigate(Screen.CashBank.route)
                                             "Settings" -> navController.navigate(Screen.Settings.route)
+                                            "Manufacturing" -> navController.navigate(Screen.Manufacturing.route)
+                                            "Store Management" -> navController.navigate(Screen.StoreManagement.route)
+                                            "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
                                         }
                                     }
                                 }
