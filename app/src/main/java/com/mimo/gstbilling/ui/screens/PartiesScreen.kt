@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +27,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.VerticalDots
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -249,7 +250,7 @@ fun PartiesScreen(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.VerticalDots, contentDescription = "More", tint = TextSecondary)
+                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
                 }
             }
 

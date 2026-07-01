@@ -12,6 +12,7 @@ import com.mimo.gstbilling.ui.screens.CashBankScreen
 import com.mimo.gstbilling.ui.screens.CreateInvoiceScreen
 import com.mimo.gstbilling.ui.screens.DashboardScreen
 import com.mimo.gstbilling.ui.screens.ExpensesScreen
+import com.mimo.gstbilling.ui.screens.InvoiceDetailScreen
 import com.mimo.gstbilling.ui.screens.ItemsScreen
 import com.mimo.gstbilling.ui.screens.PartiesScreen
 import com.mimo.gstbilling.ui.screens.PartyDetailScreen
@@ -70,6 +71,12 @@ fun MimoNavHost(navController: NavHostController) {
         }
         composable(Screen.AddItem.route) {
             AddItemScreen(navController)
+        }
+        composable(
+            route = Screen.InvoiceDetail.route,
+            arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })
+        ) {
+            InvoiceDetailScreen(navController)
         }
     }
 }

@@ -1,10 +1,12 @@
 package com.mimo.gstbilling.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,19 +25,15 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,11 +48,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
@@ -75,7 +73,7 @@ data class ItemData(
 fun ItemsScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
     var searchQuery by remember { mutableStateOf("") }
-    val tabs = listOf("PRODUCTS", "SERVICES", "CATEGORIES", "UNITS")
+    val tabs = listOf("Products", "Services", "Categories", "Units")
 
     val items = listOf(
         ItemData(1, "150ml R Cup", 2.20, 1.80, 3000),
@@ -85,6 +83,9 @@ fun ItemsScreen(navController: NavController) {
         ItemData(5, "3 Option Vending Machine", 12500.0, 11000.0, 12),
         ItemData(6, "4 Option Vending Machine", 14500.0, 12500.0, 0, isLowStock = true)
     )
+
+    val totalItems = items.size
+    val lowStockCount = items.count { it.isLowStock }
 
     val filteredItems = if (searchQuery.isEmpty()) {
         items
@@ -105,9 +106,6 @@ fun ItemsScreen(navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { }) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
-                    }
-                    IconButton(onClick = { }) {
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter")
                     }
                     IconButton(onClick = { }) {
@@ -121,178 +119,191 @@ fun ItemsScreen(navController: NavController) {
                     actionIconContentColor = Color.White
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navController.navigate(Screen.AddItem.route) },
-                containerColor = RedAccent,
-                contentColor = Color.White
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add Product", fontWeight = FontWeight.Bold)
-                }
-            }
         }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(Color(0xFFF8F8F8))
         ) {
-            TabRow(
-                selectedTabIndex = selectedTab,
-                containerColor = Color.White,
-                contentColor = Primary,
-                indicator = { tabPositions ->
-                    TabRowDefaults.SecondaryIndicator(
-                        modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                        color = Primary,
-                        height = 3.dp
-                    )
-                }
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = {
-                            Text(
-                                text = title,
-                                fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedTab == index) Primary else TextSecondary,
-                                fontSize = 12.sp
-                            )
-                        }
-                    )
-                }
-            }
-
-            Column(
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(Color.White)
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Search,
-                            contentDescription = "Search",
-                            tint = TextSecondary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = if (searchQuery.isEmpty()) "Search Items by Name or Code" else searchQuery,
-                            fontSize = 14.sp,
-                            color = if (searchQuery.isEmpty()) TextSecondary else TextPrimary,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { }
-                                .padding(vertical = 12.dp)
+                            text = totalItems.toString(),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Primary
+                        )
+                        Text("Total Items", fontSize = 12.sp, color = TextSecondary)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = lowStockCount.toString(),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = RedAccent
+                        )
+                        Text("Low Stock", fontSize = 12.sp, color = TextSecondary)
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = (totalItems - lowStockCount).toString(),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = GreenBalance
+                        )
+                        Text("In Stock", fontSize = 12.sp, color = TextSecondary)
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
+                tabs.forEachIndexed { index, title ->
+                    val isSelected = selectedTab == index
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                            .background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent)
+                            .clickable { selectedTab = index }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = title,
+                            fontSize = 13.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) RedAccent else TextSecondary
                         )
                     }
                 }
             }
 
-            LazyColumn(
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                items(filteredItems) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { },
-                        shape = RoundedCornerShape(10.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(42.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(Primary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Inventory,
-                                    contentDescription = null,
-                                    tint = Primary,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = item.name,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = TextPrimary
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Row {
-                                    Text(
-                                        text = "Sale: " + String.format(java.util.Locale.US, "%.2f", item.salePrice),
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = "Purchase: " + String.format(java.util.Locale.US, "%.2f", item.purchasePrice),
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
-                                }
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                IconButton(
-                                    onClick = { },
-                                    modifier = Modifier.size(32.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Share,
-                                        contentDescription = "Share",
-                                        tint = Primary,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "In Stock: " + item.stock,
-                                    fontSize = 11.sp,
-                                    color = if (item.isLowStock) RedAccent else GreenBalance,
-                                    fontWeight = if (item.isLowStock) FontWeight.Bold else FontWeight.Normal
-                                )
-                            }
-                        }
+                Icon(
+                    Icons.Filled.Search,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "SEARCH ITEMS",
+                    fontSize = 13.sp,
+                    color = TextSecondary,
+                    modifier = Modifier.weight(1f)
+                )
+                OutlinedButton(
+                    onClick = { navController.navigate(Screen.AddItem.route) },
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
+                    border = BorderStroke(1.dp, Primary)
+                ) {
+                    Text("+ New Item", fontSize = 12.sp, color = Primary, fontWeight = FontWeight.SemiBold)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
+                }
+            }
+
+            if (filteredItems.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Filled.Inventory, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(64.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("No items yet", fontSize = 16.sp, color = TextSecondary)
+                        Text("Tap '+ New Item' to add one", fontSize = 13.sp, color = TextSecondary)
                     }
                 }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                ) {
+                    items(filteredItems) { item ->
+                        VyaparItemRow(item = item)
+                    }
+                    item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
+            }
+        }
+    }
+}
 
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+@Composable
+fun VyaparItemRow(item: ItemData) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color.White)
+            .clickable { }
+            .padding(horizontal = 16.dp, vertical = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.name,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextPrimary
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row {
+                    Text(
+                        text = "Sale: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice),
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Purchase: " + String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice),
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                }
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "In Stock: ${item.stock}",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (item.isLowStock) RedAccent else GreenBalance
+                )
+                if (item.isLowStock) {
+                    Text("Low Stock!", fontSize = 11.sp, color = RedAccent)
                 }
             }
         }
