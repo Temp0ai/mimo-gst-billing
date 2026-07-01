@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
 
@@ -239,4 +240,4 @@ fun SettingsToggleRow(item: SettingsItem, checked: Boolean, onCheckedChange: (Bo
     }
 }
 
-private val RedAccent = Color(0xFFE53935)
+
