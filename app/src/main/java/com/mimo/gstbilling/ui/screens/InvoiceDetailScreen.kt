@@ -37,8 +37,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -77,8 +79,9 @@ fun InvoiceDetailScreen(
     var invoiceItems by remember { mutableStateOf<List<com.mimo.gstbilling.data.local.entity.InvoiceItemEntity>>(emptyList()) }
 
     LaunchedEffect(invoiceId) {
-        invoice = viewModel.getInvoiceById(invoiceId)
-        invoice?.let {
+        val inv = viewModel.getInvoiceByIdDirect(invoiceId)
+        invoice = inv
+        inv?.let {
             invoiceItems = viewModel.getItemsForInvoice(it.id)
         }
     }

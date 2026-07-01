@@ -231,6 +231,10 @@ class InvoiceViewModel @Inject constructor(
         return flow { emit(invoiceDao.getInvoiceById(id)) }
     }
 
+    suspend fun getInvoiceByIdDirect(id: Long): InvoiceEntity? {
+        return invoiceDao.getInvoiceById(id)
+    }
+
     fun deleteInvoice(invoice: InvoiceEntity) {
         viewModelScope.launch { invoiceDao.deleteInvoice(invoice) }
     }
