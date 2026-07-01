@@ -19,9 +19,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,35 +45,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
-
-data class BankAccount(
-    val name: String,
-    val accountType: String,
-    val balance: Double,
-    val accountNumber: String
-)
+import com.mimo.gstbilling.ui.viewmodel.CashBankViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CashBankScreen(navController: NavController) {
-    val cashBalance = 45750.0
-
-    val bankAccounts = listOf(
-        BankAccount("SBI Savings", "Savings Account", 125000.0, "XXXX XXXX 1234"),
-        BankAccount("HDFC Current", "Current Account", 89500.0, "XXXX XXXX 5678"),
-        BankAccount("ICICI Business", "Current Account", 67800.0, "XXXX XXXX 9012")
-    )
-
-    val upiAccounts = listOf(
-        BankAccount("Google Pay", "UPI", 12500.0, "dignitary@upi"),
-        BankAccount("PhonePe", "UPI", 8750.0, "9876543210@ybl")
-    )
+fun CashBankScreen(
+    navController: NavController,
+    viewModel: CashBankViewModel = hiltViewModel()
+) {
+    val cashBalance by viewModel.cashBalance.collectAsState()
+    val totalCredit by viewModel.totalCredit.collectAsState()
+    val totalDebit by viewModel.totalDebit.collectAsState()
+    val transactions by viewModel.transactions.collectAsState()
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.US) }
 
     Scaffold(
         topBar = {
@@ -142,18 +140,38 @@ fun CashBankScreen(navController: NavController) {
                         }
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = String.format(java.util.Locale.US, "Rs.%,.2f", cashBalance),
+                            text = String.format(Locale.US, "\u20B9%,.2f", cashBalance),
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("Total Received", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
+                                Text(
+                                    String.format(Locale.US, "\u20B9%,.0f", totalCredit),
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White
+                                )
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("Total Paid", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
+                                Text(
+                                    String.format(Locale.US, "\u20B9%,.0f", totalDebit),
+                                    fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White
+                                )
+                            }
+                        }
                     }
                 }
             }
 
             item {
                 Text(
-                    text = "Bank Accounts",
+                    text = "Recent Transactions",
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
@@ -161,118 +179,81 @@ fun CashBankScreen(navController: NavController) {
                 )
             }
 
-            items(bankAccounts) { account ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { },
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
+            if (transactions.isEmpty()) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Box(
+                        Column(
                             modifier = Modifier
-                                .size(42.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Primary.copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.AccountBalance,
-                                contentDescription = null,
-                                tint = Primary,
-                                modifier = Modifier.size(22.dp)
-                            )
+                            Icon(Icons.Filled.AccountBalance, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(48.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text("No transactions yet", fontSize = 14.sp, color = TextSecondary)
+                            Text("Transactions will appear here", fontSize = 12.sp, color = TextSecondary)
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = account.name,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = TextPrimary
-                            )
-                            Text(
-                                text = account.accountNumber,
-                                fontSize = 12.sp,
-                                color = TextSecondary
-                            )
-                        }
-                        Text(
-                            text = String.format(java.util.Locale.US, "Rs.%,.2f", account.balance),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = GreenBalance
-                        )
                     }
                 }
-            }
-
-            item {
-                Text(
-                    text = "UPI Accounts",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
-            items(upiAccounts) { account ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { },
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Row(
+            } else {
+                items(transactions) { txn ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .clickable { },
+                        shape = RoundedCornerShape(10.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .size(42.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFF9C27B0).copy(alpha = 0.1f)),
-                            contentAlignment = Alignment.Center
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Payment,
-                                contentDescription = null,
-                                tint = Color(0xFF9C27B0),
-                                modifier = Modifier.size(22.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+                            Box(
+                                modifier = Modifier
+                                    .size(42.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(
+                                        if (txn.type == "credit") GreenBalance.copy(alpha = 0.1f)
+                                        else RedAccent.copy(alpha = 0.1f)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (txn.type == "credit") Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward,
+                                    contentDescription = null,
+                                    tint = if (txn.type == "credit") GreenBalance else RedAccent,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = txn.description ?: txn.mode.replaceFirstChar { it.uppercase() },
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = txn.mode.replaceFirstChar { it.uppercase() } + " \u2022 " + dateFormat.format(Date(txn.date)),
+                                    fontSize = 12.sp,
+                                    color = TextSecondary
+                                )
+                            }
                             Text(
-                                text = account.name,
+                                text = (if (txn.type == "credit") "+" else "-") + String.format(Locale.US, "\u20B9%,.2f", txn.amount),
                                 fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = TextPrimary
-                            )
-                            Text(
-                                text = account.accountNumber,
-                                fontSize = 12.sp,
-                                color = TextSecondary
+                                fontWeight = FontWeight.Bold,
+                                color = if (txn.type == "credit") GreenBalance else RedAccent
                             )
                         }
-                        Text(
-                            text = String.format(java.util.Locale.US, "Rs.%,.2f", account.balance),
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = GreenBalance
-                        )
                     }
                 }
             }
