@@ -9,8 +9,8 @@ import androidx.navigation.navArgument
 import com.mimo.gstbilling.ui.screens.*
 
 @Composable
-fun MimoNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
+fun MimoNavHost(navController: NavHostController, startDestination: String = Screen.Dashboard.route) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Dashboard.route) { DashboardScreen(navController) }
         composable(Screen.CreateInvoice.route) { CreateInvoiceScreen(navController) }
         composable(Screen.Parties.route) { PartiesScreen(navController) }
@@ -43,5 +43,7 @@ fun MimoNavHost(navController: NavHostController) {
         composable(Screen.ExpenseCategoryReport.route) { ExpenseCategoryReportScreen(navController) }
         composable(Screen.ItemBatchTracking.route) { ItemBatchScreen(navController) }
         composable(Screen.ImportData.route) { ImportDataScreen(navController) }
+        composable(Screen.ThermalPrinter.route) { ThermalPrinterScreen(navController) }
+        composable(Screen.BackupRestore.route) { BackupRestoreScreen(navController) }
     }
 }

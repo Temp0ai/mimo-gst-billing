@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
@@ -57,39 +58,41 @@ import com.mimo.gstbilling.ui.theme.TextSecondary
 data class ReportItem(
     val title: String,
     val icon: ImageVector,
-    val color: Color
+    val color: Color,
+    val route: String = ""
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportsScreen(navController: NavController) {
     val saleReports = listOf(
-        ReportItem("Sale Report", Icons.Filled.TrendingUp, Primary),
-        ReportItem("Sale Return Report", Icons.Filled.TrendingDown, Color(0xFFFF9800)),
-        ReportItem("Party Wise Sale Report", Icons.Filled.Group, Color(0xFF9C27B0)),
-        ReportItem("Item Wise Sale Report", Icons.Filled.Inventory, Color(0xFF00BCD4))
+        ReportItem("Sale Report", Icons.Filled.TrendingUp, Primary, Screen.Sales.route),
+        ReportItem("Sale Return Report", Icons.Filled.TrendingDown, Color(0xFFFF9800), ""),
+        ReportItem("Party Wise Sale Report", Icons.Filled.Group, Color(0xFF9C27B0), ""),
+        ReportItem("Item Wise Sale Report", Icons.Filled.Inventory, Color(0xFF00BCD4), "")
     )
     val purchaseReports = listOf(
-        ReportItem("Purchase Report", Icons.Filled.LocalShipping, RedAccent),
-        ReportItem("Purchase Return Report", Icons.Filled.TrendingDown, Color(0xFFFF9800)),
-        ReportItem("Party Wise Purchase Report", Icons.Filled.Group, Color(0xFF9C27B0)),
-        ReportItem("Item Wise Purchase Report", Icons.Filled.Inventory, Color(0xFF00BCD4))
+        ReportItem("Purchase Report", Icons.Filled.LocalShipping, RedAccent, Screen.Purchases.route),
+        ReportItem("Purchase Return Report", Icons.Filled.TrendingDown, Color(0xFFFF9800), ""),
+        ReportItem("Party Wise Purchase Report", Icons.Filled.Group, Color(0xFF9C27B0), ""),
+        ReportItem("Item Wise Purchase Report", Icons.Filled.Inventory, Color(0xFF00BCD4), "")
     )
     val financialReports = listOf(
-        ReportItem("Profit & Loss", Icons.Filled.PieChart, GreenBalance),
-        ReportItem("Expense Report", Icons.Filled.Receipt, Color(0xFFE91E63)),
-        ReportItem("Day Book", Icons.Filled.Description, BlueHeader),
-        ReportItem("Balance Sheet", Icons.Filled.AccountBalance, Color(0xFF795548))
+        ReportItem("Profit & Loss", Icons.Filled.PieChart, GreenBalance, Screen.ProfitLossReport.route),
+        ReportItem("Expense Report", Icons.Filled.Receipt, Color(0xFFE91E63), Screen.ExpenseCategoryReport.route),
+        ReportItem("Day Book", Icons.Filled.Description, BlueHeader, Screen.DayBookReport.route),
+        ReportItem("Balance Sheet", Icons.Filled.AccountBalance, Color(0xFF795548), Screen.BalanceSheet.route),
+        ReportItem("Cash Flow", Icons.Filled.TrendingUp, Color(0xFF00BCD4), Screen.CashFlowReport.route)
     )
     val taxReports = listOf(
-        ReportItem("GST Report", Icons.Filled.Receipt, Color(0xFF9C27B0)),
-        ReportItem("HSN/SAC Summary", Icons.Filled.Description, Primary),
-        ReportItem("Tax Summary", Icons.Filled.Receipt, RedAccent)
+        ReportItem("GSTR-1 Report", Icons.Filled.Receipt, Color(0xFF9C27B0), Screen.Gstr1Report.route),
+        ReportItem("GSTR-3B Report", Icons.Filled.Description, Primary, Screen.Gstr3bReport.route),
+        ReportItem("Tax Summary", Icons.Filled.Receipt, RedAccent, "")
     )
     val stockReports = listOf(
-        ReportItem("Stock Summary", Icons.Filled.Inventory, Color(0xFF00BCD4)),
-        ReportItem("Stock Detail Report", Icons.Filled.Description, Primary),
-        ReportItem("Low Stock Alert", Icons.Filled.LocalOffer, RedAccent)
+        ReportItem("Stock Summary", Icons.Filled.Inventory, Color(0xFF00BCD4), ""),
+        ReportItem("Stock Transfer", Icons.Filled.LocalShipping, Primary, Screen.StockTransfer.route),
+        ReportItem("Low Stock Alert", Icons.Filled.LocalOffer, RedAccent, "")
     )
 
     Scaffold(
@@ -116,19 +119,19 @@ fun ReportsScreen(navController: NavController) {
                 .background(Color(0xFFF5F5F5))
         ) {
             item { ReportSectionHeader("Sale Reports") }
-            items(saleReports) { report -> ReportRow(report) }
+            items(saleReports) { report -> ReportRow(report) { if (report.route.isNotEmpty()) navController.navigate(report.route) } }
 
             item { ReportSectionHeader("Purchase Reports") }
-            items(purchaseReports) { report -> ReportRow(report) }
+            items(purchaseReports) { report -> ReportRow(report) { if (report.route.isNotEmpty()) navController.navigate(report.route) } }
 
             item { ReportSectionHeader("Financial Reports") }
-            items(financialReports) { report -> ReportRow(report) }
+            items(financialReports) { report -> ReportRow(report) { if (report.route.isNotEmpty()) navController.navigate(report.route) } }
 
             item { ReportSectionHeader("Tax Reports (GST)") }
-            items(taxReports) { report -> ReportRow(report) }
+            items(taxReports) { report -> ReportRow(report) { if (report.route.isNotEmpty()) navController.navigate(report.route) } }
 
             item { ReportSectionHeader("Stock Reports") }
-            items(stockReports) { report -> ReportRow(report) }
+            items(stockReports) { report -> ReportRow(report) { if (report.route.isNotEmpty()) navController.navigate(report.route) } }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
@@ -155,7 +158,7 @@ fun ReportSectionHeader(title: String) {
 }
 
 @Composable
-fun ReportRow(report: ReportItem) {
+fun ReportRow(report: ReportItem, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -166,7 +169,7 @@ fun ReportRow(report: ReportItem) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { }
+                .clickable { onClick() }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

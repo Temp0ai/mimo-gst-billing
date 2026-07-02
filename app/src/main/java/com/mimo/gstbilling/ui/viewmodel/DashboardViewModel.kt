@@ -41,6 +41,10 @@ class DashboardViewModel @Inject constructor(
         loadDashboardData()
     }
 
+    fun refresh() {
+        loadDashboardData()
+    }
+
     private fun loadDashboardData() {
         viewModelScope.launch {
             combine(

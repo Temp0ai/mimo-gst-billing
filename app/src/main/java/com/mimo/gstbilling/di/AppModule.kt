@@ -20,7 +20,7 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "mimo_gst_database"
+            "mimo_gst_billing_db"
         ).build()
     }
 

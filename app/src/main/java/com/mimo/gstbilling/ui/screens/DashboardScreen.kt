@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -44,6 +46,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
@@ -105,6 +108,7 @@ fun DashboardScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
+    var isRefreshing by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -119,8 +123,10 @@ fun DashboardScreen(
         DrawerMenuItem("Store Management", Icons.Filled.Store),
         DrawerMenuItem("Stock Transfer", Icons.Filled.LocalShipping),
         DrawerMenuItem("Barcode Scanner", Icons.Filled.CameraAlt),
+        DrawerMenuItem("Thermal Printer", Icons.Filled.Print),
         DrawerMenuItem("Payment Reminders", Icons.Filled.Notifications),
         DrawerMenuItem("Import Data", Icons.Filled.Warning),
+        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning),
         DrawerMenuItem("Settings", Icons.Filled.Settings)
     )
 
@@ -189,6 +195,8 @@ fun DashboardScreen(
                                             "Orders" -> navController.navigate(Screen.Orders.route)
                                             "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
                                             "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                            "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                            "Backup/Restore" -> navController.navigate(Screen.BackupRestore.route)
                                         }
                                     }
                                 }
@@ -306,6 +314,14 @@ fun DashboardScreen(
                 }
             }
         ) { paddingValues ->
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    isRefreshing = true
+                    viewModel.refresh()
+                    isRefreshing = false
+                }
+            ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -510,6 +526,7 @@ fun DashboardScreen(
                 item {
                     Spacer(modifier = Modifier.height(80.dp))
                 }
+            }
             }
         }
     }

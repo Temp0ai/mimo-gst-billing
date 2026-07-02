@@ -56,6 +56,8 @@ import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.theme.ThemeManager
+import com.mimo.gstbilling.ui.navigation.Screen
 
 data class SettingsItem(
     val title: String,
@@ -70,7 +72,7 @@ data class SettingsItem(
 @Composable
 fun SettingsScreen(navController: NavController) {
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkMode by remember { mutableStateOf(false) }
+    var darkMode by remember { mutableStateOf(ThemeManager.isDarkMode) }
 
     val generalSettings = listOf(
         SettingsItem("Business Profile", "Company name, address, GSTIN", Icons.Filled.Business, Primary),
@@ -123,12 +125,22 @@ fun SettingsScreen(navController: NavController) {
         ) {
             item { SettingsSectionHeader("General") }
             items(generalSettings.size) { index ->
-                SettingsRow(generalSettings[index])
+                SettingsRow(generalSettings[index]) {
+                    when (generalSettings[index].title) {
+                        "Business Profile" -> { /* TODO */ }
+                        "Invoice Settings" -> { /* TODO */ }
+                    }
+                }
             }
 
             item { SettingsSectionHeader("Tax") }
             items(taxSettings.size) { index ->
-                SettingsRow(taxSettings[index])
+                SettingsRow(taxSettings[index]) {
+                    when (taxSettings[index].title) {
+                        "Tax Configuration" -> { /* TODO */ }
+                        "TCS/TDS Settings" -> { /* TODO */ }
+                    }
+                }
             }
 
             item { SettingsSectionHeader("App") }
@@ -139,17 +151,25 @@ fun SettingsScreen(navController: NavController) {
                         item = item,
                         checked = if (item.title == "Notifications") notificationsEnabled else darkMode,
                         onCheckedChange = {
-                            if (item.title == "Notifications") notificationsEnabled = it else darkMode = it
+                            if (item.title == "Notifications") notificationsEnabled = it else {
+                                darkMode = it
+                                ThemeManager.isDarkMode = it
+                            }
                         }
                     )
                 } else {
-                    SettingsRow(item)
+                    SettingsRow(item) {
+                        when (item.title) {
+                            "Security" -> { /* TODO */ }
+                            "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)
+                        }
+                    }
                 }
             }
 
             item { SettingsSectionHeader("About") }
             items(aboutSettings.size) { index ->
-                SettingsRow(aboutSettings[index])
+                SettingsRow(aboutSettings[index]) { /* no-op */ }
             }
 
             item { Spacer(modifier = Modifier.height(20.dp)) }
@@ -169,7 +189,7 @@ fun SettingsSectionHeader(title: String) {
 }
 
 @Composable
-fun SettingsRow(item: SettingsItem) {
+fun SettingsRow(item: SettingsItem, onClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -180,7 +200,7 @@ fun SettingsRow(item: SettingsItem) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { }
+                .clickable { onClick() }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
