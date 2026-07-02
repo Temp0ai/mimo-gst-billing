@@ -26,4 +26,20 @@ sealed class Screen(val route: String) {
     object Manufacturing : Screen("manufacturing")
     object StoreManagement : Screen("store_management")
     object BarcodeScanner : Screen("barcode_scanner")
+    object StockTransfer : Screen("stock_transfer")
+    object Orders : Screen("orders")
+    object PartyGroups : Screen("party_groups")
+    object PartyStatement : Screen("party_statement/{partyId}") {
+        fun createRoute(partyId: Long) = "party_statement/$partyId"
+    }
+    object PaymentReminders : Screen("payment_reminders")
+    object Gstr1Report : Screen("gstr1_report")
+    object Gstr3bReport : Screen("gstr3b_report")
+    object DayBookReport : Screen("day_book_report")
+    object CashFlowReport : Screen("cash_flow_report")
+    object BalanceSheet : Screen("balance_sheet")
+    object ProfitLossReport : Screen("profit_loss_report")
+    object ExpenseCategoryReport : Screen("expense_category_report")
+    object ItemBatchTracking : Screen("item_batch_tracking")
+    object ImportData : Screen("import_data")
 }

@@ -15,7 +15,11 @@ import com.mimo.gstbilling.data.local.entity.*
         TransactionEntity::class,
         ExpenseEntity::class,
         StoreEntity::class,
-        ManufacturingEntity::class
+        ManufacturingEntity::class,
+        StockTransferEntity::class,
+        OrderEntity::class,
+        PartyGroupEntity::class,
+        ItemBatchEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -30,4 +34,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
     abstract fun storeDao(): StoreDao
     abstract fun manufacturingDao(): ManufacturingDao
+    abstract fun stockTransferDao(): StockTransferDao
+    abstract fun orderDao(): OrderDao
+    abstract fun partyGroupDao(): PartyGroupDao
+    abstract fun itemBatchDao(): ItemBatchDao
 }

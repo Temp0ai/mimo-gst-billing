@@ -107,18 +107,21 @@ fun DashboardScreen(
     var expandedSection by remember { mutableStateOf("") }
 
     val menuItems = listOf(
-        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Receivable", "Payable")),
-        DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services")),
+        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
+        DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services", "Batch/Serial")),
         DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
         DrawerMenuItem("Purchase", Icons.Filled.LocalShipping, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
+        DrawerMenuItem("Orders", Icons.Filled.Description, hasExpand = true, subItems = listOf("Estimates", "Quotations", "Orders")),
         DrawerMenuItem("Expense", Icons.Filled.Receipt),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance),
-        DrawerMenuItem("Reports", Icons.Filled.Description),
-        DrawerMenuItem("Manufacturing", Icons.Filled.Build, hasNewBadge = true),
-        DrawerMenuItem("Store Management", Icons.Filled.Store, hasNewBadge = true),
-        DrawerMenuItem("Barcode Scanner", Icons.Filled.CameraAlt, hasNewBadge = true),
-        DrawerMenuItem("Settings", Icons.Filled.Settings),
-        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning)
+        DrawerMenuItem("Reports", Icons.Filled.PieChart, hasExpand = true, subItems = listOf("GSTR-1", "GSTR-3B", "Day Book", "Cash Flow", "Balance Sheet", "P&L", "Expense Categories")),
+        DrawerMenuItem("Manufacturing", Icons.Filled.Build),
+        DrawerMenuItem("Store Management", Icons.Filled.Store),
+        DrawerMenuItem("Stock Transfer", Icons.Filled.LocalShipping),
+        DrawerMenuItem("Barcode Scanner", Icons.Filled.CameraAlt),
+        DrawerMenuItem("Payment Reminders", Icons.Filled.Notifications),
+        DrawerMenuItem("Import Data", Icons.Filled.Warning),
+        DrawerMenuItem("Settings", Icons.Filled.Settings)
     )
 
     ModalNavigationDrawer(
@@ -182,6 +185,10 @@ fun DashboardScreen(
                                             "Manufacturing" -> navController.navigate(Screen.Manufacturing.route)
                                             "Store Management" -> navController.navigate(Screen.StoreManagement.route)
                                             "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                            "Stock Transfer" -> navController.navigate(Screen.StockTransfer.route)
+                                            "Orders" -> navController.navigate(Screen.Orders.route)
+                                            "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
+                                            "Import Data" -> navController.navigate(Screen.ImportData.route)
                                         }
                                     }
                                 }

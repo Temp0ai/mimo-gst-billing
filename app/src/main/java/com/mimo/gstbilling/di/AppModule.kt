@@ -24,30 +24,17 @@ object AppModule {
         ).build()
     }
 
-    @Provides
-    fun provideCompanyDao(database: AppDatabase) = database.companyDao()
-
-    @Provides
-    fun providePartyDao(database: AppDatabase) = database.partyDao()
-
-    @Provides
-    fun provideItemDao(database: AppDatabase) = database.itemDao()
-
-    @Provides
-    fun provideInvoiceDao(database: AppDatabase) = database.invoiceDao()
-
-    @Provides
-    fun provideInvoiceItemDao(database: AppDatabase) = database.invoiceItemDao()
-
-    @Provides
-    fun provideTransactionDao(database: AppDatabase) = database.transactionDao()
-
-    @Provides
-    fun provideExpenseDao(database: AppDatabase) = database.expenseDao()
-
-    @Provides
-    fun provideStoreDao(database: AppDatabase) = database.storeDao()
-
-    @Provides
-    fun provideManufacturingDao(database: AppDatabase) = database.manufacturingDao()
+    @Provides fun provideCompanyDao(db: AppDatabase) = db.companyDao()
+    @Provides fun providePartyDao(db: AppDatabase) = db.partyDao()
+    @Provides fun provideItemDao(db: AppDatabase) = db.itemDao()
+    @Provides fun provideInvoiceDao(db: AppDatabase) = db.invoiceDao()
+    @Provides fun provideInvoiceItemDao(db: AppDatabase) = db.invoiceItemDao()
+    @Provides fun provideTransactionDao(db: AppDatabase) = db.transactionDao()
+    @Provides fun provideExpenseDao(db: AppDatabase) = db.expenseDao()
+    @Provides fun provideStoreDao(db: AppDatabase) = db.storeDao()
+    @Provides fun provideManufacturingDao(db: AppDatabase) = db.manufacturingDao()
+    @Provides fun provideStockTransferDao(db: AppDatabase) = db.stockTransferDao()
+    @Provides fun provideOrderDao(db: AppDatabase) = db.orderDao()
+    @Provides fun providePartyGroupDao(db: AppDatabase) = db.partyGroupDao()
+    @Provides fun provideItemBatchDao(db: AppDatabase) = db.itemBatchDao()
 }
