@@ -21,7 +21,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "mimo_gst_billing_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides fun provideCompanyDao(db: AppDatabase) = db.companyDao()

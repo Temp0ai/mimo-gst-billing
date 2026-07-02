@@ -71,4 +71,13 @@ interface InvoiceDao {
 
     @Query("SELECT SUM(igstTotal) FROM invoices WHERE companyId = :companyId AND invoiceType = :type")
     suspend fun getTotalIgst(companyId: Long, type: String): Double?
+
+    @Query("SELECT COALESCE(SUM(totalAmount - amountPaid), 0) FROM invoices WHERE partyId = :partyId AND invoiceType = 'sales' AND paymentStatus != 'paid'")
+    suspend fun getPartyReceivableBalance(partyId: Long): Double
+
+    @Query("SELECT COALESCE(SUM(totalAmount - amountPaid), 0) FROM invoices WHERE partyId = :partyId AND invoiceType = 'purchase' AND paymentStatus != 'paid'")
+    suspend fun getPartyPayableBalance(partyId: Long): Double
+
+    @Query("SELECT * FROM invoices WHERE partyId = :partyId ORDER BY invoiceDate DESC")
+    fun getInvoicesByParty(partyId: Long): Flow<List<InvoiceEntity>>
 }

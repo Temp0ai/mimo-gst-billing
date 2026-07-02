@@ -60,7 +60,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -107,7 +106,6 @@ fun DashboardScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
-    var isRefreshing by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -313,14 +311,6 @@ fun DashboardScreen(
                 }
             }
         ) { paddingValues ->
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = {
-                    isRefreshing = true
-                    viewModel.refresh()
-                    isRefreshing = false
-                }
-            ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -525,7 +515,6 @@ fun DashboardScreen(
                 item {
                     Spacer(modifier = Modifier.height(80.dp))
                 }
-            }
             }
         }
     }

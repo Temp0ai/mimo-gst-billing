@@ -18,12 +18,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.utils.PdfGenerator
 import java.util.Locale
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Gstr1ReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     val invoices by viewModel.getInvoices("sales").collectAsState(initial = emptyList())
     val totalTaxable = invoices.sumOf { it.taxableAmount }
     val totalCgst = invoices.sumOf { it.cgstTotal }
@@ -35,6 +39,25 @@ fun Gstr1ReportScreen(navController: NavController, viewModel: InvoiceViewModel 
         topBar = {
             TopAppBar(title = { Text("GSTR-1 Report", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+                actions = {
+                    IconButton(onClick = {
+                        val text = buildString {
+                            appendLine("GSTR-1 Report")
+                            appendLine("Total Invoices: ${invoices.size}")
+                            appendLine("Taxable: ${String.format(Locale.US, "%.2f", totalTaxable)}")
+                            appendLine("CGST: ${String.format(Locale.US, "%.2f", totalCgst)}")
+                            appendLine("SGST: ${String.format(Locale.US, "%.2f", totalSgst)}")
+                            appendLine("IGST: ${String.format(Locale.US, "%.2f", totalIgst)}")
+                            appendLine("Total: ${String.format(Locale.US, "%.2f", totalInvoiceVal)}")
+                        }
+                        android.widget.Toast.makeText(context, "Report exported to clipboard", android.widget.Toast.LENGTH_SHORT).show()
+                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("GSTR-1 Report", text)
+                        clipboard.setPrimaryClip(clip)
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Export", tint = Color.White)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->

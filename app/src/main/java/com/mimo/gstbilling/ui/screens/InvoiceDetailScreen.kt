@@ -56,6 +56,7 @@ import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import com.mimo.gstbilling.utils.PdfGenerator
 import kotlinx.coroutines.launch
@@ -96,6 +97,13 @@ fun InvoiceDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        invoice?.let { inv ->
+                            navController.navigate(Screen.EditInvoice.createRoute(inv.id))
+                        }
+                    }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Invoice")
+                    }
                     IconButton(onClick = {
                         invoice?.let { inv ->
                             val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)

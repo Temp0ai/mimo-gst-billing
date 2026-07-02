@@ -45,4 +45,7 @@ sealed class Screen(val route: String) {
     object ImportData : Screen("import_data")
     object ThermalPrinter : Screen("thermal_printer")
     object BackupRestore : Screen("backup_restore")
+    object EditInvoice : Screen("edit_invoice/{invoiceId}") {
+        fun createRoute(invoiceId: Long) = "edit_invoice/$invoiceId"
+    }
 }

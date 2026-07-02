@@ -242,4 +242,32 @@ class InvoiceViewModel @Inject constructor(
     suspend fun getItemsForInvoice(invoiceId: Long): List<InvoiceItemEntity> {
         return invoiceItemDao.getItemsForInvoice(invoiceId)
     }
+
+    fun updatePaymentStatus(invoiceId: Long, amountPaid: Double) {
+        viewModelScope.launch {
+            val invoice = invoiceDao.getInvoiceById(invoiceId) ?: return@launch
+            val newStatus = when {
+                amountPaid >= invoice.totalAmount -> "paid"
+                amountPaid > 0 -> "partial"
+                else -> "unpaid"
+            }
+            invoiceDao.updateInvoice(invoice.copy(amountPaid = amountPaid, paymentStatus = newStatus))
+            updatePartyBalance(invoice.partyId)
+        }
+    }
+
+    private suspend fun updatePartyBalance(partyId: Long) {
+        val receivable = invoiceDao.getPartyReceivableBalance(partyId)
+        val payable = invoiceDao.getPartyPayableBalance(partyId)
+        val balance = receivable - payable
+        val party = partyDao.getPartyById(partyId) ?: return
+        partyDao.updateParty(party.copy(balance = balance))
+    }
+
+    fun updateInvoice(invoice: InvoiceEntity) {
+        viewModelScope.launch {
+            invoiceDao.updateInvoice(invoice)
+            updatePartyBalance(invoice.partyId)
+        }
+    }
 }
