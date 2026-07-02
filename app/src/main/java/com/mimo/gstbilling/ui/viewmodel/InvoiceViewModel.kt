@@ -274,4 +274,8 @@ class InvoiceViewModel @Inject constructor(
     suspend fun getPartyById(partyId: Long): PartyEntity? {
         return partyDao.getPartyById(partyId)
     }
+
+    suspend fun getAllParties(): List<PartyEntity> {
+        return partyDao.getPartiesByCompany(companyId).first()
+    }
 }
