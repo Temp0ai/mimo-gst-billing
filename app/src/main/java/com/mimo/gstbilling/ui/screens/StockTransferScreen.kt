@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import java.util.Locale
 import com.mimo.gstbilling.ui.viewmodel.StockTransferViewModel
 import java.text.SimpleDateFormat
 import java.util.*
