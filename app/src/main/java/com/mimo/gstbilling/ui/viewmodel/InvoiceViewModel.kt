@@ -270,4 +270,8 @@ class InvoiceViewModel @Inject constructor(
             updatePartyBalance(invoice.partyId)
         }
     }
+
+    suspend fun getPartyById(partyId: Long): PartyEntity? {
+        return partyDao.getPartyById(partyId)
+    }
 }

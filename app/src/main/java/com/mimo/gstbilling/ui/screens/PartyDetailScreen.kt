@@ -3,27 +3,16 @@ package com.mimo.gstbilling.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Notifications
@@ -46,12 +35,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.BlueHeader
@@ -60,35 +56,34 @@ import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
-
-data class VyaparTransaction(
-    val type: String,
-    val invoiceNo: String,
-    val date: String,
-    val total: Double,
-    val balance: Double
-)
+import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import com.mimo.gstbilling.data.local.entity.PartyEntity
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PartyDetailScreen(navController: NavController) {
-    val partyName = "Snapkeys"
-    val phone = "+919356328245"
-    val balance = 15342.25
+fun PartyDetailScreen(
+    navController: NavController,
+    partyId: Long = 0L,
+    viewModel: InvoiceViewModel = hiltViewModel()
+) {
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    var party by remember { mutableStateOf<PartyEntity?>(null) }
+    val invoices by viewModel.getInvoices("sales").collectAsState(initial = emptyList())
+    var selectedTab by remember { mutableIntStateOf(0) }
 
-    val transactions = listOf(
-        VyaparTransaction("Sale", "#a755", "21 May, 26", 3491.25, 3491.25),
-        VyaparTransaction("Sale", "#753", "02 Feb, 26", 4501.00, 4501.00),
-        VyaparTransaction("Sale", "#752", "31 Jan, 26", 3675.00, 3675.00),
-        VyaparTransaction("Sale", "#736", "14 Nov, 25", 3675.00, 3675.00)
-    )
+    LaunchedEffect(partyId) {
+        party = viewModel.getPartyById(partyId)
+    }
+
+    val partyInvoices = invoices.filter { it.partyId == partyId }
+    val totalReceivable = partyInvoices.filter { it.paymentStatus != "paid" }.sumOf { it.totalAmount - it.amountPaid }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text("Party Details", fontWeight = FontWeight.Bold)
-                },
+                title = { Text("Party Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -158,120 +153,45 @@ fun PartyDetailScreen(navController: NavController) {
         ) {
             item {
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Top
-                        ) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                             Column {
-                                Text(
-                                    text = partyName,
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
-                                )
+                                Text(party?.name ?: "Party", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        Icons.Filled.Call,
-                                        contentDescription = null,
-                                        tint = TextSecondary,
-                                        modifier = Modifier.size(14.dp)
-                                    )
+                                    Icon(Icons.Filled.Call, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = phone,
-                                        fontSize = 14.sp,
-                                        color = TextSecondary
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Icon(
-                                        Icons.Filled.Call,
-                                        contentDescription = null,
-                                        tint = GreenBalance,
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                                    Text(party?.phone ?: "No phone", fontSize = 14.sp, color = TextSecondary)
                                 }
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        Icons.Filled.Receipt,
-                                        contentDescription = null,
-                                        tint = GreenBalance,
-                                        modifier = Modifier.size(16.dp)
-                                    )
+                                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(
-                                        text = "Receivable:",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
+                                    Text("Receivable:", fontSize = 12.sp, color = TextSecondary)
                                 }
-                                Text(
-                                    text = String.format(java.util.Locale.US, "\u20B9%,.2f", balance),
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = GreenBalance
-                                )
-                                Text(
-                                    text = "No Credit Limit Set",
-                                    fontSize = 11.sp,
-                                    color = TextSecondary
-                                )
+                                Text(String.format(Locale.US, "\u20B9%,.2f", totalReceivable), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = GreenBalance)
                             }
                         }
-
                         Spacer(modifier = Modifier.height(16.dp))
                         HorizontalDivider(color = Color(0xFFE0E0E0))
                         Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            OutlinedButton(
-                                onClick = { },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, BlueHeader)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Notifications,
-                                    contentDescription = null,
-                                    tint = BlueHeader,
-                                    modifier = Modifier.size(16.dp)
-                                )
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                            OutlinedButton(onClick = { }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, BlueHeader)) {
+                                Icon(Icons.Filled.Notifications, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("Send Reminder", color = BlueHeader, fontSize = 13.sp)
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            OutlinedButton(
-                                onClick = { },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(8.dp),
-                                border = BorderStroke(1.dp, BlueHeader)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Receipt,
-                                    contentDescription = null,
-                                    tint = BlueHeader,
-                                    modifier = Modifier.size(16.dp)
-                                )
+                            OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, BlueHeader)) {
+                                Icon(Icons.Filled.Receipt, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Send Statement", color = BlueHeader, fontSize = 13.sp)
+                                Text("View Statement", color = BlueHeader, fontSize = 13.sp)
                             }
                         }
                     }
@@ -279,120 +199,51 @@ fun PartyDetailScreen(navController: NavController) {
             }
 
             item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Filled.Search,
-                        contentDescription = null,
-                        tint = TextSecondary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Search Transactions",
-                        fontSize = 14.sp,
-                        color = TextSecondary,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = BlueHeader)
-                    }
-                }
-            }
-
-            items(transactions) { transaction ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = transaction.type,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
-                            )
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text(
-                                    text = transaction.invoiceNo,
-                                    fontSize = 13.sp,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = transaction.date,
-                                    fontSize = 12.sp,
-                                    color = TextSecondary
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Total",
-                                    fontSize = 11.sp,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = String.format(java.util.Locale.US, "\u20B9%,.2f", transaction.total),
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
-                                )
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "Balance",
-                                    fontSize = 11.sp,
-                                    color = TextSecondary
-                                )
-                                Text(
-                                    text = String.format(java.util.Locale.US, "\u20B9%,.2f", transaction.balance),
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
-                                )
-                            }
-                            Row {
-                                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Filled.Print, contentDescription = "Print", tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                }
-                                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Filled.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                }
-                                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                }
-                            }
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val tabs = listOf("Transactions", "Items")
+                    tabs.forEachIndexed { index, title ->
+                        val isSelected = selectedTab == index
+                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
                         }
                     }
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+            if (selectedTab == 0) {
+                if (partyInvoices.isEmpty()) {
+                    item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No transactions yet", fontSize = 14.sp, color = TextSecondary) } }
+                } else {
+                    items(partyInvoices) { invoice ->
+                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text("Sale", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(invoice.invoiceNumber, fontSize = 13.sp, color = TextSecondary)
+                                        Text(dateFormat.format(Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Total", fontSize = 11.sp, color = TextSecondary)
+                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text("Balance", fontSize = 11.sp, color = TextSecondary)
+                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No items for this party", fontSize = 14.sp, color = TextSecondary) } }
             }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -68,6 +69,7 @@ import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import com.mimo.gstbilling.data.local.entity.ItemEntity
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +87,7 @@ fun CreateInvoiceScreen(
     var discount by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var partyMenuExpanded by remember { mutableStateOf(false) }
+    var showItemPicker by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -407,7 +410,7 @@ fun CreateInvoiceScreen(
 
             item {
                 Button(
-                    onClick = { navController.navigate(Screen.AddItem.route) },
+                    onClick = { showItemPicker = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -524,5 +527,42 @@ fun CreateInvoiceScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
+    }
+
+    if (showItemPicker) {
+        AlertDialog(
+            onDismissRequest = { showItemPicker = false },
+            title = { Text("Select Item", fontWeight = FontWeight.Bold) },
+            text = {
+                if (uiState.allItems.isEmpty()) {
+                    Text("No items found. Add items first from Items screen.")
+                } else {
+                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        items(uiState.allItems.size) { index ->
+                            val item = uiState.allItems[index]
+                            Card(
+                                modifier = Modifier.fillMaxWidth().clickable {
+                                    viewModel.addItem(item)
+                                    showItemPicker = false
+                                },
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Column {
+                                        Text(item.name, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                        Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}%", fontSize = 12.sp, color = TextSecondary)
+                                    }
+                                    Text(String.format(java.util.Locale.US, "\u20B9%.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary)
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showItemPicker = false }) { Text("Cancel") }
+            }
+        )
     }
 }
