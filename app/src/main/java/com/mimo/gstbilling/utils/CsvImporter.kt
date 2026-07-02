@@ -18,7 +18,7 @@ class CsvImporter @Inject constructor(
 ) {
     data class ImportResult(val success: Int, val failed: Int, val errors: List<String>)
 
-    fun importItems(uri: Uri): ImportResult {
+    suspend fun importItems(uri: Uri): ImportResult {
         val errors = mutableListOf<String>()
         var success = 0
         var failed = 0
@@ -62,7 +62,7 @@ class CsvImporter @Inject constructor(
         return ImportResult(success, failed, errors)
     }
 
-    fun importParties(uri: Uri): ImportResult {
+    suspend fun importParties(uri: Uri): ImportResult {
         val errors = mutableListOf<String>()
         var success = 0
         var failed = 0
