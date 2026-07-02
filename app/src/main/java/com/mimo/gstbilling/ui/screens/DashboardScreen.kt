@@ -2,19 +2,10 @@ package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,46 +19,22 @@ import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Print
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -79,21 +46,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.BlueHeader
-import com.mimo.gstbilling.ui.theme.GreenBalance
-import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.DashboardViewModel
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 data class DrawerMenuItem(
     val title: String,
     val icon: ImageVector,
     val hasExpand: Boolean = false,
-    val hasNewBadge: Boolean = false,
-    val subItems: List<String> = emptyList()
+    val subItems: List<String> = emptyList(),
+    val hasNewBadge: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,39 +96,28 @@ fun DashboardScreen(
             ModalDrawerSheet(
                 modifier = Modifier.width(300.dp)
             ) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(BlueHeader)
+                        .background(Primary)
                         .padding(20.dp)
                 ) {
-                    Text(
-                        text = data.companyName,
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "GST Registered Business",
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontSize = 13.sp
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Change Company",
-                        color = Color.White,
-                        fontSize = 13.sp,
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.White.copy(alpha = 0.2f))
-                            .clickable { }
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
+                    Column {
+                        Text(
+                            text = data.companyName,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "GST Registered Business",
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 13.sp
+                        )
+                    }
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
-
                 menuItems.forEach { item ->
                     Column {
                         Row(
@@ -200,43 +152,13 @@ fun DashboardScreen(
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                tint = TextPrimary,
-                                modifier = Modifier.size(22.dp)
-                            )
-                            Spacer(modifier = Modifier.width(14.dp))
-                            Text(
-                                text = item.title,
-                                modifier = Modifier.weight(1f),
-                                fontSize = 15.sp,
-                                color = TextPrimary
-                            )
-                            if (item.hasNewBadge) {
-                                Box(
-                                    modifier = Modifier
-                                        .background(RedAccent, RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text("NEW", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
+                            Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(item.title, fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f))
                             if (item.hasExpand) {
-                                Icon(
-                                    imageVector = if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                    contentDescription = null,
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                Icon(if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                             } else {
-                                Icon(
-                                    imageVector = Icons.Filled.ChevronRight,
-                                    contentDescription = null,
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                             }
                         }
                         if (item.hasExpand && expandedSection == item.title) {
@@ -244,24 +166,13 @@ fun DashboardScreen(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable {
-                                            scope.launch { drawerState.close() }
-                                        }
+                                        .clickable { scope.launch { drawerState.close() } }
                                         .padding(start = 52.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Circle,
-                                        contentDescription = null,
-                                        tint = TextSecondary,
-                                        modifier = Modifier.size(6.dp)
-                                    )
+                                    Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(6.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
-                                    Text(
-                                        text = subItem,
-                                        fontSize = 14.sp,
-                                        color = TextSecondary
-                                    )
+                                    Text(subItem, fontSize = 14.sp, color = TextSecondary)
                                 }
                             }
                         }
@@ -273,40 +184,54 @@ fun DashboardScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text("Dashboard", fontWeight = FontWeight.Bold)
-                    },
+                    title = { Text(data.companyName, fontWeight = FontWeight.Bold) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Menu")
                         }
                     },
                     actions = {
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
-                        }
+                        IconButton(onClick = { }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Primary,
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White,
-                        actionIconContentColor = Color.White
-                    )
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
                 )
             },
-            floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                    containerColor = RedAccent,
-                    contentColor = Color.White
+            bottomBar = {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    OutlinedButton(
+                        onClick = { navController.navigate(Screen.CashBank.route) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(25.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Primary),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = null)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Add Sale", fontWeight = FontWeight.Bold)
+                        Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                        modifier = Modifier.size(50.dp),
+                        shape = CircleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Button(
+                        onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(25.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
+                    ) {
+                        Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -315,288 +240,124 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFF5F5F5))
+                    .background(LightBlueBg)
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    Text(
-                        text = "Business Overview",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                item {
-                    Row(
+                    Card(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        SummaryCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Total Sales",
-                            amount = String.format(java.util.Locale.US, "%.0f", data.totalSales),
-                            color = Primary
-                        )
-                        SummaryCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Total Purchase",
-                            amount = String.format(java.util.Locale.US, "%.0f", data.totalPurchases),
-                            color = RedAccent
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        SummaryCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Receivable",
-                            amount = String.format(java.util.Locale.US, "%.0f", data.pendingReceivables),
-                            color = GreenBalance,
-                            subtitle = "You'll Get"
-                        )
-                        SummaryCard(
-                            modifier = Modifier.weight(1f),
-                            title = "Payable",
-                            amount = String.format(java.util.Locale.US, "%.0f", data.pendingPayables),
-                            color = RedAccent,
-                            subtitle = "You'll Pay"
-                        )
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Quick Actions",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickActionButton(
-                            modifier = Modifier.weight(1f),
-                            title = "Sale",
-                            icon = Icons.Filled.TrendingUp,
-                            color = Primary
-                        ) {
-                            navController.navigate(Screen.CreateInvoice.route)
-                        }
-                        QuickActionButton(
-                            modifier = Modifier.weight(1f),
-                            title = "Purchase",
-                            icon = Icons.Filled.LocalShipping,
-                            color = RedAccent
-                        ) {
-                            navController.navigate(Screen.Purchases.route)
+                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("You'll Get", fontSize = 14.sp, color = GreenBalance, fontWeight = FontWeight.Medium)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "\u20B9${String.format(Locale.US, "%,.2f", data.pendingReceivables)}",
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
                         }
                     }
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        QuickActionButton(
-                            modifier = Modifier.weight(1f),
-                            title = "Parties",
-                            icon = Icons.Filled.People,
-                            color = GreenBalance
-                        ) {
-                            navController.navigate(Screen.Parties.route)
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                                Text("Total Sales", fontSize = 12.sp, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalSales)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            }
                         }
-                        QuickActionButton(
-                            modifier = Modifier.weight(1f),
-                            title = "Items",
-                            icon = Icons.Filled.Inventory,
-                            color = Color(0xFFFF9800)
-                        ) {
-                            navController.navigate(Screen.Items.route)
-                        }
-                    }
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Recent Parties",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextPrimary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-
-                if (data.recentParties.isEmpty()) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(32.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(Icons.Filled.People, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(48.dp))
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("No parties yet", fontSize = 14.sp, color = TextSecondary)
-                                Text("Add a party to get started", fontSize = 12.sp, color = TextSecondary)
+                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                                Text("Total Purchase", fontSize = 12.sp, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalPurchases)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             }
                         }
                     }
-                } else {
+                }
+
+                item {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                                Text("You'll Give", fontSize = 12.sp, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.pendingPayables)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent)
+                            }
+                        }
+                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
+                                Text("Expenses", fontSize = 12.sp, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalExpenses)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent)
+                            }
+                        }
+                    }
+                }
+
+                if (data.recentParties.isNotEmpty()) {
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Recent Parties", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text("See All", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { navController.navigate(Screen.Parties.route) })
+                        }
+                    }
                     items(data.recentParties) { party ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { navController.navigate(Screen.Parties.route) },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(14.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .clip(RoundedCornerShape(20.dp))
-                                        .background(Primary.copy(alpha = 0.1f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.Business,
-                                        contentDescription = null,
-                                        tint = Primary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.PartyDetail.createRoute(party.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Primary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Filled.Business, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = party.name,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Medium,
-                                        color = TextPrimary
-                                    )
-                                    Text(
-                                        text = party.phone ?: "No phone",
-                                        fontSize = 12.sp,
-                                        color = TextSecondary
-                                    )
+                                    Text(party.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                    Text(party.phone ?: "", fontSize = 12.sp, color = TextSecondary)
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(String.format(Locale.US, "\u20B9%,.2f", party.balance), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (party.balance > 0) GreenBalance else RedAccent)
+                                    Text("You'll Get", fontSize = 11.sp, color = GreenBalance)
                                 }
                             }
                         }
                     }
                 }
 
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+                if (data.recentInvoices.isNotEmpty()) {
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Recent Invoices", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text("See All", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { navController.navigate(Screen.Sales.route) })
+                        }
+                    }
+                    items(data.recentInvoices) { invoice ->
+                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(invoice.invoiceNumber, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Text(java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary)
+                                }
+                                Column(horizontalAlignment = Alignment.End) {
+                                    Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Text(invoice.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent)
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        }
-    }
-}
 
-@Composable
-fun SummaryCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    amount: String,
-    color: Color,
-    subtitle: String = ""
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
-        ) {
-            Text(
-                text = title,
-                fontSize = 12.sp,
-                color = TextSecondary
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "\u20B9" + amount,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = color
-            )
-            if (subtitle.isNotEmpty()) {
-                Text(
-                    text = subtitle,
-                    fontSize = 11.sp,
-                    color = color,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
-        }
-    }
-}
-
-@Composable
-fun QuickActionButton(
-    modifier: Modifier = Modifier,
-    title: String,
-    icon: ImageVector,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = modifier.clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = color),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = title,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
         }
     }
 }
