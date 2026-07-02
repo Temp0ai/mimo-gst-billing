@@ -33,7 +33,6 @@ class CsvImporter @Inject constructor(
                 val priceIdx = header.indexOfFirst { it.contains("price") || it.contains("rate") || it.contains("sale") }
                 val gstIdx = header.indexOfFirst { it.contains("gst") || it.contains("tax") }
                 val unitIdx = header.indexOfFirst { it.contains("unit") }
-                val categoryIdx = header.indexOfFirst { it.contains("category") || it.contains("type") }
                 for (i in 1 until lines.size) {
                     try {
                         val cols = lines[i].split(",").map { it.trim().removeSurrounding("\"") }
@@ -43,13 +42,13 @@ class CsvImporter @Inject constructor(
                             companyId = 1L,
                             name = name,
                             hsnCode = cols.getOrElse(hsnIdx) { "" },
+                            description = null,
                             salePrice = cols.getOrElse(priceIdx) { "0" }.toDoubleOrNull() ?: 0.0,
                             gstRate = cols.getOrElse(gstIdx) { "0" }.toDoubleOrNull() ?: 0.0,
                             unit = cols.getOrElse(unitIdx) { "PCS" },
-                            category = cols.getOrElse(categoryIdx) { "" },
-                            openingStock = 0.0
+                            stockQuantity = 0.0
                         )
-                        db.itemDao().insert(item)
+                        db.itemDao().insertItem(item)
                         success++
                     } catch (e: Exception) {
                         failed++
@@ -91,10 +90,12 @@ class CsvImporter @Inject constructor(
                             gstin = cols.getOrElse(gstinIdx) { "" },
                             email = cols.getOrElse(emailIdx) { "" },
                             address = cols.getOrElse(addrIdx) { "" },
-                            partyType = cols.getOrElse(typeIdx) { "customer" },
-                            balance = 0.0
+                            state = null,
+                            stateCode = null,
+                            balance = 0.0,
+                            partyType = cols.getOrElse(typeIdx) { "Customer" }
                         )
-                        db.partyDao().insert(party)
+                        db.partyDao().insertParty(party)
                         success++
                     } catch (e: Exception) {
                         failed++

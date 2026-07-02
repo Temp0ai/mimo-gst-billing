@@ -1,14 +1,12 @@
 package com.mimo.gstbilling.ui.screens
 
 import android.content.Context
-import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Delete
@@ -35,10 +33,11 @@ fun BackupRestoreScreen(navController: NavController) {
     val dbFile = context.getDatabasePath("mimo_gst_billing_db")
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy HH:mm", Locale.US) }
     var lastBackup by remember { mutableStateOf("") }
-    var showBackupSuccess by remember { mutableStateOf(false) }
     var showRestoreDialog by remember { mutableStateOf(false) }
+    var backupListVersion by remember { mutableIntStateOf(0) }
 
     val backupDir = remember { File(context.filesDir, "backups").apply { mkdirs() } }
+    val backups = remember(backupListVersion) { backupDir.listFiles()?.filter { it.extension == "db" }?.sortedByDescending { it.lastModified() } ?: emptyList() }
 
     LaunchedEffect(Unit) {
         val prefs = context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE)
@@ -86,7 +85,7 @@ fun BackupRestoreScreen(navController: NavController) {
                                 context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE)
                                     .edit().putString("last_backup", now).apply()
                                 lastBackup = now
-                                showBackupSuccess = true
+                                backupListVersion++
                                 Toast.makeText(context, "Backup created successfully", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 Toast.makeText(context, "Backup failed: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -110,7 +109,6 @@ fun BackupRestoreScreen(navController: NavController) {
                     }
                     Text("Restore database from a backup file", fontSize = 13.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(12.dp))
-                    val backups = backupDir.listFiles()?.filter { it.extension == "db" }?.sortedByDescending { it.lastModified() } ?: emptyList()
                     if (backups.isEmpty()) {
                         Text("No backups available", fontSize = 13.sp, color = TextSecondary)
                     } else {
@@ -139,6 +137,7 @@ fun BackupRestoreScreen(navController: NavController) {
                                 }
                                 IconButton(onClick = {
                                     backup.delete()
+                                    backupListVersion++
                                     Toast.makeText(context, "Backup deleted", Toast.LENGTH_SHORT).show()
                                 }) {
                                     Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent, modifier = Modifier.size(18.dp))
@@ -159,7 +158,7 @@ fun BackupRestoreScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     try {
-                        val latestBackup = backupDir.listFiles()?.filter { it.extension == "db" }?.maxByOrNull { it.lastModified() }
+                        val latestBackup = backups.firstOrNull()
                         latestBackup?.copyTo(dbFile, overwrite = true)
                         Toast.makeText(context, "Restore successful! Restart the app.", Toast.LENGTH_LONG).show()
                         showRestoreDialog = false
