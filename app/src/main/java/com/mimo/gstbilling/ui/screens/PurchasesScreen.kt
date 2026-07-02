@@ -1,49 +1,16 @@
 package com.mimo.gstbilling.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Pending
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,216 +19,66 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.GreenBalance
-import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.TextSecondary
-import com.mimo.gstbilling.ui.viewmodel.PurchaseViewModel
+import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PurchasesScreen(
-    navController: NavController,
-    viewModel: PurchaseViewModel = hiltViewModel()
-) {
-    val purchaseInvoices by viewModel.purchaseInvoices.collectAsState()
-    val totalPurchases by viewModel.totalPurchases.collectAsState()
-    val paidAmount by viewModel.paidAmount.collectAsState()
-    val pendingAmount by viewModel.pendingAmount.collectAsState()
-    var searchQuery by remember { mutableStateOf("") }
+fun PurchasesScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val invoices by viewModel.getInvoices("purchase").collectAsState(initial = emptyList())
+    var selectedTab by remember { mutableIntStateOf(0) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
-
-    val filteredPurchases = if (searchQuery.isEmpty()) purchaseInvoices
-    else purchaseInvoices.filter {
-        it.invoiceNumber.contains(searchQuery, ignoreCase = true)
+    val tabs = listOf("All", "Paid", "Unpaid", "Partial")
+    val filteredInvoices = when (selectedTab) {
+        1 -> invoices.filter { it.paymentStatus == "paid" }
+        2 -> invoices.filter { it.paymentStatus == "unpaid" }
+        3 -> invoices.filter { it.paymentStatus == "partial" }
+        else -> invoices
     }
+    val totalPurchases = invoices.sumOf { it.totalAmount }
+    val paid = invoices.filter { it.paymentStatus == "paid" }.sumOf { it.totalAmount }
+    val pending = totalPurchases - paid
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Purchase", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { }) { Icon(Icons.Filled.FilterList, contentDescription = "Filter") }
-                    IconButton(onClick = { }) { Icon(Icons.Filled.MoreVert, contentDescription = "More") }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
-                )
-            )
-        },
-        bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedButton(
-                    onClick = { },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
-                    border = BorderStroke(1.dp, Primary),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
-                ) {
-                    Text("View Report", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Button(
-                    onClick = { },
-                    modifier = Modifier.size(50.dp),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Button(
-                    onClick = { },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
-                ) {
-                    Text("Add Purchase", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-            }
+            TopAppBar(title = { Text("Purchase", fontWeight = FontWeight.Bold) },
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(Color(0xFFF8F8F8))
-        ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Total Purchase", fontSize = 11.sp, color = TextSecondary)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.0f", totalPurchases),
-                            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Paid", fontSize = 11.sp, color = TextSecondary)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.0f", paidAmount),
-                            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = GreenBalance
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Pending", fontSize = 11.sp, color = TextSecondary)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.0f", pendingAmount),
-                            fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("SEARCH PURCHASE", fontSize = 13.sp, color = TextSecondary, modifier = Modifier.weight(1f))
-                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
-                }
-            }
-
-            if (filteredPurchases.isEmpty()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(64.dp))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("No purchases yet", fontSize = 16.sp, color = TextSecondary)
-                    Text("Create your first purchase to see it here", fontSize = 13.sp, color = TextSecondary)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    items(filteredPurchases) { invoice ->
-                        val isPaid = invoice.paymentStatus == "paid"
-                        val dateStr = dateFormat.format(Date(invoice.invoiceDate))
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color.White)
-                                .clickable { }
-                                .padding(horizontal = 16.dp, vertical = 14.dp)
-                        ) {
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(invoice.invoiceNumber, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text("Party ID: ${invoice.partyId}", fontSize = 14.sp, color = TextPrimary)
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(dateStr, fontSize = 12.sp, color = TextSecondary)
-                                }
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(
-                                        String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount),
-                                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            if (isPaid) Icons.Filled.CheckCircle else Icons.Filled.Pending,
-                                            contentDescription = null,
-                                            tint = if (isPaid) GreenBalance else RedAccent,
-                                            modifier = Modifier.size(14.dp)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(
-                                            if (isPaid) "Paid" else "Pending",
-                                            fontSize = 12.sp,
-                                            color = if (isPaid) GreenBalance else RedAccent
-                                        )
-                                    }
-                                }
-                            }
+    ) { padding ->
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
+            item {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                    tabs.forEachIndexed { index, title ->
+                        val isSelected = selectedTab == index
+                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
                         }
                     }
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
+            item {
+                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column { Text("Total", fontSize = 12.sp, color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalPurchases), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary) }
+                        Column(horizontalAlignment = Alignment.End) { Text("Paid", fontSize = 12.sp, color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", paid), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Column(horizontalAlignment = Alignment.End) { Text("Pending", fontSize = 12.sp, color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", pending), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent) }
+                    }
+                }
+            }
+            items(filteredInvoices) { invoice ->
+                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                    Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Column(modifier = Modifier.weight(1f)) { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(dateFormat.format(Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                        Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontWeight = FontWeight.Bold, color = TextPrimary); Text(invoice.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent) }
+                    }
+                }
+            }
+            item { if (filteredInvoices.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No purchase invoices", fontSize = 14.sp, color = TextSecondary) } } }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
 }
