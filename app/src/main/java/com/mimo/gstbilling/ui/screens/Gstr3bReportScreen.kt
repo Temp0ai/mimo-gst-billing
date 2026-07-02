@@ -36,8 +36,8 @@ fun Gstr3bReportScreen(navController: NavController, viewModel: InvoiceViewModel
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFF795548))) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item { Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Primary)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("GSTR-3B (Monthly Summary)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }

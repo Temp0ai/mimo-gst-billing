@@ -31,14 +31,14 @@ fun DayBookReportScreen(navController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("Day Book", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text(today, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                 }
             }
-            Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("All transactions for today will be listed here.", color = TextSecondary, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))

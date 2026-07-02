@@ -5,8 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -77,11 +75,11 @@ fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltV
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5))) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
                 tabs.forEachIndexed { index, title ->
                     val isSelected = selectedTab == index
-                    Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)).background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).clickable { selectedTab = index }.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)).background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).clickable { selectedTab = index }.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                         Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
                     }
                 }
@@ -93,7 +91,7 @@ fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltV
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(orders) { order ->
-                        Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                             Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(order.orderNumber, fontWeight = FontWeight.Bold, color = TextPrimary)

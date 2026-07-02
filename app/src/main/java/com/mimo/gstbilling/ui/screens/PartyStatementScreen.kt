@@ -39,9 +39,9 @@ fun PartyStatementScreen(navController: NavController, partyId: Long = 1L, viewM
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             item {
-                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Party ID: $partyId", color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -57,7 +57,7 @@ fun PartyStatementScreen(navController: NavController, partyId: Long = 1L, viewM
                 item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No transactions for this party", fontSize = 14.sp, color = TextSecondary) } }
             } else {
                 items(partyInvoices) { inv ->
-                    Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary)

@@ -44,9 +44,9 @@ fun PaymentRemindersScreen(navController: NavController, viewModel: InvoiceViewM
                 Text("All invoices are paid!", fontSize = 13.sp, color = TextSecondary)
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
-                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = RedAccent)) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = RedAccent)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Pending Invoices", color = Color.White, fontWeight = FontWeight.Bold)
                             Text("${pendingInvoices.size}", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -54,7 +54,7 @@ fun PaymentRemindersScreen(navController: NavController, viewModel: InvoiceViewM
                     }
                 }
                 items(pendingInvoices) { inv ->
-                    Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary)
