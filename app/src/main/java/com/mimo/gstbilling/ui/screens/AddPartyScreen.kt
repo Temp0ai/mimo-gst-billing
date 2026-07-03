@@ -46,7 +46,7 @@ fun AddPartyScreen(navController: NavController, viewModel: PartyViewModel = hil
                 OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary), border = ButtonDefaults.outlinedButtonBorder) {
                     Text("Cancel", fontWeight = FontWeight.Bold)
                 }
-                Button(onClick = { if (partyName.isNotBlank() && phone.isNotBlank()) { viewModel.createParty(partyName, phone, email.ifBlank { null }, gstin.ifBlank { null }, address.ifBlank { null }, partyType, balance.toDoubleOrNull() ?: 0.0); navController.popBackStack() } }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                Button(onClick = { if (partyName.isNotBlank() && phone.isNotBlank()) { viewModel.addParty(1L, partyName, phone.ifBlank { null }, email.ifBlank { null }, gstin.ifBlank { null }, address.ifBlank { null }, null, partyType); navController.popBackStack() } }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
                     Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }

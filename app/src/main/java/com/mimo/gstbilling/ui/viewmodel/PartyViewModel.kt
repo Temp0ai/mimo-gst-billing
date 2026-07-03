@@ -66,6 +66,18 @@ class PartyViewModel @Inject constructor(
         }
     }
 
+    fun updateParty(party: PartyEntity) {
+        viewModelScope.launch {
+            partyDao.updateParty(party)
+        }
+    }
+
+    fun deleteParty(party: PartyEntity) {
+        viewModelScope.launch {
+            partyDao.deleteParty(party)
+        }
+    }
+
     fun resetSaveSuccess() {
         _saveSuccess.value = false
     }

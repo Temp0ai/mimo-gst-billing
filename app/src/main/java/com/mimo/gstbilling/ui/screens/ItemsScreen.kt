@@ -26,7 +26,7 @@ import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltViewModel()) {
-    val items by viewModel.items.collectAsState()
+    val items by viewModel.allItems.collectAsState()
     var searchText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("All", "Products", "Services")

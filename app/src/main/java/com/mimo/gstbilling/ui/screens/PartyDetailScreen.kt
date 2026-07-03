@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -59,6 +61,7 @@ import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import com.mimo.gstbilling.ui.viewmodel.PartyViewModel
 import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,15 +71,17 @@ import java.util.*
 fun PartyDetailScreen(
     navController: NavController,
     partyId: Long = 0L,
-    viewModel: InvoiceViewModel = hiltViewModel()
+    invoiceViewModel: InvoiceViewModel = hiltViewModel(),
+    partyViewModel: PartyViewModel = hiltViewModel()
 ) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
-    var party by remember { mutableStateOf<PartyEntity?>(null) }
-    val invoices by viewModel.getInvoices("sales").collectAsState(initial = emptyList())
+    val party by partyViewModel.currentParty.collectAsState()
+    val invoices by invoiceViewModel.getInvoices("sales").collectAsState(initial = emptyList())
     var selectedTab by remember { mutableIntStateOf(0) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(partyId) {
-        party = viewModel.getPartyById(partyId)
+        partyViewModel.getPartyById(partyId)
     }
 
     val partyInvoices = invoices.filter { it.partyId == partyId }
@@ -92,11 +97,11 @@ fun PartyDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.navigate(Screen.AddParty.route) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                    IconButton(onClick = { showDeleteDialog = true }) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -247,5 +252,23 @@ fun PartyDetailScreen(
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
+    }
+
+    if (showDeleteDialog && party != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Party", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete ${party?.name}? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    party?.let { partyViewModel.deleteParty(it) }
+                    showDeleteDialog = false
+                    navController.popBackStack()
+                }) { Text("Delete", color = RedAccent, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel", color = Primary) }
+            }
+        )
     }
 }

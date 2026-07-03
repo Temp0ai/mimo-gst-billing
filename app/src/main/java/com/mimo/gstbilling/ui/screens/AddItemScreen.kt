@@ -49,7 +49,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                 OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary), border = ButtonDefaults.outlinedButtonBorder) {
                     Text("Cancel", fontWeight = FontWeight.Bold)
                 }
-                Button(onClick = { if (itemName.isNotBlank() && salePrice.isNotBlank()) { viewModel.createItem(itemName, hsnCode.ifBlank { null }, salePrice.toDouble(), purchasePrice.toDoubleOrNull(), gstRate.toInt(), stockQty.toDouble(), unit, isService); navController.popBackStack() } }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                Button(onClick = { if (itemName.isNotBlank() && salePrice.isNotBlank()) { viewModel.addItem(itemName, hsnCode.ifBlank { null }, null, salePrice.toDouble(), purchasePrice.toDoubleOrNull() ?: 0.0, gstRate.toDouble(), unit, stockQty.toDoubleOrNull() ?: 0.0, isService); navController.popBackStack() } }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
                     Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
