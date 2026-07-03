@@ -23,7 +23,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.utils.ThermalPrinter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,11 +64,11 @@ fun ThermalPrinterScreen(navController: NavController) {
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Bluetooth, contentDescription = null, tint = if (isConnected) GreenBalance else TextSecondary, modifier = Modifier.size(24.dp))
@@ -81,7 +86,7 @@ fun ThermalPrinterScreen(navController: NavController) {
             }
 
             item {
-                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Paired Bluetooth Devices", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(8.dp))
@@ -96,7 +101,7 @@ fun ThermalPrinterScreen(navController: NavController) {
 
             items(devices) { device ->
                 Card(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = if (selectedDevice?.address == device.address) Primary.copy(alpha = 0.1f) else Color.White),
                     modifier = Modifier.fillMaxWidth().clickable {
                         selectedDevice = device
@@ -123,7 +128,7 @@ fun ThermalPrinterScreen(navController: NavController) {
                 Button(
                     onClick = { scanDevices() },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text("Refresh Devices")
                 }
@@ -131,7 +136,7 @@ fun ThermalPrinterScreen(navController: NavController) {
 
             if (isConnected) {
                 item {
-                    Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = GreenBalance.copy(alpha = 0.1f))) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = GreenBalance.copy(alpha = 0.1f))) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text("Printer Connected!", fontWeight = FontWeight.Bold, color = GreenBalance)
                             Text("You can now print invoices from the invoice detail screen.", fontSize = 13.sp, color = TextSecondary)
@@ -142,7 +147,7 @@ fun ThermalPrinterScreen(navController: NavController) {
                                     printStatus = "Test page sent"
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
                             ) {
                                 Text("Test Print", color = Color.White)
@@ -157,7 +162,7 @@ fun ThermalPrinterScreen(navController: NavController) {
 
             if (!isConnected) {
                 item {
-                    Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0))) {
                         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Filled.Warning, contentDescription = null, tint = Color(0xFFFF9800))
                             Spacer(modifier = Modifier.width(12.dp))

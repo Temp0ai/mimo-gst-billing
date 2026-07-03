@@ -18,7 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
 import java.util.Locale
 import com.mimo.gstbilling.ui.viewmodel.ItemBatchViewModel
 
@@ -78,9 +82,9 @@ fun ItemBatchScreen(navController: NavController, viewModel: ItemBatchViewModel 
                 Text("Tap + to add batch tracking", fontSize = 13.sp, color = TextSecondary)
             }
         } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(batches) { batch ->
-                    Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(batch.itemName, fontWeight = FontWeight.Bold, color = TextPrimary)

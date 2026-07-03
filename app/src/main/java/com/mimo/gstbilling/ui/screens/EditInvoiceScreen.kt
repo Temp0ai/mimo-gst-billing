@@ -15,7 +15,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import kotlinx.coroutines.launch
 
@@ -54,10 +59,10 @@ fun EditInvoiceScreen(
         } else {
             val inv = invoice!!
             Column(
-                modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(16.dp),
+                modifier = Modifier.fillMaxSize().padding(padding)                .background(LightBlueBg).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Invoice Details", fontWeight = FontWeight.Bold, color = Primary, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(12.dp))
@@ -71,7 +76,7 @@ fun EditInvoiceScreen(
                     }
                 }
 
-                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Payment Details", fontWeight = FontWeight.Bold, color = Primary, fontSize = 16.sp)
                         Spacer(modifier = Modifier.height(12.dp))
@@ -90,7 +95,7 @@ fun EditInvoiceScreen(
                             onValueChange = { amountPaid = it },
                             label = { Text("Amount Paid") },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             singleLine = true,
                             prefix = { Text("\u20B9 ") }
                         )
@@ -112,7 +117,7 @@ fun EditInvoiceScreen(
                         scope.launch { navController.popBackStack() }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
                 ) {
                     Text("Save Changes", fontWeight = FontWeight.Bold, fontSize = 16.sp)

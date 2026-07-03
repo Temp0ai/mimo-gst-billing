@@ -53,6 +53,7 @@ import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
@@ -118,7 +119,7 @@ fun PartyDetailScreen(
                 OutlinedButton(
                     onClick = { },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
+                    shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, Primary),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
                 ) {
@@ -138,7 +139,7 @@ fun PartyDetailScreen(
                 Button(
                     onClick = { navController.navigate(Screen.CreateInvoice.route) },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
                     Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
@@ -150,12 +151,12 @@ fun PartyDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(LightBlueBg)
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
@@ -183,13 +184,13 @@ fun PartyDetailScreen(
                         HorizontalDivider(color = Color(0xFFE0E0E0))
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            OutlinedButton(onClick = { }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, BlueHeader)) {
+                            OutlinedButton(onClick = { }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
                                 Icon(Icons.Filled.Notifications, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("Send Reminder", color = BlueHeader, fontSize = 13.sp)
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(8.dp), border = BorderStroke(1.dp, BlueHeader)) {
+                            OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
                                 Icon(Icons.Filled.Receipt, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("View Statement", color = BlueHeader, fontSize = 13.sp)
@@ -216,7 +217,7 @@ fun PartyDetailScreen(
                     item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No transactions yet", fontSize = 14.sp, color = TextSecondary) } }
                 } else {
                     items(partyInvoices) { invoice ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                             Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text("Sale", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
@@ -96,7 +97,7 @@ fun BarcodeScannerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(LightBlueBg)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -133,7 +134,7 @@ fun BarcodeScannerScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        shape = RoundedCornerShape(10.dp)
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Icon(Icons.Filled.CameraAlt, contentDescription = null)
                         Spacer(modifier = Modifier.height(0.dp))
@@ -146,7 +147,7 @@ fun BarcodeScannerScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
             ) {
@@ -161,7 +162,7 @@ fun BarcodeScannerScreen(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("Type barcode number") },
                         singleLine = true,
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(16.dp)
                     )
                     Button(
                         onClick = {
@@ -172,7 +173,7 @@ fun BarcodeScannerScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(16.dp),
                         enabled = manualEntry.isNotBlank()
                     ) {
                         Text("Search Item", fontWeight = FontWeight.Bold)

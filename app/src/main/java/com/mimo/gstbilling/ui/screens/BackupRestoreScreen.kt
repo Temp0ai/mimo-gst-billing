@@ -21,7 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,8 +58,8 @@ fun BackupRestoreScreen(navController: NavController) {
             )
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.Storage, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
@@ -67,7 +72,7 @@ fun BackupRestoreScreen(navController: NavController) {
                 }
             }
 
-            Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(20.dp))
@@ -92,7 +97,7 @@ fun BackupRestoreScreen(navController: NavController) {
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
                     ) {
                         Text("Backup Now", color = Color.White, fontWeight = FontWeight.Bold)
@@ -100,7 +105,7 @@ fun BackupRestoreScreen(navController: NavController) {
                 }
             }
 
-            Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Filled.CloudDownload, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
@@ -115,7 +120,7 @@ fun BackupRestoreScreen(navController: NavController) {
                         Button(
                             onClick = { showRestoreDialog = true },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Primary)
                         ) {
                             Text("Restore from Latest Backup", color = Color.White, fontWeight = FontWeight.Bold)
@@ -125,7 +130,7 @@ fun BackupRestoreScreen(navController: NavController) {
             }
 
             if (backups.isNotEmpty()) {
-                Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text("Available Backups (${backups.size})", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))

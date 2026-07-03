@@ -21,7 +21,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.utils.CsvImporter
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -111,8 +116,8 @@ fun ImportDataScreen(navController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Filled.FileUpload, contentDescription = null, tint = Primary, modifier = Modifier.size(64.dp))
                     Spacer(modifier = Modifier.height(12.dp))
@@ -124,7 +129,7 @@ fun ImportDataScreen(navController: NavController) {
                 }
             }
 
-            Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("Import Items", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                     Text("Import items with name, HSN, price, GST rate", fontSize = 12.sp, color = TextSecondary)
@@ -132,13 +137,13 @@ fun ImportDataScreen(navController: NavController) {
                     Button(onClick = {
                         importType = "items"
                         launcher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel"))
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
                         Text("Select Items CSV File")
                     }
                 }
             }
 
-            Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("Import Parties", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                     Text("Import parties with name, phone, GSTIN, address", fontSize = 12.sp, color = TextSecondary)
@@ -146,14 +151,14 @@ fun ImportDataScreen(navController: NavController) {
                     Button(onClick = {
                         importType = "parties"
                         launcher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel"))
-                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp)) {
+                    }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp)) {
                         Text("Select Parties CSV File")
                     }
                 }
             }
 
             if (showResult) {
-                Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = if (importedCount > 0) GreenBalance.copy(alpha = 0.1f) else RedAccent.copy(alpha = 0.1f))) {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (importedCount > 0) GreenBalance.copy(alpha = 0.1f) else RedAccent.copy(alpha = 0.1f))) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(

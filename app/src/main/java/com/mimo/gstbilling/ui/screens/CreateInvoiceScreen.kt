@@ -68,6 +68,7 @@ import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.LightBlueBg
 import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import com.mimo.gstbilling.data.local.entity.ItemEntity
@@ -145,7 +146,7 @@ fun CreateInvoiceScreen(
                 Button(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
                 ) {
                     Text("Cancel", color = TextPrimary, fontWeight = FontWeight.SemiBold)
@@ -162,7 +163,7 @@ fun CreateInvoiceScreen(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
                     enabled = !uiState.isSaving
                 ) {
@@ -175,7 +176,7 @@ fun CreateInvoiceScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(Color(0xFFF5F5F5))
+                .background(LightBlueBg)
         ) {
             item {
                 Row(
@@ -191,7 +192,7 @@ fun CreateInvoiceScreen(
                             value = invoiceNo,
                             onValueChange = { invoiceNo = it },
                             placeholder = { Text("Auto") },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.width(150.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -207,7 +208,7 @@ fun CreateInvoiceScreen(
                             trailingIcon = {
                                 Icon(Icons.Filled.CalendarToday, contentDescription = "Date", modifier = Modifier.size(18.dp))
                             },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             modifier = Modifier.width(150.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
@@ -237,7 +238,7 @@ fun CreateInvoiceScreen(
                                 .menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             label = { Text("Customer Name *") },
                             placeholder = { Text("Select or enter party name") },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             singleLine = true,
                             readOnly = true,
                             trailingIcon = {
@@ -282,7 +283,7 @@ fun CreateInvoiceScreen(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text("Phone Number") },
                         placeholder = { Text("Enter phone number") },
-                        shape = RoundedCornerShape(8.dp),
+                        shape = RoundedCornerShape(16.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = Color(0xFFE0E0E0)
@@ -319,7 +320,7 @@ fun CreateInvoiceScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
@@ -341,7 +342,7 @@ fun CreateInvoiceScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 4.dp),
-                        shape = RoundedCornerShape(10.dp),
+                        shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                     ) {
@@ -416,7 +417,7 @@ fun CreateInvoiceScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
-                    shape = RoundedCornerShape(10.dp)
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -433,7 +434,7 @@ fun CreateInvoiceScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
@@ -463,7 +464,7 @@ fun CreateInvoiceScreen(
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("Discount") },
                             placeholder = { Text("Enter discount amount") },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(
                                 unfocusedBorderColor = Color(0xFFE0E0E0)
@@ -478,7 +479,7 @@ fun CreateInvoiceScreen(
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("Notes") },
                             placeholder = { Text("Add any notes") },
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(16.dp),
                             minLines = 2,
                             colors = OutlinedTextFieldDefaults.colors(
                                 unfocusedBorderColor = Color(0xFFE0E0E0)
@@ -497,7 +498,7 @@ fun CreateInvoiceScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
@@ -546,7 +547,7 @@ fun CreateInvoiceScreen(
                                     viewModel.addItem(item)
                                     showItemPicker = false
                                 },
-                                shape = RoundedCornerShape(8.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White)
                             ) {
                                 Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
