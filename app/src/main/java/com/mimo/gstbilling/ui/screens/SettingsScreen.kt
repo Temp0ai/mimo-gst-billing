@@ -69,7 +69,7 @@ fun SettingsScreen(navController: NavController) {
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
             fun settingsSection(title: String) { /* handled inline */ }
-            item { Text(title = "General", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
+            item { Text("General", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
             items(generalSettings) { item ->
                 Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).clickable {
                     when (item.title) {
