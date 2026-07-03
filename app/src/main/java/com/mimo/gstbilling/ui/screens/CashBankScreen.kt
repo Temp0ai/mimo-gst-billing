@@ -49,7 +49,7 @@ fun CashBankScreen(navController: NavController, viewModel: CashBankViewModel = 
             items(transactions) { txn ->
                 Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                     Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) { Text(txn.description, fontWeight = FontWeight.Bold, color = TextPrimary); Text(dateFormat.format(Date(txn.date)), fontSize = 12.sp, color = TextSecondary) }
+                        Column(modifier = Modifier.weight(1f)) { Text(txn.description ?: "", fontWeight = FontWeight.Bold, color = TextPrimary); Text(dateFormat.format(Date(txn.date)), fontSize = 12.sp, color = TextSecondary) }
                         Text(String.format(Locale.US, "\u20B9%,.2f", txn.amount), fontWeight = FontWeight.Bold, color = if (txn.type == "credit") GreenBalance else RedAccent)
                     }
                 }
