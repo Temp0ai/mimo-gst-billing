@@ -77,7 +77,7 @@ fun PartiesScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedButton(
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.CashBank.route) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(25.dp),
                     border = BorderStroke(1.dp, Primary),
@@ -172,7 +172,7 @@ fun PartiesScreen(
                     ) {
                         Text("+ New Party", color = Primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     }
-                    IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                    IconButton(onClick = { navController.navigate(Screen.AddParty.route) }, modifier = Modifier.size(32.dp)) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
                     }
                 }

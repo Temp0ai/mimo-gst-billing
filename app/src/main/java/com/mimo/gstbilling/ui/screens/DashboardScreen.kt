@@ -166,7 +166,32 @@ fun DashboardScreen(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .clickable { scope.launch { drawerState.close() } }
+                                        .clickable {
+                                            scope.launch { drawerState.close() }
+                                            when (subItem) {
+                                                "All Parties" -> navController.navigate(Screen.Parties.route)
+                                                "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                                "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
+                                                "All Items" -> navController.navigate(Screen.Items.route)
+                                                "Products" -> navController.navigate(Screen.Items.route)
+                                                "Services" -> navController.navigate(Screen.Items.route)
+                                                "Batch/Serial" -> navController.navigate(Screen.ItemBatchTracking.route)
+                                                "All Sales" -> navController.navigate(Screen.Sales.route)
+                                                "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
+                                                "All Purchases" -> navController.navigate(Screen.Purchases.route)
+                                                "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                                                "Estimates" -> navController.navigate(Screen.Orders.route)
+                                                "Quotations" -> navController.navigate(Screen.Orders.route)
+                                                "Orders" -> navController.navigate(Screen.Orders.route)
+                                                "GSTR-1" -> navController.navigate(Screen.Gstr1Report.route)
+                                                "GSTR-3B" -> navController.navigate(Screen.Gstr3bReport.route)
+                                                "Day Book" -> navController.navigate(Screen.DayBookReport.route)
+                                                "Cash Flow" -> navController.navigate(Screen.CashFlowReport.route)
+                                                "Balance Sheet" -> navController.navigate(Screen.BalanceSheet.route)
+                                                "P&L" -> navController.navigate(Screen.ProfitLossReport.route)
+                                                "Expense Categories" -> navController.navigate(Screen.ExpenseCategoryReport.route)
+                                            }
+                                        }
                                         .padding(start = 52.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {

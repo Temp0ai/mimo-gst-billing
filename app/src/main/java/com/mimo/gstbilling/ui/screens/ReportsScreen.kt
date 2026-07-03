@@ -28,15 +28,15 @@ fun ReportsScreen(navController: NavController) {
     val sections = listOf(
         "Sale Reports" to listOf(
             Triple("Sale Report", Icons.Filled.TrendingUp, Screen.Sales.route),
-            Triple("Sale Return Report", Icons.Filled.TrendingDown, ""),
-            Triple("Party Wise Sale Report", Icons.Filled.Group, ""),
-            Triple("Item Wise Sale Report", Icons.Filled.Inventory, "")
+            Triple("Sale Return Report", Icons.Filled.TrendingDown, Screen.Sales.route),
+            Triple("Party Wise Sale Report", Icons.Filled.Group, Screen.Parties.route),
+            Triple("Item Wise Sale Report", Icons.Filled.Inventory, Screen.Items.route)
         ),
         "Purchase Reports" to listOf(
             Triple("Purchase Report", Icons.Filled.LocalShipping, Screen.Purchases.route),
-            Triple("Purchase Return Report", Icons.Filled.TrendingDown, ""),
-            Triple("Party Wise Purchase Report", Icons.Filled.Group, ""),
-            Triple("Item Wise Purchase Report", Icons.Filled.Inventory, "")
+            Triple("Purchase Return Report", Icons.Filled.TrendingDown, Screen.Purchases.route),
+            Triple("Party Wise Purchase Report", Icons.Filled.Group, Screen.Parties.route),
+            Triple("Item Wise Purchase Report", Icons.Filled.Inventory, Screen.Items.route)
         ),
         "Financial Reports" to listOf(
             Triple("Profit & Loss", Icons.Filled.PieChart, Screen.ProfitLossReport.route),
@@ -48,12 +48,12 @@ fun ReportsScreen(navController: NavController) {
         "Tax Reports (GST)" to listOf(
             Triple("GSTR-1 Report", Icons.Filled.Receipt, Screen.Gstr1Report.route),
             Triple("GSTR-3B Report", Icons.Filled.Description, Screen.Gstr3bReport.route),
-            Triple("Tax Summary", Icons.Filled.Receipt, "")
+            Triple("Tax Summary", Icons.Filled.Receipt, Screen.Gstr1Report.route)
         ),
         "Stock Reports" to listOf(
-            Triple("Stock Summary", Icons.Filled.Inventory, ""),
+            Triple("Stock Summary", Icons.Filled.Inventory, Screen.Items.route),
             Triple("Stock Transfer", Icons.Filled.LocalShipping, Screen.StockTransfer.route),
-            Triple("Low Stock Alert", Icons.Filled.Warning, "")
+            Triple("Low Stock Alert", Icons.Filled.Warning, Screen.Items.route)
         )
     )
 

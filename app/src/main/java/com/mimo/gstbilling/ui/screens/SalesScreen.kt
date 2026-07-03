@@ -50,7 +50,7 @@ fun SalesScreen(navController: NavController, viewModel: InvoiceViewModel = hilt
         },
         bottomBar = {
             Row(modifier = Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                OutlinedButton(onClick = { }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(25.dp), border = androidx.compose.foundation.BorderStroke(1.dp, Primary), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)) { Text("Take Payment", fontSize = 13.sp) }
+                OutlinedButton(onClick = { navController.navigate(Screen.CashBank.route) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(25.dp), border = androidx.compose.foundation.BorderStroke(1.dp, Primary), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)) { Text("Take Payment", fontSize = 13.sp) }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(onClick = { navController.navigate(Screen.CreateInvoice.route) }, modifier = Modifier.size(50.dp), shape = androidx.compose.foundation.shape.CircleShape, colors = ButtonDefaults.buttonColors(containerColor = Primary), contentPadding = PaddingValues(0.dp)) { Icon(Icons.Filled.Add, contentDescription = null, tint = Color.White) }
                 Spacer(modifier = Modifier.width(12.dp))
