@@ -27,12 +27,44 @@ import com.mimo.gstbilling.ui.viewmodel.ExpenseViewModel
 fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = hiltViewModel()) {
     val expenses by viewModel.expenses.collectAsState()
     val totalExpenses by viewModel.totalExpenses.collectAsState()
+    var showAddDialog by remember { mutableStateOf(false) }
+
+    if (showAddDialog) {
+        var category by remember { mutableStateOf("") }
+        var amount by remember { mutableStateOf("") }
+        var description by remember { mutableStateOf("") }
+        AlertDialog(
+            onDismissRequest = { showAddDialog = false },
+            title = { Text("Add Expense", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = category, onValueChange = { category = it }, label = { Text("Category *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth())
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (category.isNotBlank() && (amount.toDoubleOrNull() ?: 0.0) > 0) {
+                        viewModel.addExpense(category, amount.toDoubleOrNull() ?: 0.0, description.ifBlank { null })
+                        showAddDialog = false
+                    }
+                }) { Text("Add") }
+            },
+            dismissButton = { TextButton(onClick = { showAddDialog = false }) { Text("Cancel") } }
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Expenses", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = GreenBalance, contentColor = Color.White) {
+                Icon(Icons.Filled.Add, contentDescription = "Add Expense")
+            }
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
@@ -53,7 +85,12 @@ fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = h
                 Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                     Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) { Text(expense.category, fontWeight = FontWeight.Bold, color = TextPrimary); Text(expense.description ?: "", fontSize = 12.sp, color = TextSecondary) }
-                        Text(String.format(java.util.Locale.US, "\u20B9%,.2f", expense.amount), fontWeight = FontWeight.Bold, color = RedAccent)
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(String.format(java.util.Locale.US, "\u20B9%,.2f", expense.amount), fontWeight = FontWeight.Bold, color = RedAccent)
+                            IconButton(onClick = { viewModel.deleteExpense(expense) }, modifier = Modifier.size(24.dp)) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent, modifier = Modifier.size(18.dp))
+                            }
+                        }
                     }
                 }
             }
