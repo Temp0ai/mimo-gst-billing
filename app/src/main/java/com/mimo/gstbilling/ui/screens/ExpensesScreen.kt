@@ -33,6 +33,7 @@ fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = h
         var category by remember { mutableStateOf("") }
         var amount by remember { mutableStateOf("") }
         var description by remember { mutableStateOf("") }
+        var paymentMode by remember { mutableStateOf("cash") }
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
             title = { Text("Add Expense", fontWeight = FontWeight.Bold) },
@@ -46,7 +47,7 @@ fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = h
             confirmButton = {
                 TextButton(onClick = {
                     if (category.isNotBlank() && (amount.toDoubleOrNull() ?: 0.0) > 0) {
-                        viewModel.addExpense(category, amount.toDoubleOrNull() ?: 0.0, description.ifBlank { null })
+                        viewModel.addExpense(category, amount.toDoubleOrNull() ?: 0.0, System.currentTimeMillis(), description.ifBlank { null }, paymentMode)
                         showAddDialog = false
                     }
                 }) { Text("Add") }
