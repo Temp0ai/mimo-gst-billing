@@ -20,7 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.theme.ThemeManager
+import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.GreenBalance
+import com.mimo.gstbilling.ui.theme.RedAccent
+import com.mimo.gstbilling.ui.theme.TextPrimary
+import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.theme.LightBlueBg
 
 data class SettingsItem(val title: String, val subtitle: String = "", val icon: ImageVector, val iconColor: Color = Primary, val hasToggle: Boolean = false)
 
@@ -28,7 +34,7 @@ data class SettingsItem(val title: String, val subtitle: String = "", val icon: 
 @Composable
 fun SettingsScreen(navController: NavController) {
     var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkMode by remember { mutableStateOf(false) }
+    var darkMode by ThemeManager.isDarkMode
 
     val generalSettings = listOf(
         SettingsItem("Business Profile", "Company name, address, GSTIN", Icons.Filled.Business, Primary),
