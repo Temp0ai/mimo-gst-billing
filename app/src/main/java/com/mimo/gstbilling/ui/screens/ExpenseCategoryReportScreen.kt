@@ -35,8 +35,8 @@ fun ExpenseCategoryReportScreen(navController: NavController, viewModel: Expense
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            item { Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFE91E63))) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            item { Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFE91E63))) {
                 Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Total Expenses", color = Color.White, fontWeight = FontWeight.Bold)
                     Text(String.format(Locale.US, "\u20B9%,.2f", totalExpenses), color = Color.White, fontWeight = FontWeight.Bold)
@@ -46,7 +46,7 @@ fun ExpenseCategoryReportScreen(navController: NavController, viewModel: Expense
                 item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No expenses recorded", color = TextSecondary) } }
             } else {
                 items(categories.entries.toList()) { (cat, amt) ->
-                    Card(shape = RoundedCornerShape(8.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text(cat, color = TextPrimary, fontWeight = FontWeight.Medium)
                             Text(String.format(Locale.US, "\u20B9%,.2f", amt), color = RedAccent, fontWeight = FontWeight.Bold)

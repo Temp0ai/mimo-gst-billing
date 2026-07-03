@@ -37,11 +37,11 @@ fun BalanceSheetScreen(navController: NavController, viewModel: InvoiceViewModel
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F5F5)).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFF795548))) {
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item { Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFF795548))) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) { Text("Balance Sheet", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp) }
             }}
-            item { Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            item { Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                     Text("ASSETS", fontWeight = FontWeight.Bold, color = GreenBalance, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
@@ -49,7 +49,7 @@ fun BalanceSheetScreen(navController: NavController, viewModel: InvoiceViewModel
                     ReportDetailRow("Accounts Receivable", String.format(Locale.US, "\u20B9%,.2f", totalReceivable))
                 }
             }}
-            item { Card(shape = RoundedCornerShape(10.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            item { Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                     Text("LIABILITIES", fontWeight = FontWeight.Bold, color = RedAccent, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(8.dp))
