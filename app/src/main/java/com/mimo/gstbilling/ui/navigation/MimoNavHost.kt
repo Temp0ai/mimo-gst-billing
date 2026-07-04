@@ -25,6 +25,7 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         }
         composable(Screen.Reports.route) { ReportsScreen(navController) }
         composable(Screen.Settings.route) { SettingsScreen(navController) }
+        composable(Screen.BusinessProfile.route) { BusinessProfileScreen(navController) }
         composable(Screen.Sales.route) { SalesScreen(navController) }
         composable(Screen.Purchases.route) { PurchasesScreen(navController) }
         composable(Screen.Expenses.route) { ExpensesScreen(navController) }
@@ -57,6 +58,10 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.ImportData.route) { ImportDataScreen(navController) }
         composable(Screen.ThermalPrinter.route) { ThermalPrinterScreen(navController) }
         composable(Screen.BackupRestore.route) { BackupRestoreScreen(navController) }
+        composable(route = Screen.EditParty.route, arguments = listOf(navArgument("partyId") { type = NavType.LongType })) { backStackEntry ->
+            val partyId = backStackEntry.arguments?.getLong("partyId") ?: 0L
+            EditPartyScreen(navController, partyId)
+        }
         composable(route = Screen.EditInvoice.route, arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })) { backStackEntry ->
             val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
             EditInvoiceScreen(navController, invoiceId)

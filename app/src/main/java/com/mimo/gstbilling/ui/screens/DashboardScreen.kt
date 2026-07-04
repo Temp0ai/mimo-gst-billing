@@ -71,6 +71,7 @@ fun DashboardScreen(
     var expandedSection by remember { mutableStateOf("") }
 
     val menuItems = listOf(
+        DrawerMenuItem("Business Profile", Icons.Filled.Business),
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
         DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services", "Batch/Serial")),
         DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
@@ -129,6 +130,7 @@ fun DashboardScreen(
                                     } else {
                                         scope.launch { drawerState.close() }
                                         when (item.title) {
+                                            "Business Profile" -> navController.navigate(Screen.BusinessProfile.route)
                                             "Parties" -> navController.navigate(Screen.Parties.route)
                                             "Items" -> navController.navigate(Screen.Items.route)
                                             "Reports" -> navController.navigate(Screen.Reports.route)
@@ -381,7 +383,7 @@ fun DashboardScreen(
                     }
                 }
 
-                item { Spacer(modifier = Modifier.height(80.dp)) }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }

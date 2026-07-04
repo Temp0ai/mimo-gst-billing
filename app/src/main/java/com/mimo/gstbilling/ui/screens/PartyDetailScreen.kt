@@ -97,7 +97,7 @@ fun PartyDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.AddParty.route) }) {
+                    IconButton(onClick = { navController.navigate(Screen.EditParty.createRoute(partyId)) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }
                     IconButton(onClick = { showDeleteDialog = true }) {
@@ -122,7 +122,7 @@ fun PartyDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedButton(
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.CashBank.route) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, Primary),
@@ -132,7 +132,7 @@ fun PartyDetailScreen(
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.AddParty.route) },
                     modifier = Modifier.size(50.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = Primary),

@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -20,116 +18,145 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.ThemeManager
-import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.GreenBalance
-import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.TextSecondary
-import com.mimo.gstbilling.ui.theme.LightBlueBg
+import com.mimo.gstbilling.ui.theme.*
 
-data class SettingsItem(val title: String, val subtitle: String = "", val icon: ImageVector, val iconColor: Color = Primary, val hasToggle: Boolean = false)
+data class VyaparSettingsItem(
+    val title: String,
+    val icon: ImageVector,
+    val iconColor: Color = Primary,
+    val hasNew: Boolean = false,
+    val isPremium: Boolean = false,
+    val subItems: List<String> = emptyList()
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavController) {
-    var notificationsEnabled by remember { mutableStateOf(true) }
-    var darkMode by ThemeManager.isDarkMode
+    var expandedSection by remember { mutableStateOf("") }
 
-    val generalSettings = listOf(
-        SettingsItem("Business Profile", "Company name, address, GSTIN", Icons.Filled.Business, Primary),
-        SettingsItem("Invoice Settings", "Format, prefix, numbering", Icons.Filled.Description, Color(0xFFFF9800)),
-        SettingsItem("Transaction Settings", "Payment terms, rounding", Icons.Filled.Receipt, GreenBalance),
-        SettingsItem("Item Settings", "Units, categories, stock", Icons.Filled.Inventory, Color(0xFF00BCD4)),
-        SettingsItem("Party Settings", "Groups, payment reminders", Icons.Filled.Group, Color(0xFF9C27B0))
-    )
-    val taxSettings = listOf(
-        SettingsItem("Tax Configuration", "GST rates, HSN codes", Icons.Filled.Receipt, RedAccent),
-        SettingsItem("TCS/TDS Settings", "Tax collection at source", Icons.Filled.Receipt, Color(0xFF795548))
-    )
-    val appSettings = listOf(
-        SettingsItem("Notifications", "", Icons.Filled.Notifications, Primary, hasToggle = true),
-        SettingsItem("Dark Mode", "", Icons.Filled.Settings, Color(0xFF455A64), hasToggle = true),
-        SettingsItem("Security", "App lock, biometric", Icons.Filled.Lock, Color(0xFFE91E63)),
-        SettingsItem("Backup & Restore", "Local backup", Icons.Filled.CloudDownload, Primary),
-        SettingsItem("Thermal Printer", "Bluetooth printer setup", Icons.Filled.Print, GreenBalance)
-    )
-    val aboutSettings = listOf(
-        SettingsItem("About Mimo GST", "Version 1.0.0", Icons.Filled.Info, Primary),
-        SettingsItem("Privacy Policy", "", Icons.Filled.Info, TextSecondary),
-        SettingsItem("Terms of Service", "", Icons.Filled.Info, TextSecondary)
+    val settingsItems = listOf(
+        VyaparSettingsItem("General", Icons.Filled.Settings, Primary, hasNew = true,
+            subItems = listOf("Business Profile", "Invoice Settings", "Item Settings", "Party Settings")),
+        VyaparSettingsItem("Transaction", Icons.Filled.CurrencyRupee, Color(0xFF4CAF50), hasNew = true,
+            subItems = listOf("Transaction Settings", "Payment Settings")),
+        VyaparSettingsItem("Invoice Print", Icons.Filled.Print, Primary,
+            subItems = listOf("Print Format", "Print Size")),
+        VyaparSettingsItem("Taxes & GST", Icons.Filled.Percent, RedAccent, hasNew = true,
+            subItems = listOf("Tax Configuration", "TCS/TDS Settings")),
+        VyaparSettingsItem("User Management", Icons.Filled.Group, Color(0xFF9C27B0),
+            subItems = listOf("Add Staff", "Manage Permissions")),
+        VyaparSettingsItem("Transaction SMS", Icons.Filled.Chat, Color(0xFF2196F3), hasNew = true,
+            subItems = listOf("SMS Templates", "Auto Send")),
+        VyaparSettingsItem("Reminders", Icons.Filled.Notifications, Color(0xFFFF9800),
+            subItems = listOf("Payment Reminders", "Stock Alerts")),
+        VyaparSettingsItem("Party", Icons.Filled.People, Color(0xFF607D8B),
+            subItems = listOf("Party Settings", "Party Groups")),
+        VyaparSettingsItem("Item", Icons.Filled.Inventory, Color(0xFF00BCD4),
+            subItems = listOf("Item Settings", "Units & Categories")),
+        VyaparSettingsItem("Multi-Currency", Icons.Filled.AttachMoney, Color(0xFF795548), isPremium = true,
+            subItems = listOf("Currency Settings"))
     )
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Settings", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+            TopAppBar(
+                title = { Text("Settings", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Primary,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
+            )
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
-            fun settingsSection(title: String) { /* handled inline */ }
-            item { Text("General", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
-            items(generalSettings) { item ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).clickable {
-                    when (item.title) {
-                        "Party Settings" -> navController.navigate(Screen.PartyGroups.route)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(Color.White)
+        ) {
+            items(settingsItems.size) { index ->
+                val item = settingsItems[index]
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                expandedSection = if (expandedSection == item.title) "" else item.title
+                            }
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(item.icon, contentDescription = null, tint = item.iconColor, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(item.title, fontSize = 16.sp, color = TextPrimary, modifier = Modifier.weight(1f))
+                        if (item.hasNew) {
+                            Box(
+                                modifier = Modifier
+                                    .background(RedAccent, RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                            ) {
+                                Text("NEW", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        if (item.isPremium) {
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFFFCDD2), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text("PRO", fontSize = 10.sp, color = RedAccent, fontWeight = FontWeight.Bold)
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
+                        Icon(
+                            if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = TextSecondary,
+                            modifier = Modifier.size(22.dp)
+                        )
                     }
-                }, shape = RoundedCornerShape(0.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(item.icon, contentDescription = null, tint = item.iconColor, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) { Text(item.title, fontSize = 15.sp, color = TextPrimary); if (item.subtitle.isNotEmpty()) Text(item.subtitle, fontSize = 12.sp, color = TextSecondary) }
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
-                    }
-                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
-                }
-            }
-            item { Text("Tax", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
-            items(taxSettings) { item ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp), shape = RoundedCornerShape(0.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(item.icon, contentDescription = null, tint = item.iconColor, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) { Text(item.title, fontSize = 15.sp, color = TextPrimary); if (item.subtitle.isNotEmpty()) Text(item.subtitle, fontSize = 12.sp, color = TextSecondary) }
-                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
-                    }
-                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
-                }
-            }
-            item { Text("App", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
-            items(appSettings) { item ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp).clickable {
-                    when (item.title) {
-                        "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)
-                        "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                    }
-                }, shape = RoundedCornerShape(0.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(item.icon, contentDescription = null, tint = item.iconColor, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Text(item.title, fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                        if (item.hasToggle) {
-                            Switch(checked = if (item.title == "Notifications") notificationsEnabled else darkMode, onCheckedChange = { if (item.title == "Notifications") notificationsEnabled = it else darkMode = it }, colors = SwitchDefaults.colors(checkedTrackColor = Primary))
-                        } else {
-                            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(18.dp))
+                    if (expandedSection == item.title) {
+                        item.subItems.forEach { subItem ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        when (subItem) {
+                                            "Business Profile" -> navController.navigate(Screen.BusinessProfile.route)
+                                            "Transaction Settings" -> { }
+                                            "Payment Settings" -> { }
+                                            "Tax Configuration" -> { }
+                                            "TCS/TDS Settings" -> { }
+                                            "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                            "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
+                                        }
+                                    }
+                                    .background(Color(0xFFF8F9FA))
+                                    .padding(start = 56.dp, end = 16.dp, top = 14.dp, bottom = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Primary, modifier = Modifier.size(16.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(subItem, fontSize = 14.sp, color = TextPrimary)
+                            }
                         }
                     }
-                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
                 }
             }
-            item { Text("About", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Primary, modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)) }
-            items(aboutSettings) { item ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 2.dp), shape = RoundedCornerShape(0.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(item.icon, contentDescription = null, tint = item.iconColor, modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(14.dp))
-                        Column(modifier = Modifier.weight(1f)) { Text(item.title, fontSize = 15.sp, color = TextPrimary); if (item.subtitle.isNotEmpty()) Text(item.subtitle, fontSize = 12.sp, color = TextSecondary) }
-                    }
-                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
-                }
-            }
-            item { Spacer(modifier = Modifier.height(20.dp)) }
         }
     }
 }
