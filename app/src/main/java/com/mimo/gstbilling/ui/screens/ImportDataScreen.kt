@@ -176,6 +176,7 @@ fun ImportDataScreen(
                                         email = emailIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                                         address = addrIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                                         state = stateIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
+                                        stateCode = null,
                                         balance = balanceIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "0" }?.trim()?.toDoubleOrNull() } ?: 0.0,
                                         partyType = partyType
                                     )
