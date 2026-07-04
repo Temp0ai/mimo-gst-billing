@@ -89,8 +89,11 @@ fun DashboardScreen(
         DrawerMenuItem("Other Products", Icons.Filled.LocalOffer),
         DrawerMenuItem("Sync & Share", Icons.Filled.CloudSync, subtitle = "Tap to sync data"),
         DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
-        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning, subtitle = "Auto backup not enabled."),
-        DrawerMenuItem("Plans & Pricing", Icons.Filled.LocalOffer, subtitle = "Free Plan")
+        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning, hasExpand = true, subtitle = "Auto backup not enabled.", subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
+        DrawerMenuItem("Plans & Pricing", Icons.Filled.LocalOffer, subtitle = "Free Plan"),
+        DrawerMenuItem("Grow Your Business", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("Business Dashboard", "Analytics")),
+        DrawerMenuItem("Utilities", Icons.Filled.Build, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data")),
+        DrawerMenuItem("Help & Support", Icons.Filled.Notifications, hasExpand = true, subItems = listOf("FAQs", "Contact Support"))
     )
 
     ModalNavigationDrawer(
@@ -176,6 +179,9 @@ fun DashboardScreen(
                                             "Settings" -> navController.navigate(Screen.Settings.route)
                                             "Backup/Restore" -> navController.navigate(Screen.BackupRestore.route)
                                             "Plans & Pricing" -> { }
+                                            "Grow Your Business" -> { }
+                                            "Utilities" -> { }
+                                            "Help & Support" -> { }
                                         }
                                     }
                                 }
@@ -232,6 +238,17 @@ fun DashboardScreen(
                                                 "Bank Accounts" -> navController.navigate(Screen.CashBank.route)
                                                 "Store Settings" -> { }
                                                 "Products" -> navController.navigate(Screen.Items.route)
+                                                "Auto Backup" -> { }
+                                                "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Backup to e-mail" -> { }
+                                                "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                                "Analytics" -> navController.navigate(Screen.Reports.route)
+                                                "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                                "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                                "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                                "FAQs" -> { }
+                                                "Contact Support" -> { }
                                             }
                                         }
                                         .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
