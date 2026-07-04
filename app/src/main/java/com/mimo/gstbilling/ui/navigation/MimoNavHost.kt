@@ -56,6 +56,7 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.ExpenseCategoryReport.route) { ExpenseCategoryReportScreen(navController) }
         composable(Screen.ItemBatchTracking.route) { ItemBatchScreen(navController) }
         composable(Screen.ImportData.route) { ImportDataScreen(navController) }
+        composable(Screen.ExportData.route) { ExportDataScreen(navController) }
         composable(Screen.ThermalPrinter.route) { ThermalPrinterScreen(navController) }
         composable(Screen.BackupRestore.route) { BackupRestoreScreen(navController) }
         composable(route = Screen.EditParty.route, arguments = listOf(navArgument("partyId") { type = NavType.LongType })) { backStackEntry ->

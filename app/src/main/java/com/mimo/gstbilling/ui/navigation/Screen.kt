@@ -43,6 +43,7 @@ sealed class Screen(val route: String) {
     object ExpenseCategoryReport : Screen("expense_category_report")
     object ItemBatchTracking : Screen("item_batch_tracking")
     object ImportData : Screen("import_data")
+    object ExportData : Screen("export_data")
     object ThermalPrinter : Screen("thermal_printer")
     object BackupRestore : Screen("backup_restore")
     object EditInvoice : Screen("edit_invoice/{invoiceId}") {

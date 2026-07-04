@@ -55,7 +55,9 @@ fun SettingsScreen(navController: NavController) {
         VyaparSettingsItem("Item", Icons.Filled.Inventory, Color(0xFF00BCD4),
             subItems = listOf("Item Settings", "Units & Categories")),
         VyaparSettingsItem("Multi-Currency", Icons.Filled.AttachMoney, Color(0xFF795548), isPremium = true,
-            subItems = listOf("Currency Settings"))
+            subItems = listOf("Currency Settings")),
+        VyaparSettingsItem("Data", Icons.Filled.Storage, Color(0xFF455A64),
+            subItems = listOf("Import Database", "Export Database", "Backup & Restore"))
     )
 
     Scaffold(
@@ -142,7 +144,22 @@ fun SettingsScreen(navController: NavController) {
                                             "Tax Configuration" -> { }
                                             "TCS/TDS Settings" -> { }
                                             "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                            "Party Settings" -> navController.navigate(Screen.Parties.route)
                                             "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
+                                            "Invoice Settings" -> { }
+                                            "Item Settings" -> navController.navigate(Screen.Items.route)
+                                            "Print Format" -> { }
+                                            "Print Size" -> { }
+                                            "Add Staff" -> { }
+                                            "Manage Permissions" -> { }
+                                            "SMS Templates" -> { }
+                                            "Auto Send" -> { }
+                                            "Stock Alerts" -> { }
+                                            "Units & Categories" -> { }
+                                            "Currency Settings" -> { }
+                                            "Import Database" -> navController.navigate(Screen.ImportData.route)
+                                            "Export Database" -> navController.navigate(Screen.ExportData.route)
+                                            "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)
                                         }
                                     }
                                     .background(Color(0xFFF8F9FA))
