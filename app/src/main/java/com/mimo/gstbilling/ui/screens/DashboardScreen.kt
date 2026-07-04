@@ -33,7 +33,9 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.automirrored.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -77,7 +79,7 @@ fun DashboardScreen(
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
-        DrawerMenuItem("Items", Icons.Filled.List),
+        DrawerMenuItem("Items", Icons.Filled.FormatListBulleted),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.Description, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
@@ -258,7 +260,7 @@ fun DashboardScreen(
                     },
                     actions = {
                         IconButton(onClick = { }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
-                        IconButton(onClick = { }) { Icon(Icons.Filled.Share, contentDescription = "Share") }
+                        IconButton(onClick = { }) { Icon(Icons.AutoMirrored.Filled.Share, contentDescription = "Share") }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
                 )
