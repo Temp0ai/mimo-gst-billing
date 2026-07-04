@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.automirrored.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -260,7 +259,6 @@ fun DashboardScreen(
                     },
                     actions = {
                         IconButton(onClick = { }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
-                        IconButton(onClick = { }) { Icon(Icons.AutoMirrored.Filled.Share, contentDescription = "Share") }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
                 )
