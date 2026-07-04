@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -41,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,7 +59,9 @@ data class DrawerMenuItem(
     val icon: ImageVector,
     val hasExpand: Boolean = false,
     val subItems: List<String> = emptyList(),
-    val hasNewBadge: Boolean = false
+    val hasNewBadge: Boolean = false,
+    val subtitle: String? = null,
+    val hasAddIcon: Boolean = false
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,24 +76,20 @@ fun DashboardScreen(
     var expandedSection by remember { mutableStateOf("") }
 
     val menuItems = listOf(
-        DrawerMenuItem("Business Profile", Icons.Filled.Business),
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
-        DrawerMenuItem("Items", Icons.Filled.Inventory, hasExpand = true, subItems = listOf("All Items", "Products", "Services", "Batch/Serial")),
-        DrawerMenuItem("Sale", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
-        DrawerMenuItem("Purchase", Icons.Filled.LocalShipping, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
-        DrawerMenuItem("Orders", Icons.Filled.Description, hasExpand = true, subItems = listOf("Estimates", "Quotations", "Orders")),
-        DrawerMenuItem("Expense", Icons.Filled.Receipt),
-        DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance),
-        DrawerMenuItem("Reports", Icons.Filled.PieChart, hasExpand = true, subItems = listOf("GSTR-1", "GSTR-3B", "Day Book", "Cash Flow", "Balance Sheet", "P&L", "Expense Categories")),
-        DrawerMenuItem("Manufacturing", Icons.Filled.Build),
-        DrawerMenuItem("Store Management", Icons.Filled.Store),
-        DrawerMenuItem("Stock Transfer", Icons.Filled.LocalShipping),
-        DrawerMenuItem("Barcode Scanner", Icons.Filled.CameraAlt),
-        DrawerMenuItem("Thermal Printer", Icons.Filled.Print),
-        DrawerMenuItem("Payment Reminders", Icons.Filled.Notifications),
-        DrawerMenuItem("Import Data", Icons.Filled.Warning),
-        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning),
-        DrawerMenuItem("Settings", Icons.Filled.Settings)
+        DrawerMenuItem("Items", Icons.Filled.List),
+        DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
+        DrawerMenuItem("Reports", Icons.Filled.PieChart),
+        DrawerMenuItem("Sale", Icons.Filled.Description, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
+        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
+        DrawerMenuItem("Expense", Icons.Filled.Receipt, hasAddIcon = true),
+        DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
+        DrawerMenuItem("My Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
+        DrawerMenuItem("Other Products", Icons.Filled.LocalOffer),
+        DrawerMenuItem("Sync & Share", Icons.Filled.CloudSync, subtitle = "Tap to sync data"),
+        DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
+        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning, subtitle = "Auto backup not enabled."),
+        DrawerMenuItem("Plans & Pricing", Icons.Filled.LocalOffer, subtitle = "Free Plan")
     )
 
     ModalNavigationDrawer(
@@ -101,24 +102,54 @@ fun DashboardScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Primary)
-                        .padding(20.dp)
+                        .padding(16.dp)
                 ) {
-                    Column {
-                        Text(
-                            text = data.companyName,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "GST Registered Business",
-                            color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 13.sp
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(Color.White),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = data.companyName.take(1).uppercase(),
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = data.companyName,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "GST Registered Business",
+                                color = Color.White.copy(alpha = 0.8f),
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
+                                scope.launch { drawerState.close() }
+                                navController.navigate(Screen.BusinessProfile.route)
+                            }) {
+                                Text("Change Company", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(Icons.Filled.ExpandMore, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                            }
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(4.dp))
                 menuItems.forEach { item ->
                     Column {
                         Row(
@@ -130,35 +161,53 @@ fun DashboardScreen(
                                     } else {
                                         scope.launch { drawerState.close() }
                                         when (item.title) {
-                                            "Business Profile" -> navController.navigate(Screen.BusinessProfile.route)
                                             "Parties" -> navController.navigate(Screen.Parties.route)
                                             "Items" -> navController.navigate(Screen.Items.route)
+                                            "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
                                             "Reports" -> navController.navigate(Screen.Reports.route)
                                             "Sale" -> navController.navigate(Screen.Sales.route)
                                             "Purchase" -> navController.navigate(Screen.Purchases.route)
                                             "Expense" -> navController.navigate(Screen.Expenses.route)
                                             "Cash & Bank" -> navController.navigate(Screen.CashBank.route)
+                                            "My Online Store" -> { }
+                                            "Other Products" -> { }
+                                            "Sync & Share" -> { }
                                             "Settings" -> navController.navigate(Screen.Settings.route)
-                                            "Manufacturing" -> navController.navigate(Screen.Manufacturing.route)
-                                            "Store Management" -> navController.navigate(Screen.StoreManagement.route)
-                                            "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
-                                            "Stock Transfer" -> navController.navigate(Screen.StockTransfer.route)
-                                            "Orders" -> navController.navigate(Screen.Orders.route)
-                                            "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
-                                            "Import Data" -> navController.navigate(Screen.ImportData.route)
-                                            "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
                                             "Backup/Restore" -> navController.navigate(Screen.BackupRestore.route)
+                                            "Plans & Pricing" -> { }
                                         }
                                     }
                                 }
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(16.dp))
-                            Text(item.title, fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                            if (item.hasExpand) {
-                                Icon(if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.title, fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
+                                item.subtitle?.let {
+                                    Text(it, fontSize = 11.sp, color = TextSecondary)
+                                }
+                            }
+                            if (item.hasNewBadge) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(RedAccent, RoundedCornerShape(4.dp))
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                ) {
+                                    Text("NEW", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                            }
+                            if (item.hasAddIcon) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            } else if (item.hasExpand) {
+                                Icon(
+                                    if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = TextSecondary,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             } else {
                                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                             }
@@ -174,30 +223,20 @@ fun DashboardScreen(
                                                 "All Parties" -> navController.navigate(Screen.Parties.route)
                                                 "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
                                                 "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
-                                                "All Items" -> navController.navigate(Screen.Items.route)
-                                                "Products" -> navController.navigate(Screen.Items.route)
-                                                "Services" -> navController.navigate(Screen.Items.route)
-                                                "Batch/Serial" -> navController.navigate(Screen.ItemBatchTracking.route)
                                                 "All Sales" -> navController.navigate(Screen.Sales.route)
                                                 "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
                                                 "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                 "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
-                                                "Estimates" -> navController.navigate(Screen.Orders.route)
-                                                "Quotations" -> navController.navigate(Screen.Orders.route)
-                                                "Orders" -> navController.navigate(Screen.Orders.route)
-                                                "GSTR-1" -> navController.navigate(Screen.Gstr1Report.route)
-                                                "GSTR-3B" -> navController.navigate(Screen.Gstr3bReport.route)
-                                                "Day Book" -> navController.navigate(Screen.DayBookReport.route)
-                                                "Cash Flow" -> navController.navigate(Screen.CashFlowReport.route)
-                                                "Balance Sheet" -> navController.navigate(Screen.BalanceSheet.route)
-                                                "P&L" -> navController.navigate(Screen.ProfitLossReport.route)
-                                                "Expense Categories" -> navController.navigate(Screen.ExpenseCategoryReport.route)
+                                                "Cash Book" -> navController.navigate(Screen.CashBank.route)
+                                                "Bank Accounts" -> navController.navigate(Screen.CashBank.route)
+                                                "Store Settings" -> { }
+                                                "Products" -> navController.navigate(Screen.Items.route)
                                             }
                                         }
-                                        .padding(start = 52.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                                        .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(6.dp))
+                                    Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(5.dp))
                                     Spacer(modifier = Modifier.width(12.dp))
                                     Text(subItem, fontSize = 14.sp, color = TextSecondary)
                                 }
@@ -219,6 +258,7 @@ fun DashboardScreen(
                     },
                     actions = {
                         IconButton(onClick = { }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
+                        IconButton(onClick = { }) { Icon(Icons.Filled.Share, contentDescription = "Share") }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
                 )
