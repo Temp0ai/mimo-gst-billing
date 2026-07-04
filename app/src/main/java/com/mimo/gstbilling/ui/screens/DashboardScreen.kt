@@ -224,41 +224,48 @@ fun DashboardScreen(
                 )
             },
             bottomBar = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color.White)
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shadowElevation = 8.dp,
+                    color = Color.White
                 ) {
-                    OutlinedButton(
-                        onClick = { navController.navigate(Screen.CashBank.route) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(25.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Primary),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                        modifier = Modifier.size(50.dp),
-                        shape = CircleShape,
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Button(
-                        onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(25.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
-                    ) {
-                        Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        OutlinedButton(
+                            onClick = { navController.navigate(Screen.CashBank.route) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(25.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Primary),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
+                            contentPadding = PaddingValues(vertical = 12.dp)
+                        ) {
+                            Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Button(
+                            onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                            modifier = Modifier.size(52.dp),
+                            shape = CircleShape,
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                            contentPadding = PaddingValues(0.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(26.dp))
+                        }
+                        Button(
+                            onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(25.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
+                            contentPadding = PaddingValues(vertical = 12.dp)
+                        ) {
+                            Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
