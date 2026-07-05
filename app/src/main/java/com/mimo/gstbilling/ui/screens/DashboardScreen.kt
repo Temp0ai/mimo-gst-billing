@@ -81,7 +81,7 @@ fun DashboardScreen(
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
-        DrawerMenuItem("Sale", Icons.Filled.Description, hasExpand = true, subItems = listOf("All Sales", "Create Sale")),
+        DrawerMenuItem("Sale", Icons.Filled.Description, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
         DrawerMenuItem("Expense", Icons.Filled.Receipt, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
@@ -232,6 +232,7 @@ fun DashboardScreen(
                                                 "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
                                                 "All Sales" -> navController.navigate(Screen.Sales.route)
                                                 "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
+                                                "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
                                                 "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                 "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
                                                 "Cash Book" -> navController.navigate(Screen.CashBank.route)

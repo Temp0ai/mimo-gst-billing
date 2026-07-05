@@ -120,6 +120,9 @@ fun CreateInvoiceScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { navController.navigate(Screen.InvoiceTemplates.route) }) {
+                        Icon(Icons.Filled.Description, contentDescription = "Templates")
+                    }
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.Share, contentDescription = "Share")
                     }
