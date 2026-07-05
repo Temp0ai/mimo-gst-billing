@@ -189,7 +189,7 @@ fun PartyDetailScreen(
                         HorizontalDivider(color = Color(0xFFE0E0E0))
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            OutlinedButton(onClick = { }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
+                            OutlinedButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
                                 Icon(Icons.Filled.Notifications, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("Send Reminder", color = BlueHeader, fontSize = 13.sp)

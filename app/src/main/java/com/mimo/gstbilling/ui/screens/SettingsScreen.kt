@@ -70,7 +70,7 @@ fun SettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                 },

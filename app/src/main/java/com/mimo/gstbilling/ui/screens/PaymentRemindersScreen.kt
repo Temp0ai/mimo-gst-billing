@@ -62,7 +62,7 @@ fun PaymentRemindersScreen(navController: NavController, viewModel: InvoiceViewM
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(String.format(Locale.US, "\u20B9%,.2f", inv.totalAmount - inv.amountPaid), fontWeight = FontWeight.Bold, color = RedAccent)
-                                IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                IconButton(onClick = { navController.navigate(Screen.PartyDetail.createRoute(inv.partyId)) }, modifier = Modifier.size(32.dp)) {
                                     Icon(Icons.Filled.Send, contentDescription = "Send Reminder", tint = Primary, modifier = Modifier.size(18.dp))
                                 }
                             }

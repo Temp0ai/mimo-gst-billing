@@ -120,10 +120,10 @@ fun CreateInvoiceScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.Share, contentDescription = "Share")
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.MoreVert, contentDescription = "More")
                     }
                 },

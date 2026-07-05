@@ -275,7 +275,7 @@ fun DashboardScreen(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
+                        IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
                 )
