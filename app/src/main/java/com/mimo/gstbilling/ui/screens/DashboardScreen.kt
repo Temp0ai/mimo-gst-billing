@@ -81,7 +81,7 @@ fun DashboardScreen(
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
-        DrawerMenuItem("Sale", Icons.Filled.Description, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates")),
+        DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
         DrawerMenuItem("Expense", Icons.Filled.Receipt, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
