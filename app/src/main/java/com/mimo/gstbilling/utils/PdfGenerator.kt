@@ -171,7 +171,9 @@ object PdfGenerator {
                 val upiString = "upi://pay?pa=$upiId&pn=${company?.name ?: "Business"}&am=${String.format(Locale.US, "%.2f", invoice.totalAmount)}&cu=INR&tn=Payment for ${invoice.invoiceNumber}"
                 val qrBitmap = generateQrCode(upiString, 120)
                 val qrLeft = rightMargin - 140f
-                canvas.drawBitmap(qrBitmap, null, android.graphics.RectF(qrLeft, y, qrLeft + 120f, y + 120f))
+                val srcRect = android.graphics.Rect(0, 0, qrBitmap.width, qrBitmap.height)
+                val destRect = android.graphics.RectF(qrLeft, y, qrLeft + 120f, y + 120f)
+                canvas.drawBitmap(qrBitmap, srcRect, destRect, paint)
                 paint.textSize = 8f
                 canvas.drawText("Scan to Pay", qrLeft + 30f, y + 130f, paint)
                 paint.textSize = if (isThermal) 9f else 10f
