@@ -25,8 +25,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.compose.ui.graphics.asImageBitmap
 import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.entity.CompanyEntity
 import com.mimo.gstbilling.ui.theme.*
@@ -295,15 +296,24 @@ fun BusinessCard(company: CompanyEntity) {
                     contentAlignment = Alignment.Center
                 ) {
                     if (company.logoUri != null) {
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(company.logoUri)
-                                .crossfade(true)
-                                .build(),
-                            contentDescription = "Company Logo",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
+                        try {
+                            val uri = Uri.parse(company.logoUri)
+                            val inputStream = context.contentResolver.openInputStream(uri)
+                            val bitmap = BitmapFactory.decodeStream(inputStream)
+                            inputStream?.close()
+                            if (bitmap != null) {
+                                androidx.compose.foundation.Image(
+                                    bitmap = bitmap.asImageBitmap(),
+                                    contentDescription = "Company Logo",
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(company.name.take(1).uppercase(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Primary)
+                            }
+                        } catch (_: Exception) {
+                            Text(company.name.take(1).uppercase(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Primary)
+                        }
                     } else {
                         Text(
                             company.name.take(1).uppercase(),
@@ -537,7 +547,7 @@ fun BusinessProfileEditScreen(
                 indicator = { tabPositions ->
                     if (selectedTab < tabPositions.size) {
                         TabRowDefaults.SecondaryIndicator(
-                            Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
+                            Modifier.padding(start = tabPositions[selectedTab].left, end = tabPositions[selectedTab].right),
                             height = 3.dp,
                             color = Primary
                         )
@@ -737,17 +747,28 @@ fun BasicDetailsTab(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (signatureUri != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(signatureUri)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Signature",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
-                    contentScale = ContentScale.Fit
-                )
+                try {
+                    val uri = Uri.parse(signatureUri)
+                    val inputStream = context.contentResolver.openInputStream(uri)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close()
+                    if (bitmap != null) {
+                        androidx.compose.foundation.Image(
+                            bitmap = bitmap.asImageBitmap(),
+                            contentDescription = "Signature",
+                            modifier = Modifier.fillMaxWidth().height(100.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else {
+                        Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Divider.copy(alpha = 0.3f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                            Text("Signature", color = TextSecondary)
+                        }
+                    }
+                } catch (_: Exception) {
+                    Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Divider.copy(alpha = 0.3f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                        Text("Signature", color = TextSecondary)
+                    }
+                }
             } else {
                 Box(
                     modifier = Modifier
