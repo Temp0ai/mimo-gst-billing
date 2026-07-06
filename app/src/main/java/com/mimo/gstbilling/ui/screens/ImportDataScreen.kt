@@ -258,7 +258,7 @@ fun ImportDataScreen(
                     Text("Import from Vyapar Excel, CSV, or any spreadsheet", fontSize = 13.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = { navController.navigate(Screen.VyaparImport.route) }, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
-                        Icon(Icons.Filled.Database, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Vyapar Backup (.vyb)")
+                        Icon(Icons.Filled.Storage, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Vyapar Backup (.vyb)")
                     }
                 }
             }

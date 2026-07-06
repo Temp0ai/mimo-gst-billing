@@ -127,7 +127,7 @@ fun VyaparImportScreen(
             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(modifier = Modifier.size(56.dp).background(Color(0xFF1B5E20).copy(alpha = 0.1f), RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Database, contentDescription = null, tint = Color(0xFF1B5E20), modifier = Modifier.size(28.dp))
+                        Icon(Icons.Filled.Storage, contentDescription = null, tint = Color(0xFF1B5E20), modifier = Modifier.size(28.dp))
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text("Import Vyapar Backup", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
