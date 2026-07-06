@@ -67,4 +67,5 @@ sealed class Screen(val route: String) {
     object ExpenseItemReport : Screen("expense_item_report")
     object OrderItemReport : Screen("order_item_report")
     object LoanStatement : Screen("loan_statement")
+    object VyaparImport : Screen("vyapar_import")
 }

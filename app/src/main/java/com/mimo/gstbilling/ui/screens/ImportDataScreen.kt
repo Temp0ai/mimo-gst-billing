@@ -27,6 +27,7 @@ import com.mimo.gstbilling.data.local.dao.ItemDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
 import com.mimo.gstbilling.data.local.entity.ItemEntity
 import com.mimo.gstbilling.data.local.entity.PartyEntity
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -255,6 +256,10 @@ fun ImportDataScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Import Data", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Text("Import from Vyapar Excel, CSV, or any spreadsheet", fontSize = 13.sp, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = { navController.navigate(Screen.VyaparImport.route) }, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
+                        Icon(Icons.Filled.Database, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Vyapar Backup (.vyb)")
+                    }
                 }
             }
 

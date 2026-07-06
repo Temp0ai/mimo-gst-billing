@@ -84,5 +84,6 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.ExpenseItemReport.route) { ExpenseItemReportScreen(navController) }
         composable(Screen.OrderItemReport.route) { OrderItemReportScreen(navController) }
         composable(Screen.LoanStatement.route) { LoanStatementScreen(navController) }
+        composable(Screen.VyaparImport.route) { VyaparImportScreen(navController) }
     }
 }

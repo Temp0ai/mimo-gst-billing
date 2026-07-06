@@ -90,9 +90,9 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
 
     // Apache POI for Excel import (Vyapar .xls)
-    implementation("org.apache.poi:poi:5.2.5")
-    implementation("org.apache.poi:poi-ooxml:5.2.5") {
-        exclude(group = "org.apache.xmlgraphics")
+    implementation("org.apache.poi:poi:5.2.5") {
+        exclude(group = "org.apache.logging.log4j")
+        exclude(group = "org.apache.commons")
     }
 
     // Gson
