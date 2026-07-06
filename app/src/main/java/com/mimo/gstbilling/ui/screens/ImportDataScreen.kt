@@ -158,11 +158,11 @@ fun ImportDataScreen(
                                         name = name,
                                         hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         description = descIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
-                                        salePrice = priceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() } ?: 0.0,
-                                        purchasePrice = purchasePriceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() } ?: 0.0,
-                                        gstRate = gstIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() } ?: 0.0,
+                                        salePrice = priceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
+                                        purchasePrice = purchasePriceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
+                                        gstRate = gstIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
                                         unit = unitIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null } ?: "NOS",
-                                        stockQuantity = stockIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() } ?: 0.0,
+                                        stockQuantity = stockIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
                                         isService = false
                                     )
                                 )
@@ -217,7 +217,7 @@ fun ImportDataScreen(
                                         address = address,
                                         state = stateIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         stateCode = null,
-                                        balance = balanceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() } ?: 0.0,
+                                        balance = balanceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
                                         partyType = partyType
                                     )
                                 )
