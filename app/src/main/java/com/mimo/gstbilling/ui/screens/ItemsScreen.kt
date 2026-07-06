@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,50 +30,283 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
     val items by viewModel.allItems.collectAsState()
     var searchText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("All", "Products", "Services")
+    val tabs = listOf("PRODUCTS", "SERVICES", "CATEGORIES", "UNITS")
+    val scope = rememberCoroutineScope()
+    var showMoreOptions by remember { mutableStateOf(false) }
+
     val filteredItems = items.filter {
-        it.name.contains(searchText, ignoreCase = true) && (selectedTab == 0 || (selectedTab == 1 && !it.isService) || (selectedTab == 2 && it.isService))
+        it.name.contains(searchText, ignoreCase = true) && (selectedTab == 0 || (selectedTab == 1 && it.isService) || (selectedTab == 2 && false) || (selectedTab == 3 && false))
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Items", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+            TopAppBar(
+                title = { Text("Items", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navController.navigate(Screen.ItemSettings.route) }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    }
+                    IconButton(onClick = { /* Filter */ }) {
+                        Icon(Icons.Filled.FilterList, contentDescription = "Filter")
+                    }
+                    IconButton(onClick = { showMoreOptions = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Primary,
+                    titleContentColor = Color.White,
+                    navigationIconContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
+            )
         },
         bottomBar = {
-            Row(modifier = Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
-                Button(onClick = { navController.navigate(Screen.AddItem.route) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)) {
-                    Icon(Icons.Filled.Add, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Add Item", fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    onClick = { navController.navigate(Screen.AddItem.route) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add Product", fontWeight = FontWeight.Bold)
                 }
             }
         }
     ) { padding ->
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .background(LightBlueBg)
+        ) {
+            // Tabs
             item {
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 0.dp)
+                ) {
                     tabs.forEachIndexed { index, title ->
                         val isSelected = selectedTab == index
-                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { selectedTab = index }
+                                .padding(vertical = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    title,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                    color = if (isSelected) RedAccent else TextSecondary
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .height(2.dp)
+                                        .width(40.dp)
+                                        .background(if (isSelected) RedAccent else Color.Transparent)
+                                )
+                            }
                         }
                     }
                 }
             }
+
+            // Search Bar
             item {
-                OutlinedTextField(value = searchText, onValueChange = { searchText = it }, modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), placeholder = { Text("Search Items", fontSize = 14.sp) }, shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary) })
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search Items by Name or Code", fontSize = 14.sp) },
+                    shape = RoundedCornerShape(10.dp),
+                    singleLine = true,
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = null,
+                            tint = TextSecondary
+                        )
+                    }
+                )
             }
-            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+            // Item List
             items(filteredItems) { item ->
-                Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Column(modifier = Modifier.weight(1f)) { Text(item.name, fontWeight = FontWeight.Bold, color = TextPrimary); Text("HSN: ${item.hsnCode ?: "N/A"} | ${item.gstRate.toInt()}% GST", fontSize = 12.sp, color = TextSecondary) }
-                        Column(horizontalAlignment = Alignment.End) { Text(String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary); Text("Stock: ${item.stockQuantity.toInt()}", fontSize = 12.sp, color = TextSecondary) }
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Item Name
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                item.name,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                color = TextPrimary
+                            )
+                        }
+
+                        // Sale Price
+                        Column(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Sale Price",
+                                fontSize = 10.sp,
+                                color = TextSecondary
+                            )
+                            Text(
+                                String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextPrimary
+                            )
+                        }
+
+                        // Purchase Price
+                        Column(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Purchase Price",
+                                fontSize = 10.sp,
+                                color = TextSecondary
+                            )
+                            Text(
+                                String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextPrimary
+                            )
+                        }
+
+                        // In Stock
+                        Column(
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "In Stock",
+                                fontSize = 10.sp,
+                                color = TextSecondary
+                            )
+                            Text(
+                                item.stockQuantity.toInt().toString(),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (item.stockQuantity > 10) GreenBalance else RedAccent
+                            )
+                        }
+
+                        // Share Icon
+                        Icon(
+                            Icons.Filled.Share,
+                            contentDescription = "Share",
+                            modifier = Modifier
+                                .padding(start = 8.dp)
+                                .clickable { /* Share */ },
+                            tint = TextSecondary
+                        )
                     }
                 }
             }
-            item { if (filteredItems.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No items found", fontSize = 14.sp, color = TextSecondary) } } }
+
+            // Empty State
+            item {
+                if (filteredItems.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No items found",
+                            fontSize = 14.sp,
+                            color = TextSecondary
+                        )
+                    }
+                }
+            }
+
             item { Spacer(modifier = Modifier.height(80.dp)) }
+        }
+    }
+
+    // More Options Bottom Sheet
+    if (showMoreOptions) {
+        ModalBottomSheet(
+            onDismissRequest = { showMoreOptions = false },
+            containerColor = Color.White
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    "More Options",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Text(
+                    "Mark Items as Active",
+                    fontSize = 15.sp,
+                    color = TextPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showMoreOptions = false }
+                        .padding(vertical = 12.dp)
+                )
+                HorizontalDivider(color = Color(0xFFE0E0E0))
+                Text(
+                    "Mark Items as Inactive",
+                    fontSize = 15.sp,
+                    color = TextPrimary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showMoreOptions = false }
+                        .padding(vertical = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
     }
 }
