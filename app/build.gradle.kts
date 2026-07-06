@@ -89,6 +89,12 @@ dependencies {
     // QR Code Generation
     implementation("com.google.zxing:core:3.5.3")
 
+    // Apache POI for Excel import (Vyapar .xls)
+    implementation("org.apache.poi:poi:5.2.5")
+    implementation("org.apache.poi:poi-ooxml:5.2.5") {
+        exclude(group = "org.apache.xmlgraphics")
+    }
+
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
 
