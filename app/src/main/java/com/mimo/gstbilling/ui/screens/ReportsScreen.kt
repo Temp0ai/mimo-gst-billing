@@ -47,13 +47,14 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Sale/Purchase By Party Groups", Screen.PartyGroups.route)
         ),
         "GST reports" to listOf(
-            ReportItem("GSTR-1", Screen.Gstr1Report.route),
+            ReportItem("GSTR-1", Screen.Gstr1Filing.route),
             ReportItem("GSTR-2", Screen.Gstr1Report.route),
-            ReportItem("GSTR-3B", Screen.Gstr3bReport.route),
+            ReportItem("GSTR-3B", Screen.Gstr3bFiling.route),
             ReportItem("GST Transaction report", Screen.TaxReport.route),
             ReportItem("GSTR-9", Screen.Gstr1Report.route),
             ReportItem("Sale Summary by HSN", Screen.Gstr1Report.route),
-            ReportItem("SAC Report", Screen.Gstr1Report.route)
+            ReportItem("SAC Report", Screen.Gstr1Report.route),
+            ReportItem("e-Way Bill", Screen.EWayBill.route)
         ),
         "Item/Stock reports" to listOf(
             ReportItem("Stock Summary Report", Screen.Items.route),

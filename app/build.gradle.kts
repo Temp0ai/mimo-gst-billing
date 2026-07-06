@@ -92,7 +92,9 @@ dependencies {
     // Apache POI for Excel import (Vyapar .xls)
     implementation("org.apache.poi:poi:5.2.5") {
         exclude(group = "org.apache.logging.log4j")
-        exclude(group = "org.apache.commons")
+        exclude(group = "org.apache.commons", module = "commons-logging")
+        exclude(group = "org.apache.xmlbeans", module = "xmlbeans")
+        exclude(group = "stax", module = "stax-api")
     }
 
     // Gson
