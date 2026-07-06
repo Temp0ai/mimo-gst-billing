@@ -118,6 +118,7 @@ fun PartyDetailScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically

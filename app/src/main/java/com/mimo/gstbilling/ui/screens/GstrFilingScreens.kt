@@ -2,8 +2,12 @@ package com.mimo.gstbilling.ui.screens
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -15,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +32,18 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val gstFilingMonths = listOf(
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+)
+
+private fun getFinancialYear(): String {
+    val cal = Calendar.getInstance()
+    val year = cal.get(Calendar.YEAR)
+    val month = cal.get(Calendar.MONTH)
+    return if (month >= Calendar.MARCH) "$year-${year + 1}" else "${year - 1}-$year"
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Gstr1FilingScreen(
@@ -35,18 +52,10 @@ fun Gstr1FilingScreen(
 ) {
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var selectedMonth by remember { mutableStateOf("") }
+    var selectedMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
+    var selectedYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
     var showMonthPicker by remember { mutableStateOf(false) }
-    val dateFormat = remember { SimpleDateFormat("MMM yyyy", Locale.US) }
-    val months = remember {
-        val cal = Calendar.getInstance()
-        (0 until 12).map {
-            val month = dateFormat.format(cal.time)
-            cal.add(Calendar.MONTH, -1)
-            month
-        }
-    }
+    var showYearPicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -65,7 +74,7 @@ fun Gstr1FilingScreen(
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Description, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                            Icon(Icons.Filled.Note, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
                             Spacer(modifier = Modifier.width(12.dp))
                             Text("GSTR-1 - Outward Supplies", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                         }
@@ -75,63 +84,159 @@ fun Gstr1FilingScreen(
                 }
             }
 
+            // Tax Period Selector
             item {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Select Tax Period", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = selectedMonth,
-                            onValueChange = {},
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Financial Year Display
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Tax Period") },
-                            readOnly = true,
-                            trailingIcon = { IconButton(onClick = { showMonthPicker = !showMonthPicker }) { Icon(Icons.Filled.ArrowDropDown, contentDescription = null) } },
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        if (showMonthPicker) {
-                            months.forEach { month ->
-                                TextButton(onClick = { selectedMonth = month; showMonthPicker = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text(month, fontSize = 14.sp)
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Financial Year:", fontSize = 13.sp, color = TextSecondary)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { showYearPicker = !showYearPicker }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Change Year", tint = Primary, modifier = Modifier.size(18.dp))
+                                }
+                                Text(
+                                    "${selectedYear - 1}-$selectedYear",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Primary,
+                                    modifier = Modifier.clickable { showYearPicker = !showYearPicker }
+                                )
+                            }
+                        }
+
+                        if (showYearPicker) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            val years = (2017..selectedYear + 1).map { it }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                years.takeLast(5).forEach { year ->
+                                    val isSelected = year == selectedYear
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .background(
+                                                if (isSelected) Primary else Color(0xFFF0F0F0),
+                                                RoundedCornerShape(8.dp)
+                                            )
+                                            .clickable { selectedYear = year; showYearPicker = false }
+                                            .padding(vertical = 10.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            "$year",
+                                            fontSize = 13.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) Color.White else TextPrimary
+                                        )
+                                    }
                                 }
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        // Month Selector
+                        Text("Select Month:", fontSize = 13.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(4),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.heightIn(max = 200.dp)
+                        ) {
+                            items(gstFilingMonths) { month ->
+                                val monthIndex = gstFilingMonths.indexOf(month)
+                                val isSelected = monthIndex == selectedMonth
+                                val isFuture = selectedYear > Calendar.getInstance().get(Calendar.YEAR) ||
+                                        (selectedYear == Calendar.getInstance().get(Calendar.YEAR) && monthIndex > Calendar.getInstance().get(Calendar.MONTH))
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            when {
+                                                isSelected -> Primary
+                                                isFuture -> Color(0xFFF5F5F5)
+                                                else -> Color(0xFFF0F0F0)
+                                            },
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .clickable(enabled = !isFuture) {
+                                            selectedMonth = monthIndex
+                                            showMonthPicker = false
+                                        }
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        month.take(3),
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = when {
+                                            isSelected -> Color.White
+                                            isFuture -> Color(0xFFBDBDBD)
+                                            else -> TextPrimary
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Info, contentDescription = null, tint = Primary, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                "Selected: ${gstFilingMonths[selectedMonth]} $selectedYear",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Primary
+                            )
                         }
                     }
                 }
             }
 
+            // Filter invoices by selected month/year
+            val filteredInvoices = invoices.filter { inv ->
+                if (inv.invoiceType != "sales") return@filter false
+                val cal = Calendar.getInstance().apply { timeInMillis = inv.invoiceDate }
+                cal.get(Calendar.MONTH) == selectedMonth && cal.get(Calendar.YEAR) == selectedYear
+            }
+
             // Summary
-            val totalInvoices = invoices.filter { it.invoiceType == "sales" }.size
-            val totalTaxable = invoices.filter { it.invoiceType == "sales" }.sumOf { it.taxableAmount }
-            val totalCgst = invoices.filter { it.invoiceType == "sales" }.sumOf { it.cgstTotal }
-            val totalSgst = invoices.filter { it.invoiceType == "sales" }.sumOf { it.sgstTotal }
-            val totalIgst = invoices.filter { it.invoiceType == "sales" }.sumOf { it.igstTotal }
+            val totalInvoices = filteredInvoices.size
+            val totalTaxable = filteredInvoices.sumOf { it.taxableAmount }
+            val totalCgst = filteredInvoices.sumOf { it.cgstTotal }
+            val totalSgst = filteredInvoices.sumOf { it.sgstTotal }
+            val totalIgst = filteredInvoices.sumOf { it.igstTotal }
 
             item {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("GSTR-1 Summary", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        SummaryRow("B2B Invoices", "$totalInvoices")
-                        SummaryRow("Taxable Value", String.format(Locale.US, "\u20B9%,.2f", totalTaxable))
-                        SummaryRow("CGST", String.format(Locale.US, "\u20B9%,.2f", totalCgst))
-                        SummaryRow("SGST", String.format(Locale.US, "\u20B9%,.2f", totalSgst))
-                        SummaryRow("IGST", String.format(Locale.US, "\u20B9%,.2f", totalIgst))
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        SummaryRow("Total Tax", String.format(Locale.US, "\u20B9%,.2f", totalCgst + totalSgst + totalIgst), isBold = true)
-                    }
-                }
-            }
-
-            // HSN Summary
-            item {
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("HSN-wise Summary", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("HSN", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextSecondary, modifier = Modifier.fillMaxWidth(0.3f))
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                        Text("Total outward supplies will be categorized by HSN code", fontSize = 12.sp, color = TextSecondary)
+                        Text("${gstFilingMonths[selectedMonth]} $selectedYear", fontSize = 12.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        SummaryRow("B2B Invoices", "$totalInvoices")
+                        SummaryRow("Taxable Value", String.format(java.util.Locale.US, "\u20B9%,.2f", totalTaxable))
+                        SummaryRow("CGST", String.format(java.util.Locale.US, "\u20B9%,.2f", totalCgst))
+                        SummaryRow("SGST", String.format(java.util.Locale.US, "\u20B9%,.2f", totalSgst))
+                        SummaryRow("IGST", String.format(java.util.Locale.US, "\u20B9%,.2f", totalIgst))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        SummaryRow("Total Tax", String.format(java.util.Locale.US, "\u20B9%,.2f", totalCgst + totalSgst + totalIgst), isBold = true)
                     }
                 }
             }
@@ -139,13 +244,15 @@ fun Gstr1FilingScreen(
             item {
                 Button(
                     onClick = {
-                        val json = generateGstr1Json(invoices.filter { it.invoiceType == "sales" })
-                        val file = java.io.File(context.cacheDir, "GSTR1_${selectedMonth.ifBlank { "current" }}.json")
+                        val json = generateGstr1Json(filteredInvoices, selectedMonth, selectedYear)
+                        val monthStr = gstFilingMonths[selectedMonth].uppercase().take(3)
+                        val file = java.io.File(context.cacheDir, "GSTR1_${monthStr}_${selectedYear}.json")
                         file.writeText(json)
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = filteredInvoices.isNotEmpty()
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -180,17 +287,9 @@ fun Gstr3bFilingScreen(
 ) {
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     val context = LocalContext.current
-    var selectedMonth by remember { mutableStateOf("") }
-    var showMonthPicker by remember { mutableStateOf(false) }
-    val dateFormat = remember { SimpleDateFormat("MMM yyyy", Locale.US) }
-    val months = remember {
-        val cal = Calendar.getInstance()
-        (0 until 12).map {
-            val month = dateFormat.format(cal.time)
-            cal.add(Calendar.MONTH, -1)
-            month
-        }
-    }
+    var selectedMonth by remember { mutableStateOf(Calendar.getInstance().get(Calendar.MONTH)) }
+    var selectedYear by remember { mutableStateOf(Calendar.getInstance().get(Calendar.YEAR)) }
+    var showYearPicker by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -209,7 +308,7 @@ fun Gstr3bFilingScreen(
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Description, contentDescription = null, tint = RedAccent, modifier = Modifier.size(24.dp))
+                            Icon(Icons.Filled.Note, contentDescription = null, tint = RedAccent, modifier = Modifier.size(24.dp))
                             Spacer(modifier = Modifier.width(12.dp))
                             Text("GSTR-3B - Monthly Return", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                         }
@@ -219,34 +318,129 @@ fun Gstr3bFilingScreen(
                 }
             }
 
+            // Tax Period Selector (same as GSTR-1)
             item {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Select Tax Period", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = selectedMonth,
-                            onValueChange = {},
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Tax Period") },
-                            readOnly = true,
-                            trailingIcon = { IconButton(onClick = { showMonthPicker = !showMonthPicker }) { Icon(Icons.Filled.ArrowDropDown, contentDescription = null) } },
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        if (showMonthPicker) {
-                            months.forEach { month ->
-                                TextButton(onClick = { selectedMonth = month; showMonthPicker = false }, modifier = Modifier.fillMaxWidth()) {
-                                    Text(month, fontSize = 14.sp)
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Financial Year:", fontSize = 13.sp, color = TextSecondary)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { showYearPicker = !showYearPicker }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Change Year", tint = Primary, modifier = Modifier.size(18.dp))
+                                }
+                                Text(
+                                    "${selectedYear - 1}-$selectedYear",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Primary,
+                                    modifier = Modifier.clickable { showYearPicker = !showYearPicker }
+                                )
+                            }
+                        }
+
+                        if (showYearPicker) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            val years = (2017..selectedYear + 1).map { it }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                years.takeLast(5).forEach { year ->
+                                    val isSelected = year == selectedYear
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .background(if (isSelected) Primary else Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
+                                            .clickable { selectedYear = year; showYearPicker = false }
+                                            .padding(vertical = 10.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("$year", fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) Color.White else TextPrimary)
+                                    }
                                 }
                             }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Select Month:", fontSize = 13.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(4),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.heightIn(max = 200.dp)
+                        ) {
+                            items(gstFilingMonths) { month ->
+                                val monthIndex = gstFilingMonths.indexOf(month)
+                                val isSelected = monthIndex == selectedMonth
+                                val isFuture = selectedYear > Calendar.getInstance().get(Calendar.YEAR) ||
+                                        (selectedYear == Calendar.getInstance().get(Calendar.YEAR) && monthIndex > Calendar.getInstance().get(Calendar.MONTH))
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            when {
+                                                isSelected -> Primary
+                                                isFuture -> Color(0xFFF5F5F5)
+                                                else -> Color(0xFFF0F0F0)
+                                            },
+                                            RoundedCornerShape(8.dp)
+                                        )
+                                        .clickable(enabled = !isFuture) { selectedMonth = monthIndex }
+                                        .padding(vertical = 10.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        month.take(3),
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = when {
+                                            isSelected -> Color.White
+                                            isFuture -> Color(0xFFBDBDBD)
+                                            else -> TextPrimary
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Info, contentDescription = null, tint = Primary, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                "Selected: ${gstFilingMonths[selectedMonth]} $selectedYear",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Primary
+                            )
                         }
                     }
                 }
             }
 
-            // GSTR-3B Summary
-            val saleInvoices = invoices.filter { it.invoiceType == "sales" }
-            val purchaseInvoices = invoices.filter { it.invoiceType == "purchase" }
+            // Filter invoices
+            val saleInvoices = invoices.filter { inv ->
+                if (inv.invoiceType != "sales") return@filter false
+                val cal = Calendar.getInstance().apply { timeInMillis = inv.invoiceDate }
+                cal.get(Calendar.MONTH) == selectedMonth && cal.get(Calendar.YEAR) == selectedYear
+            }
+            val purchaseInvoices = invoices.filter { inv ->
+                if (inv.invoiceType != "purchase") return@filter false
+                val cal = Calendar.getInstance().apply { timeInMillis = inv.invoiceDate }
+                cal.get(Calendar.MONTH) == selectedMonth && cal.get(Calendar.YEAR) == selectedYear
+            }
+
             val totalOutward = saleInvoices.sumOf { it.totalAmount }
             val totalInward = purchaseInvoices.sumOf { it.totalAmount }
             val totalOutputTax = saleInvoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
@@ -258,10 +452,10 @@ fun Gstr3bFilingScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("3.1 Outward Supplies (Taxable)", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                         Spacer(modifier = Modifier.height(8.dp))
-                        SummaryRow("Total Outward Value", String.format(Locale.US, "\u20B9%,.2f", totalOutward))
-                        SummaryRow("Output CGST", String.format(Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.cgstTotal }))
-                        SummaryRow("Output SGST", String.format(Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.sgstTotal }))
-                        SummaryRow("Output IGST", String.format(Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.igstTotal }))
+                        SummaryRow("Total Outward Value", String.format(java.util.Locale.US, "\u20B9%,.2f", totalOutward))
+                        SummaryRow("Output CGST", String.format(java.util.Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.cgstTotal }))
+                        SummaryRow("Output SGST", String.format(java.util.Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.sgstTotal }))
+                        SummaryRow("Output IGST", String.format(java.util.Locale.US, "\u20B9%,.2f", saleInvoices.sumOf { it.igstTotal }))
                     }
                 }
             }
@@ -271,10 +465,10 @@ fun Gstr3bFilingScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("3.2 Inward Supplies (Reverse Charge)", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                         Spacer(modifier = Modifier.height(8.dp))
-                        SummaryRow("Total Inward Value", String.format(Locale.US, "\u20B9%,.2f", totalInward))
-                        SummaryRow("Input CGST", String.format(Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.cgstTotal }))
-                        SummaryRow("Input SGST", String.format(Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.sgstTotal }))
-                        SummaryRow("Input IGST", String.format(Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.igstTotal }))
+                        SummaryRow("Total Inward Value", String.format(java.util.Locale.US, "\u20B9%,.2f", totalInward))
+                        SummaryRow("Input CGST", String.format(java.util.Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.cgstTotal }))
+                        SummaryRow("Input SGST", String.format(java.util.Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.sgstTotal }))
+                        SummaryRow("Input IGST", String.format(java.util.Locale.US, "\u20B9%,.2f", purchaseInvoices.sumOf { it.igstTotal }))
                     }
                 }
             }
@@ -284,10 +478,10 @@ fun Gstr3bFilingScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("4.1 Eligible ITC", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                         Spacer(modifier = Modifier.height(8.dp))
-                        SummaryRow("Total Output Tax", String.format(Locale.US, "\u20B9%,.2f", totalOutputTax))
-                        SummaryRow("Total Input Tax (ITC)", String.format(Locale.US, "\u20B9%,.2f", totalInputTax))
+                        SummaryRow("Total Output Tax", String.format(java.util.Locale.US, "\u20B9%,.2f", totalOutputTax))
+                        SummaryRow("Total Input Tax (ITC)", String.format(java.util.Locale.US, "\u20B9%,.2f", totalInputTax))
                         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-                        SummaryRow("Net Tax Payable", String.format(Locale.US, "\u20B9%,.2f", netTax), isBold = true)
+                        SummaryRow("Net Tax Payable", String.format(java.util.Locale.US, "\u20B9%,.2f", netTax), isBold = true)
                     }
                 }
             }
@@ -295,8 +489,9 @@ fun Gstr3bFilingScreen(
             item {
                 Button(
                     onClick = {
-                        val json = generateGstr3bJson(saleInvoices, purchaseInvoices)
-                        val file = java.io.File(context.cacheDir, "GSTR3B_${selectedMonth.ifBlank { "current" }}.json")
+                        val json = generateGstr3bJson(saleInvoices, purchaseInvoices, selectedMonth, selectedYear)
+                        val monthStr = gstFilingMonths[selectedMonth].uppercase().take(3)
+                        val file = java.io.File(context.cacheDir, "GSTR3B_${monthStr}_${selectedYear}.json")
                         file.writeText(json)
                         PdfGenerator.sharePdf(context, file)
                     },
@@ -338,11 +533,12 @@ private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
     }
 }
 
-private fun generateGstr1Json(salesInvoices: List<com.mimo.gstbilling.data.local.entity.InvoiceEntity>): String {
+private fun generateGstr1Json(salesInvoices: List<com.mimo.gstbilling.data.local.entity.InvoiceEntity>, month: Int, year: Int): String {
     val root = JSONObject()
     val dt = SimpleDateFormat("dd-MM-yyyy", Locale.US)
+    val monthStr = String.format(Locale.US, "%02d", month + 1)
     root.put("gstin", "")
-    root.put("fp", SimpleDateFormat("MMyyyy", Locale.US).format(Date()))
+    root.put("fp", "${monthStr}${year}")
     root.put("gstrVersion", "1.0")
 
     val b2b = JSONArray()
@@ -382,16 +578,18 @@ private fun generateGstr1Json(salesInvoices: List<com.mimo.gstbilling.data.local
 
 private fun generateGstr3bJson(
     salesInvoices: List<com.mimo.gstbilling.data.local.entity.InvoiceEntity>,
-    purchaseInvoices: List<com.mimo.gstbilling.data.local.entity.InvoiceEntity>
+    purchaseInvoices: List<com.mimo.gstbilling.data.local.entity.InvoiceEntity>,
+    month: Int,
+    year: Int
 ): String {
     val root = JSONObject()
+    val monthStr = String.format(Locale.US, "%02d", month + 1)
     root.put("gstin", "")
-    root.put("fp", SimpleDateFormat("MMyyyy", Locale.US).format(Date()))
+    root.put("fp", "${monthStr}${year}")
     root.put("gstrVersion", "3.0")
 
-    // 3.1 Outward supplies
     val outer = JSONObject()
-    outer.put("opde", " taxable_outward")
+    outer.put("opde", "taxable_outward")
     outer.put("txval", salesInvoices.sumOf { it.taxableAmount })
     outer.put("iamt", salesInvoices.sumOf { it.igstTotal })
     outer.put("camt", salesInvoices.sumOf { it.cgstTotal })
@@ -399,12 +597,10 @@ private fun generateGstr3bJson(
     outer.put("csamt", salesInvoices.sumOf { it.cessTotal })
     root.put("sup_details", JSONObject().put("osup_zero_gst", outer))
 
-    // 4. ITC
     val itc = JSONObject()
     itc.put("itc_elg", JSONObject().put("iamt", purchaseInvoices.sumOf { it.igstTotal }).put("camt", purchaseInvoices.sumOf { it.cgstTotal }).put("samt", purchaseInvoices.sumOf { it.sgstTotal }).put("csamt", 0.0))
     root.put("itc_details", itc)
 
-    // 6. Payment of tax
     val taxPayable = salesInvoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal } - purchaseInvoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
     root.put("taxpayable", JSONObject().put("total", taxPayable))
 

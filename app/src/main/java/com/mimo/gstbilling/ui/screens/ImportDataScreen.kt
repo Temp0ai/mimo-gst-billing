@@ -23,10 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.mimo.gstbilling.data.local.dao.ItemDao
-import com.mimo.gstbilling.data.local.dao.PartyDao
-import com.mimo.gstbilling.data.local.entity.ItemEntity
-import com.mimo.gstbilling.data.local.entity.PartyEntity
+import com.mimo.gstbilling.data.local.dao.*
+import com.mimo.gstbilling.data.local.entity.*
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,7 +34,11 @@ import javax.inject.Inject
 @HiltViewModel
 class ImportViewModel @Inject constructor(
     private val partyDao: PartyDao,
-    private val itemDao: ItemDao
+    private val itemDao: ItemDao,
+    private val invoiceDao: InvoiceDao,
+    private val invoiceItemDao: InvoiceItemDao,
+    private val expenseDao: ExpenseDao,
+    private val transactionDao: TransactionDao
 ) : ViewModel() {
     suspend fun insertParties(parties: List<PartyEntity>): Int {
         var count = 0
@@ -50,6 +52,38 @@ class ImportViewModel @Inject constructor(
         var count = 0
         items.forEach { item ->
             try { itemDao.insertItem(item); count++ } catch (_: Exception) { }
+        }
+        return count
+    }
+
+    suspend fun insertInvoices(invoices: List<InvoiceEntity>): Int {
+        var count = 0
+        invoices.forEach { invoice ->
+            try { invoiceDao.insertInvoice(invoice); count++ } catch (_: Exception) { }
+        }
+        return count
+    }
+
+    suspend fun insertInvoiceItems(items: List<InvoiceItemEntity>): Int {
+        var count = 0
+        items.forEach { item ->
+            try { invoiceItemDao.insertInvoiceItem(item); count++ } catch (_: Exception) { }
+        }
+        return count
+    }
+
+    suspend fun insertExpenses(expenses: List<ExpenseEntity>): Int {
+        var count = 0
+        expenses.forEach { expense ->
+            try { expenseDao.insertExpense(expense); count++ } catch (_: Exception) { }
+        }
+        return count
+    }
+
+    suspend fun insertTransactions(transactions: List<TransactionEntity>): Int {
+        var count = 0
+        transactions.forEach { txn ->
+            try { transactionDao.insertTransaction(txn); count++ } catch (_: Exception) { }
         }
         return count
     }

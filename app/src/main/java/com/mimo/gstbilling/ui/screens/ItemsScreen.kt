@@ -41,7 +41,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         },
         bottomBar = {
-            Row(modifier = Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(modifier = Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(onClick = { navController.navigate(Screen.AddItem.route) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)) {
                     Icon(Icons.Filled.Add, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Add Item", fontWeight = FontWeight.Bold)
                 }
