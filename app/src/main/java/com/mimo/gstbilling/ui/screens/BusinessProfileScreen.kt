@@ -234,29 +234,41 @@ fun CompanyDialog(
     var businessType by remember { mutableStateOf(company?.businessType ?: "Retail") }
     var state by remember { mutableStateOf(company?.state ?: "") }
     var stateCode by remember { mutableStateOf(company?.stateCode ?: "") }
+    var bankName by remember { mutableStateOf(company?.bankName ?: "") }
+    var bankAccountNumber by remember { mutableStateOf(company?.bankAccountNumber ?: "") }
+    var bankIfsc by remember { mutableStateOf(company?.bankIfsc ?: "") }
+    var bankBranch by remember { mutableStateOf(company?.bankBranch ?: "") }
+    var bankUpiId by remember { mutableStateOf(company?.bankUpiId ?: "") }
+    var termsAndConditions by remember { mutableStateOf(company?.termsAndConditions ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (company == null) "Add Business" else "Edit Business") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Business Name *") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = gstin, onValueChange = { gstin = it }, label = { Text("GSTIN") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = state, onValueChange = { state = it }, label = { Text("State") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = stateCode, onValueChange = { stateCode = it }, label = { Text("State Code") }, modifier = Modifier.fillMaxWidth())
-                Text("Business Type", fontSize = 12.sp, color = TextSecondary)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Retail", "Wholesale", "Service", "Manufacturing").forEach { type ->
-                        FilterChip(
-                            selected = businessType == type,
-                            onClick = { businessType = type },
-                            label = { Text(type, fontSize = 11.sp) }
-                        )
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                item { OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Business Name *") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = gstin, onValueChange = { gstin = it }, label = { Text("GSTIN") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = phone, onValueChange = { phone = it }, label = { Text("Phone") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = state, onValueChange = { state = it }, label = { Text("State") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = stateCode, onValueChange = { stateCode = it }, label = { Text("State Code") }, modifier = Modifier.fillMaxWidth()) }
+                item {
+                    Text("Business Type", fontSize = 12.sp, color = TextSecondary)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("Retail", "Wholesale", "Service", "Manufacturing").forEach { type ->
+                            FilterChip(selected = businessType == type, onClick = { businessType = type }, label = { Text(type, fontSize = 11.sp) })
+                        }
                     }
                 }
+                item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp)) }
+                item { Text("Bank Details (for invoices)", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TextPrimary) }
+                item { OutlinedTextField(value = bankName, onValueChange = { bankName = it }, label = { Text("Bank Name") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = bankBranch, onValueChange = { bankBranch = it }, label = { Text("Branch") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = bankAccountNumber, onValueChange = { bankAccountNumber = it }, label = { Text("Account Number") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = bankIfsc, onValueChange = { bankIfsc = it }, label = { Text("IFSC Code") }, modifier = Modifier.fillMaxWidth()) }
+                item { OutlinedTextField(value = bankUpiId, onValueChange = { bankUpiId = it }, label = { Text("UPI ID (for QR code)") }, modifier = Modifier.fillMaxWidth(), placeholder = { Text("e.g. name@upi") }) }
+                item { OutlinedTextField(value = termsAndConditions, onValueChange = { termsAndConditions = it }, label = { Text("Terms & Conditions") }, modifier = Modifier.fillMaxWidth(), minLines = 2) }
             }
         },
         confirmButton = {
@@ -276,10 +288,12 @@ fun CompanyDialog(
                                 stateCode = stateCode.trim().ifBlank { null },
                                 logoUri = company?.logoUri,
                                 signatureUri = company?.signatureUri,
-                                bankName = company?.bankName,
-                                bankAccountNumber = company?.bankAccountNumber,
-                                bankIfsc = company?.bankIfsc,
-                                termsAndConditions = company?.termsAndConditions,
+                                bankName = bankName.trim().ifBlank { null },
+                                bankAccountNumber = bankAccountNumber.trim().ifBlank { null },
+                                bankIfsc = bankIfsc.trim().ifBlank { null },
+                                bankBranch = bankBranch.trim().ifBlank { null },
+                                bankUpiId = bankUpiId.trim().ifBlank { null },
+                                termsAndConditions = termsAndConditions.trim().ifBlank { null },
                                 isSelected = company?.isSelected ?: true,
                                 createdAt = company?.createdAt ?: System.currentTimeMillis()
                             )

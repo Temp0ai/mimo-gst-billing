@@ -86,6 +86,9 @@ dependencies {
     // ML Kit Barcode
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
+    // QR Code Generation
+    implementation("com.google.zxing:core:3.5.3")
+
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
 
