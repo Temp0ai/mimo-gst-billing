@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items as lazyItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -204,11 +203,13 @@ fun DiscountReportScreen(navController: NavController, viewModel: InvoiceViewMod
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(invoices.filter { it.discount > 0 }) { invoice ->
-                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text("Party #${invoice.partyId}", fontSize = 12.sp, color = TextSecondary) }
-                            Text(String.format(Locale.US, "-\u20B9%,.2f", invoice.discount), fontWeight = FontWeight.Bold, color = RedAccent)
+                invoices.filter { it.discount > 0 }.forEach { invoice ->
+                    item {
+                        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Column { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text("Party #${invoice.partyId}", fontSize = 12.sp, color = TextSecondary) }
+                                Text(String.format(Locale.US, "-\u20B9%,.2f", invoice.discount), fontWeight = FontWeight.Bold, color = RedAccent)
+                            }
                         }
                     }
                 }
