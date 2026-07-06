@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
@@ -178,7 +179,7 @@ fun PartyDetailScreen(
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Filled.Note, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("Receivable:", fontSize = 12.sp, color = TextSecondary)
                                 }
@@ -196,7 +197,7 @@ fun PartyDetailScreen(
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
-                                Icon(Icons.Filled.Receipt, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Filled.Note, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text("View Statement", color = BlueHeader, fontSize = 13.sp)
                             }

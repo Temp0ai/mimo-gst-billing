@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -37,8 +38,8 @@ data class InvoiceTemplate(
 @Composable
 fun InvoiceTemplatesScreen(navController: NavController) {
     val templates = listOf(
-        InvoiceTemplate("tax_invoice", "Tax Invoice", "Standard GST tax invoice", Icons.Filled.Receipt, Primary, Primary.copy(alpha = 0.1f)),
-        InvoiceTemplate("proforma", "Proforma Invoice", "Pre-sale proforma invoice", Icons.Filled.Receipt, Color(0xFF4CAF50), Color(0xFF4CAF50).copy(alpha = 0.1f)),
+        InvoiceTemplate("tax_invoice", "Tax Invoice", "Standard GST tax invoice", Icons.Filled.Note, Primary, Primary.copy(alpha = 0.1f)),
+        InvoiceTemplate("proforma", "Proforma Invoice", "Pre-sale proforma invoice", Icons.Filled.Note, Color(0xFF4CAF50), Color(0xFF4CAF50).copy(alpha = 0.1f)),
         InvoiceTemplate("quotation", "Quotation", "Price quotation for customers", Icons.Filled.RequestQuote, Color(0xFFFF9800), Color(0xFFFF9800).copy(alpha = 0.1f)),
         InvoiceTemplate("estimate", "Estimate", "Cost estimate before sale", Icons.Filled.Calculate, Color(0xFF9C27B0), Color(0xFF9C27B0).copy(alpha = 0.1f)),
         InvoiceTemplate("delivery_challan", "Delivery Challan", "Goods delivery document", Icons.Filled.LocalShipping, Color(0xFF00BCD4), Color(0xFF00BCD4).copy(alpha = 0.1f)),

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountBalance
@@ -83,7 +84,7 @@ fun DashboardScreen(
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
-        DrawerMenuItem("Expense", Icons.Filled.Receipt, hasAddIcon = true),
+        DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
         DrawerMenuItem("My Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
         DrawerMenuItem("Other Products", Icons.Filled.LocalOffer),

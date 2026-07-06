@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -173,7 +174,7 @@ fun EditPartyScreen(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
                         singleLine = true,
-                        leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = Primary) }
+                        leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = Primary) }
                     )
                     OutlinedTextField(
                         value = address,

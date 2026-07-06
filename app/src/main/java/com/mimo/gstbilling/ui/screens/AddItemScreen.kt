@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -62,7 +63,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                     OutlinedTextField(value = hsnCode, onValueChange = { hsnCode = it }, label = { Text("HSN Code", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = Primary) })
 
                     ExposedDropdownMenuBox(expanded = showGstMenu, onExpandedChange = { showGstMenu = it }) {
-                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = Primary) })
                         ExposedDropdownMenu(expanded = showGstMenu, onDismissRequest = { showGstMenu = false }) {
                             gstOptions.forEach { rate -> DropdownMenuItem(text = { Text("$rate%") }, onClick = { gstRate = rate; showGstMenu = false }) }
                         }

@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
@@ -121,7 +122,7 @@ fun CreateInvoiceScreen(
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Screen.InvoiceTemplates.route) }) {
-                        Icon(Icons.Filled.Receipt, contentDescription = "Templates")
+                        Icon(Icons.Filled.Note, contentDescription = "Templates")
                     }
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Filled.Share, contentDescription = "Share")
