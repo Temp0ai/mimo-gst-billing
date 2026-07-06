@@ -99,6 +99,15 @@ fun CreateInvoiceScreen(
         invoiceNo = uiState.invoiceNumber
     }
 
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntry?.savedStateHandle?.getStateFlow<String>("template_id", "")?.collect { templateId ->
+            if (templateId.isNotBlank()) {
+                viewModel.setTemplate(templateId)
+                navController.currentBackStackEntry?.savedStateHandle?.remove<String>("template_id")
+            }
+        }
+    }
+
     LaunchedEffect(uiState.savedInvoiceId) {
         if (uiState.savedInvoiceId != null) {
             scope.launch {
@@ -113,7 +122,12 @@ fun CreateInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Sale", fontWeight = FontWeight.Bold)
+                    Column {
+                        Text("Sale", fontWeight = FontWeight.Bold)
+                        if (uiState.selectedTemplate != "tax_invoice") {
+                            Text(uiState.selectedTemplate.replace("_", " ").replaceFirstChar { it.uppercase() }, fontSize = 11.sp, color = Color.White.copy(alpha = 0.8f))
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {

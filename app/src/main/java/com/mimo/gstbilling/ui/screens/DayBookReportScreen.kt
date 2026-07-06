@@ -7,23 +7,57 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
-import java.util.Locale
+import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import com.mimo.gstbilling.ui.viewmodel.ExpenseViewModel
+import com.mimo.gstbilling.ui.viewmodel.CashBankViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayBookReportScreen(navController: NavController) {
+fun DayBookReportScreen(
+    navController: NavController,
+    invoiceViewModel: InvoiceViewModel = hiltViewModel(),
+    expenseViewModel: ExpenseViewModel = hiltViewModel(),
+    cashBankViewModel: CashBankViewModel = hiltViewModel()
+) {
+    val invoices by invoiceViewModel.getInvoices().collectAsState(initial = emptyList())
+    val expenses by expenseViewModel.expenses.collectAsState()
+    val transactions by cashBankViewModel.transactions.collectAsState()
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val today = SimpleDateFormat("dd MMMM yyyy", Locale.US).format(Date())
+    val todayStart = remember {
+        Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+    val todayEnd = todayStart + 86400000L
+
+    val todayInvoices = invoices.filter { it.invoiceDate in todayStart until todayEnd }
+    val todayExpenses = expenses.filter { it.date in todayStart until todayEnd }
+    val todayTransactions = transactions.filter { it.date in todayStart until todayEnd }
+
+    val totalSale = todayInvoices.filter { it.type == "sale" }.sumOf { it.totalAmount }
+    val totalPurchase = todayInvoices.filter { it.type == "purchase" }.sumOf { it.totalAmount }
+    val totalExpenses = todayExpenses.sumOf { it.amount }
+    val totalCashIn = todayTransactions.filter { it.type == "credit" }.sumOf { it.amount }
+    val totalCashOut = todayTransactions.filter { it.type == "debit" }.sumOf { it.amount }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Day Book", fontWeight = FontWeight.Bold) },
@@ -31,25 +65,93 @@ fun DayBookReportScreen(navController: NavController) {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text("Day Book", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Text(today, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
+            item {
+                Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BlueHeader)) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                        Text("Day Book", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(today, color = Color.White.copy(alpha = 0.8f), fontSize = 13.sp)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text("Sales", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalSale), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                            Column { Text("Purchases", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalPurchase), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                            Column { Text("Expenses", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalExpenses), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                            Column { Text("Cash", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalCashIn - totalCashOut), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                        }
+                    }
                 }
             }
-            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text("All transactions for today will be listed here.", color = TextSecondary, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Features:", fontWeight = FontWeight.Bold, color = TextPrimary)
-                    Text("- Sale entries", fontSize = 13.sp, color = TextSecondary)
-                    Text("- Purchase entries", fontSize = 13.sp, color = TextSecondary)
-                    Text("- Expense entries", fontSize = 13.sp, color = TextSecondary)
-                    Text("- Payment entries", fontSize = 13.sp, color = TextSecondary)
-                    Text("- Income entries", fontSize = 13.sp, color = TextSecondary)
+
+            if (todayInvoices.isNotEmpty()) {
+                item { Text("Sales & Purchases", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) }
+                items(todayInvoices) { invoice ->
+                    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(36.dp).background(if (invoice.type == "sale") GreenBalance.copy(alpha = 0.1f) else Color(0xFF2196F3).copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                Icon(if (invoice.type == "sale") Icons.Filled.TrendingUp else Icons.Filled.ShoppingCart, contentDescription = null, tint = if (invoice.type == "sale") GreenBalance else Color(0xFF2196F3), modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("${invoice.type.replaceFirstChar { it.uppercase() }} - ${invoice.invoiceNumber}", fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
+                                Text(invoice.customerName, fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontWeight = FontWeight.Bold, color = if (invoice.type == "sale") GreenBalance else RedAccent, fontSize = 14.sp)
+                        }
+                    }
                 }
             }
+
+            if (todayExpenses.isNotEmpty()) {
+                item { Text("Expenses", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) }
+                items(todayExpenses) { expense ->
+                    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(36.dp).background(RedAccent.copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Filled.Note, contentDescription = null, tint = RedAccent, modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(expense.category, fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
+                                Text(expense.description ?: expense.category, fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Text(String.format(Locale.US, "\u20B9%,.2f", expense.amount), fontWeight = FontWeight.Bold, color = RedAccent, fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+
+            if (todayTransactions.isNotEmpty()) {
+                item { Text("Cash & Bank", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) }
+                items(todayTransactions) { txn ->
+                    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Box(modifier = Modifier.size(36.dp).background(if (txn.type == "credit") GreenBalance.copy(alpha = 0.1f) else RedAccent.copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                Icon(if (txn.type == "credit") Icons.Filled.ArrowDownward else Icons.Filled.ArrowUpward, contentDescription = null, tint = if (txn.type == "credit") GreenBalance else RedAccent, modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(txn.description ?: txn.mode, fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
+                                Text(txn.mode, fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Text("${if (txn.type == "credit") "+" else "-"}${String.format(Locale.US, "\u20B9%,.2f", txn.amount)}", fontWeight = FontWeight.Bold, color = if (txn.type == "credit") GreenBalance else RedAccent, fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+
+            if (todayInvoices.isEmpty() && todayExpenses.isEmpty() && todayTransactions.isEmpty()) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.EventNote, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("No transactions today", fontSize = 16.sp, color = TextSecondary, fontWeight = FontWeight.Medium)
+                        }
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
 }

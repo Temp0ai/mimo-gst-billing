@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -69,16 +68,10 @@ fun SettingsScreen(navController: NavController) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Primary,
                     titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    navigationIconContentColor = Color.White
                 )
             )
         }
@@ -105,30 +98,20 @@ fun SettingsScreen(navController: NavController) {
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(item.title, fontSize = 16.sp, color = TextPrimary, modifier = Modifier.weight(1f))
                         if (item.hasNew) {
-                            Box(
-                                modifier = Modifier
-                                    .background(RedAccent, RoundedCornerShape(4.dp))
-                                    .padding(horizontal = 8.dp, vertical = 2.dp)
-                            ) {
+                            Box(modifier = Modifier.background(RedAccent, RoundedCornerShape(4.dp)).padding(horizontal = 8.dp, vertical = 2.dp)) {
                                 Text("NEW", fontSize = 10.sp, color = Color.White, fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                         if (item.isPremium) {
-                            Box(
-                                modifier = Modifier
-                                    .background(Color(0xFFFFCDD2), RoundedCornerShape(4.dp))
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
+                            Box(modifier = Modifier.background(Color(0xFFFFCDD2), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 2.dp)) {
                                 Text("PRO", fontSize = 10.sp, color = RedAccent, fontWeight = FontWeight.Bold)
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                         Icon(
                             if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ChevronRight,
-                            contentDescription = null,
-                            tint = TextSecondary,
-                            modifier = Modifier.size(22.dp)
+                            contentDescription = null, tint = TextSecondary, modifier = Modifier.size(22.dp)
                         )
                     }
                     if (expandedSection == item.title) {
@@ -139,24 +122,24 @@ fun SettingsScreen(navController: NavController) {
                                     .clickable {
                                         when (subItem) {
                                             "Business Profile" -> navController.navigate(Screen.BusinessProfile.route)
-                                            "Transaction Settings" -> { }
-                                            "Payment Settings" -> { }
-                                            "Tax Configuration" -> { }
-                                            "TCS/TDS Settings" -> { }
-                                            "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
-                                            "Party Settings" -> navController.navigate(Screen.Parties.route)
-                                            "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
-                                            "Invoice Settings" -> { }
+                                            "Invoice Settings" -> navController.navigate(Screen.SettingsDetail.createRoute("Invoice Settings"))
                                             "Item Settings" -> navController.navigate(Screen.Items.route)
-                                            "Print Format" -> { }
-                                            "Print Size" -> { }
-                                            "Add Staff" -> { }
-                                            "Manage Permissions" -> { }
-                                            "SMS Templates" -> { }
-                                            "Auto Send" -> { }
-                                            "Stock Alerts" -> { }
-                                            "Units & Categories" -> { }
-                                            "Currency Settings" -> { }
+                                            "Party Settings" -> navController.navigate(Screen.Parties.route)
+                                            "Transaction Settings" -> navController.navigate(Screen.SettingsDetail.createRoute("Transaction Settings"))
+                                            "Payment Settings" -> navController.navigate(Screen.SettingsDetail.createRoute("Payment Settings"))
+                                            "Print Format" -> navController.navigate(Screen.SettingsDetail.createRoute("Print Format"))
+                                            "Print Size" -> navController.navigate(Screen.SettingsDetail.createRoute("Print Size"))
+                                            "Tax Configuration" -> navController.navigate(Screen.SettingsDetail.createRoute("Tax Configuration"))
+                                            "TCS/TDS Settings" -> navController.navigate(Screen.SettingsDetail.createRoute("TCS/TDS Settings"))
+                                            "Add Staff" -> navController.navigate(Screen.SettingsDetail.createRoute("Add Staff"))
+                                            "Manage Permissions" -> navController.navigate(Screen.SettingsDetail.createRoute("Manage Permissions"))
+                                            "SMS Templates" -> navController.navigate(Screen.SettingsDetail.createRoute("SMS Templates"))
+                                            "Auto Send" -> navController.navigate(Screen.SettingsDetail.createRoute("Auto Send"))
+                                            "Payment Reminders" -> navController.navigate(Screen.PaymentReminders.route)
+                                            "Stock Alerts" -> navController.navigate(Screen.SettingsDetail.createRoute("Stock Alerts"))
+                                            "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                            "Units & Categories" -> navController.navigate(Screen.SettingsDetail.createRoute("Units & Categories"))
+                                            "Currency Settings" -> navController.navigate(Screen.SettingsDetail.createRoute("Currency Settings"))
                                             "Import Database" -> navController.navigate(Screen.ImportData.route)
                                             "Export Database" -> navController.navigate(Screen.ExportData.route)
                                             "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)

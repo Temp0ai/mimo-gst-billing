@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mimo.gstbilling.ui.screens.*
+import java.net.URLDecoder
 
 @Composable
 fun MimoNavHost(navController: NavHostController, startDestination: String = Screen.Dashboard.route) {
@@ -68,5 +69,20 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
             val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
             EditInvoiceScreen(navController, invoiceId)
         }
+        composable(route = Screen.SettingsDetail.route, arguments = listOf(navArgument("title") { type = NavType.StringType })) { backStackEntry ->
+            val title = backStackEntry.arguments?.getString("title") ?: "Settings"
+            SettingsDetailScreen(navController, URLDecoder.decode(title, "UTF-8"))
+        }
+        composable(Screen.PartyReportByItems.route) { PartyReportByItemsScreen(navController) }
+        composable(Screen.SalePurchaseByParty.route) { SalePurchaseByPartyScreen(navController) }
+        composable(Screen.ItemReportByParty.route) { ItemReportByPartyScreen(navController) }
+        composable(Screen.ItemWiseProfitLoss.route) { ItemWiseProfitLossScreen(navController) }
+        composable(Screen.StockDetailReport.route) { StockDetailReportScreen(navController) }
+        composable(Screen.ItemWiseDiscount.route) { ItemWiseDiscountScreen(navController) }
+        composable(Screen.DiscountReport.route) { DiscountReportScreen(navController) }
+        composable(Screen.TaxReport.route) { TaxReportScreen(navController) }
+        composable(Screen.ExpenseItemReport.route) { ExpenseItemReportScreen(navController) }
+        composable(Screen.OrderItemReport.route) { OrderItemReportScreen(navController) }
+        composable(Screen.LoanStatement.route) { LoanStatementScreen(navController) }
     }
 }

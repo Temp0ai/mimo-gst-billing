@@ -53,4 +53,18 @@ sealed class Screen(val route: String) {
         fun createRoute(partyId: Long) = "edit_party/$partyId"
     }
     object InvoiceTemplates : Screen("invoice_templates")
+    object SettingsDetail : Screen("settings_detail/{title}") {
+        fun createRoute(title: String) = "settings_detail/$title"
+    }
+    object PartyReportByItems : Screen("party_report_by_items")
+    object SalePurchaseByParty : Screen("sale_purchase_by_party")
+    object ItemReportByParty : Screen("item_report_by_party")
+    object ItemWiseProfitLoss : Screen("item_wise_profit_loss")
+    object StockDetailReport : Screen("stock_detail_report")
+    object ItemWiseDiscount : Screen("item_wise_discount")
+    object DiscountReport : Screen("discount_report")
+    object TaxReport : Screen("tax_report")
+    object ExpenseItemReport : Screen("expense_item_report")
+    object OrderItemReport : Screen("order_item_report")
+    object LoanStatement : Screen("loan_statement")
 }

@@ -28,7 +28,8 @@ data class InvoiceUiState(
     val isSaving: Boolean = false,
     val savedInvoiceId: Long? = null,
     val allItems: List<ItemEntity> = emptyList(),
-    val allParties: List<PartyEntity> = emptyList()
+    val allParties: List<PartyEntity> = emptyList(),
+    val selectedTemplate: String = "tax_invoice"
 )
 
 data class InvoiceItemModel(
@@ -152,6 +153,10 @@ class InvoiceViewModel @Inject constructor(
         _uiState.update { it.copy(notes = value) }
     }
 
+    fun setTemplate(templateId: String) {
+        _uiState.update { it.copy(selectedTemplate = templateId) }
+    }
+
     private fun InvoiceUiState.recalculate(): InvoiceUiState {
         val itemsTotal = items.sumOf { it.totalAmount }
         val discountAmount = if (discountType == "percentage") itemsTotal * discount / 100 else discount
@@ -225,6 +230,10 @@ class InvoiceViewModel @Inject constructor(
 
     fun getInvoices(type: String): Flow<List<InvoiceEntity>> {
         return invoiceDao.getInvoicesByType(companyId, type)
+    }
+
+    fun getInvoices(): Flow<List<InvoiceEntity>> {
+        return invoiceDao.getInvoicesByCompany(companyId)
     }
 
     fun getInvoiceById(id: Long): Flow<InvoiceEntity?> {

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Group
@@ -28,7 +27,6 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Print
-import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
@@ -174,15 +172,15 @@ fun DashboardScreen(
                                             "Purchase" -> navController.navigate(Screen.Purchases.route)
                                             "Expense" -> navController.navigate(Screen.Expenses.route)
                                             "Cash & Bank" -> navController.navigate(Screen.CashBank.route)
-                                            "My Online Store" -> { }
-                                            "Other Products" -> { }
-                                            "Sync & Share" -> { }
+                                            "My Online Store" -> navController.navigate(Screen.StoreManagement.route)
+                                            "Other Products" -> navController.navigate(Screen.Items.route)
+                                            "Sync & Share" -> navController.navigate(Screen.ImportData.route)
                                             "Settings" -> navController.navigate(Screen.Settings.route)
                                             "Backup/Restore" -> navController.navigate(Screen.BackupRestore.route)
-                                            "Plans & Pricing" -> { }
-                                            "Grow Your Business" -> { }
-                                            "Utilities" -> { }
-                                            "Help & Support" -> { }
+                                            "Plans & Pricing" -> navController.navigate(Screen.Settings.route)
+                                            "Grow Your Business" -> navController.navigate(Screen.Reports.route)
+                                            "Utilities" -> navController.navigate(Screen.BarcodeScanner.route)
+                                            "Help & Support" -> navController.navigate(Screen.Settings.route)
                                         }
                                     }
                                 }
@@ -238,19 +236,19 @@ fun DashboardScreen(
                                                 "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
                                                 "Cash Book" -> navController.navigate(Screen.CashBank.route)
                                                 "Bank Accounts" -> navController.navigate(Screen.CashBank.route)
-                                                "Store Settings" -> { }
-                                                "Products" -> navController.navigate(Screen.Items.route)
-                                                "Auto Backup" -> { }
-                                                "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
-                                                "Backup to e-mail" -> { }
-                                                "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
-                                                "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                                "Analytics" -> navController.navigate(Screen.Reports.route)
-                                                "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
-                                                "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                                                "Import Data" -> navController.navigate(Screen.ImportData.route)
-                                                "FAQs" -> { }
-                                                "Contact Support" -> { }
+                                    "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
+                                    "Products" -> navController.navigate(Screen.Items.route)
+                                    "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
+                                    "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
+                                    "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
+                                    "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                    "Analytics" -> navController.navigate(Screen.Reports.route)
+                                    "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                    "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                    "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                    "FAQs" -> navController.navigate(Screen.Settings.route)
+                                    "Contact Support" -> navController.navigate(Screen.Settings.route)
                                             }
                                         }
                                         .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),

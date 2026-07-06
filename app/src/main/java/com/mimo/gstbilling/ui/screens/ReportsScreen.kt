@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,64 +33,64 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Purchase Report", Screen.Purchases.route),
             ReportItem("Day Book", Screen.DayBookReport.route),
             ReportItem("All Transactions", Screen.Sales.route),
-            ReportItem("Bill Wise Profit", isPro = true),
+            ReportItem("Bill Wise Profit", Screen.ProfitLossReport.route),
             ReportItem("Profit & Loss", Screen.ProfitLossReport.route),
             ReportItem("Cashflow", Screen.CashFlowReport.route),
-            ReportItem("Balance Sheet", Screen.BalanceSheet.route, isPro = true)
+            ReportItem("Balance Sheet", Screen.BalanceSheet.route)
         ),
         "Party reports" to listOf(
             ReportItem("Party Statement", Screen.PartyStatement.createRoute(1L)),
-            ReportItem("Party Wise Profit & Loss", isPro = true),
+            ReportItem("Party Wise Profit & Loss", Screen.ProfitLossReport.route),
             ReportItem("All Parties Report", Screen.Parties.route),
-            ReportItem("Party Report by Items"),
-            ReportItem("Sale/Purchase by Party"),
-            ReportItem("Sale/Purchase By Party Groups")
+            ReportItem("Party Report by Items", Screen.PartyReportByItems.route),
+            ReportItem("Sale/Purchase by Party", Screen.SalePurchaseByParty.route),
+            ReportItem("Sale/Purchase By Party Groups", Screen.PartyGroups.route)
         ),
         "GST reports" to listOf(
             ReportItem("GSTR-1", Screen.Gstr1Report.route),
-            ReportItem("GSTR-2"),
+            ReportItem("GSTR-2", Screen.Gstr1Report.route),
             ReportItem("GSTR-3B", Screen.Gstr3bReport.route),
-            ReportItem("GST Transaction report"),
-            ReportItem("GSTR-9"),
-            ReportItem("Sale Summary by HSN"),
-            ReportItem("SAC Report")
+            ReportItem("GST Transaction report", Screen.TaxReport.route),
+            ReportItem("GSTR-9", Screen.Gstr1Report.route),
+            ReportItem("Sale Summary by HSN", Screen.Gstr1Report.route),
+            ReportItem("SAC Report", Screen.Gstr1Report.route)
         ),
         "Item/Stock reports" to listOf(
             ReportItem("Stock Summary Report", Screen.Items.route),
-            ReportItem("Item Report by Party"),
-            ReportItem("Item Wise Profit & Loss"),
+            ReportItem("Item Report by Party", Screen.ItemReportByParty.route),
+            ReportItem("Item Wise Profit & Loss", Screen.ItemWiseProfitLoss.route),
             ReportItem("Low Stock Summary Report", Screen.Items.route),
-            ReportItem("Item Detail Report"),
-            ReportItem("Stock Detail Report"),
-            ReportItem("Sale/Purchase By Item Category"),
-            ReportItem("Stock summary By Item Category"),
-            ReportItem("Item Batch Report", isPro = true),
-            ReportItem("Item Serial Report", isPro = true),
-            ReportItem("Item Wise Discount")
+            ReportItem("Item Detail Report", Screen.StockDetailReport.route),
+            ReportItem("Stock Detail Report", Screen.StockDetailReport.route),
+            ReportItem("Sale/Purchase By Item Category", Screen.Items.route),
+            ReportItem("Stock summary By Item Category", Screen.Items.route),
+            ReportItem("Item Batch Report", Screen.ItemBatchTracking.route),
+            ReportItem("Item Serial Report", Screen.ItemBatchTracking.route),
+            ReportItem("Item Wise Discount", Screen.ItemWiseDiscount.route)
         ),
         "Business status" to listOf(
             ReportItem("Bank Statement", Screen.CashBank.route),
-            ReportItem("Discount Report")
+            ReportItem("Discount Report", Screen.DiscountReport.route)
         ),
         "Taxes" to listOf(
             ReportItem("GST Report", Screen.Gstr1Report.route),
-            ReportItem("GST Rate Report"),
-            ReportItem("Form No. 27EQ"),
-            ReportItem("TCS Receivable"),
-            ReportItem("TDS Payable"),
-            ReportItem("TDS Receivable")
+            ReportItem("GST Rate Report", Screen.TaxReport.route),
+            ReportItem("Form No. 27EQ", Screen.TaxReport.route),
+            ReportItem("TCS Receivable", Screen.TaxReport.route),
+            ReportItem("TDS Payable", Screen.TaxReport.route),
+            ReportItem("TDS Receivable", Screen.TaxReport.route)
         ),
         "Expense reports" to listOf(
             ReportItem("Expense Transaction Report", Screen.Expenses.route),
             ReportItem("Expense Category Report", Screen.ExpenseCategoryReport.route),
-            ReportItem("Expense Item Report")
+            ReportItem("Expense Item Report", Screen.ExpenseItemReport.route)
         ),
         "Sale/Purchase Order reports" to listOf(
             ReportItem("Sale/Purchase Order Transaction Report", Screen.Orders.route),
-            ReportItem("Sale/Purchase Order Item Report")
+            ReportItem("Sale/Purchase Order Item Report", Screen.OrderItemReport.route)
         ),
         "Loan Reports" to listOf(
-            ReportItem("Loan Statement")
+            ReportItem("Loan Statement", Screen.LoanStatement.route)
         )
     )
 
@@ -104,16 +103,10 @@ fun ReportsScreen(navController: NavController) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                actions = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Primary,
                     titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    navigationIconContentColor = Color.White
                 )
             )
         }
@@ -201,13 +194,6 @@ fun ReportsScreen(navController: NavController) {
                                         }
                                         Spacer(modifier = Modifier.width(8.dp))
                                     }
-                                    Icon(
-                                        Icons.Filled.StarOutline,
-                                        contentDescription = "Favorite",
-                                        tint = Color(0xFFBDBDBD),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
                                     Icon(
                                         Icons.Filled.ChevronRight,
                                         contentDescription = null,
