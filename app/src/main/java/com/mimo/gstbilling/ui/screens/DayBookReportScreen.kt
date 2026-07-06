@@ -36,7 +36,6 @@ fun DayBookReportScreen(
     val invoices by invoiceViewModel.getInvoices().collectAsState(initial = emptyList())
     val expenses by expenseViewModel.expenses.collectAsState()
     val transactions by cashBankViewModel.transactions.collectAsState()
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val today = SimpleDateFormat("dd MMMM yyyy", Locale.US).format(Date())
     val todayStart = remember {
         Calendar.getInstance().apply {
@@ -52,9 +51,9 @@ fun DayBookReportScreen(
     val todayExpenses = expenses.filter { it.date in todayStart until todayEnd }
     val todayTransactions = transactions.filter { it.date in todayStart until todayEnd }
 
-    val totalSale = todayInvoices.filter { it.type == "sale" }.sumOf { it.totalAmount }
-    val totalPurchase = todayInvoices.filter { it.type == "purchase" }.sumOf { it.totalAmount }
-    val totalExpenses = todayExpenses.sumOf { it.amount }
+    val totalSale = todayInvoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
+    val totalPurchase = todayInvoices.filter { it.invoiceType == "purchase" }.sumOf { it.totalAmount }
+    val totalExpensesAmt = todayExpenses.sumOf { it.amount }
     val totalCashIn = todayTransactions.filter { it.type == "credit" }.sumOf { it.amount }
     val totalCashOut = todayTransactions.filter { it.type == "debit" }.sumOf { it.amount }
 
@@ -75,7 +74,7 @@ fun DayBookReportScreen(
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column { Text("Sales", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalSale), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
                             Column { Text("Purchases", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalPurchase), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
-                            Column { Text("Expenses", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalExpenses), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                            Column { Text("Expenses", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalExpensesAmt), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
                             Column { Text("Cash", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f)); Text(String.format(Locale.US, "\u20B9%,.0f", totalCashIn - totalCashOut), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White) }
                         }
                     }
@@ -85,17 +84,18 @@ fun DayBookReportScreen(
             if (todayInvoices.isNotEmpty()) {
                 item { Text("Sales & Purchases", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary, modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) }
                 items(todayInvoices) { invoice ->
+                    val isSale = invoice.invoiceType == "sales"
                     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Box(modifier = Modifier.size(36.dp).background(if (invoice.type == "sale") GreenBalance.copy(alpha = 0.1f) else Color(0xFF2196F3).copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                                Icon(if (invoice.type == "sale") Icons.Filled.TrendingUp else Icons.Filled.ShoppingCart, contentDescription = null, tint = if (invoice.type == "sale") GreenBalance else Color(0xFF2196F3), modifier = Modifier.size(18.dp))
+                            Box(modifier = Modifier.size(36.dp).background(if (isSale) GreenBalance.copy(alpha = 0.1f) else Color(0xFF2196F3).copy(alpha = 0.1f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
+                                Icon(if (isSale) Icons.Filled.TrendingUp else Icons.Filled.ShoppingCart, contentDescription = null, tint = if (isSale) GreenBalance else Color(0xFF2196F3), modifier = Modifier.size(18.dp))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("${invoice.type.replaceFirstChar { it.uppercase() }} - ${invoice.invoiceNumber}", fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
-                                Text(invoice.customerName, fontSize = 12.sp, color = TextSecondary)
+                                Text("${if (isSale) "Sale" else "Purchase"} - ${invoice.invoiceNumber}", fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
+                                Text("Party #${invoice.partyId}", fontSize = 12.sp, color = TextSecondary)
                             }
-                            Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontWeight = FontWeight.Bold, color = if (invoice.type == "sale") GreenBalance else RedAccent, fontSize = 14.sp)
+                            Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontWeight = FontWeight.Bold, color = if (isSale) GreenBalance else RedAccent, fontSize = 14.sp)
                         }
                     }
                 }

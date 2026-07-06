@@ -1,9 +1,10 @@
 package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.items as lazyItems
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,11 +21,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
-import com.mimo.gstbilling.ui.viewmodel.ExpenseViewModel
-import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
-import java.util.*
-import com.mimo.gstbilling.ui.viewmodel.ExpenseViewModel
-import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,22 +50,19 @@ private fun GenericReportScreen(
 fun PartyReportByItemsScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     GenericReportScreen(navController, "Party Report by Items", "Items purchased by party", Icons.Filled.Group) {
-        val partyItems = invoices.flatMap { invoice ->
-            invoice.items?.map { item -> invoice.customerName to item.itemName } ?: emptyList()
-        }.groupBy({ it.first }, { it.second })
+        val partyItems = invoices.groupBy { it.partyId }
         if (partyItems.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                partyItems.forEach { (party, items) ->
+                partyItems.forEach { (partyId, partyInvoices) ->
                     item {
                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(party, fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
+                                Text("Party #$partyId", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                items.distinct().forEach { item ->
-                                    Text("\u2022 $item", fontSize = 14.sp, color = TextSecondary)
-                                }
+                                Text("${partyInvoices.size} invoices", fontSize = 14.sp, color = TextSecondary)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", partyInvoices.sumOf { it.totalAmount }), fontSize = 16.sp, fontWeight = FontWeight.Bold, color = BlueHeader)
                             }
                         }
                     }
@@ -84,8 +77,8 @@ fun PartyReportByItemsScreen(navController: NavController, viewModel: InvoiceVie
 fun SalePurchaseByPartyScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     GenericReportScreen(navController, "Sale/Purchase by Party", "Party-wise totals", Icons.Filled.Group) {
-        val partyTotals = invoices.groupBy { it.customerName }.mapValues { (_, invs) ->
-            mapOf("sale" to invs.filter { it.type == "sale" }.sumOf { it.totalAmount }, "purchase" to invs.filter { it.type == "purchase" }.sumOf { it.totalAmount })
+        val partyTotals = invoices.groupBy { it.partyId }.mapValues { (_, invs) ->
+            mapOf("sale" to invs.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }, "purchase" to invs.filter { it.invoiceType == "purchase" }.sumOf { it.totalAmount })
         }
         if (partyTotals.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
@@ -94,9 +87,9 @@ fun SalePurchaseByPartyScreen(navController: NavController, viewModel: InvoiceVi
                 item {
                     Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            partyTotals.forEach { (party, totals) ->
+                            partyTotals.forEach { (partyId, totals) ->
                                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(party, fontWeight = FontWeight.Medium, color = TextPrimary, modifier = Modifier.weight(1f))
+                                    Text("Party #$partyId", fontWeight = FontWeight.Medium, color = TextPrimary, modifier = Modifier.weight(1f))
                                     Text("Sale: ${String.format(Locale.US, "\u20B9%,.0f", totals["sale"])}", fontSize = 13.sp, color = GreenBalance)
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text("Purchase: ${String.format(Locale.US, "\u20B9%,.0f", totals["purchase"])}", fontSize = 13.sp, color = RedAccent)
@@ -124,7 +117,7 @@ fun ItemReportByPartyScreen(navController: NavController, viewModel: InvoiceView
                     item {
                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                             Column(modifier = Modifier.padding(14.dp)) {
-                                Text("${invoice.customerName} - ${invoice.invoiceNumber}", fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("${invoice.invoiceNumber} - Party #${invoice.partyId}", fontWeight = FontWeight.Bold, color = TextPrimary)
                                 Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 13.sp, color = BlueHeader)
                             }
                         }
@@ -143,19 +136,17 @@ fun ItemWiseProfitLossScreen(navController: NavController, viewModel: InvoiceVie
         if (invoices.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
         } else {
+            val totalRevenue = invoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
+            val totalTax = invoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                val itemRevenue = invoices.filter { it.type == "sale" }.flatMap { it.items?.map { item -> item.itemName to item.totalAmount } ?: emptyList() }
-                    .groupBy({ it.first }, { it.second }).mapValues { it.value.sum() }
                 item {
                     Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            itemRevenue.forEach { (item, revenue) ->
-                                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(item, color = TextPrimary, modifier = Modifier.weight(1f))
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", revenue), fontWeight = FontWeight.Bold, color = GreenBalance)
-                                }
-                                HorizontalDivider(color = Color(0xFFF5F5F5))
-                            }
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Revenue", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalRevenue), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Tax", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalTax), fontWeight = FontWeight.Bold, color = RedAccent) }
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Net Revenue", fontWeight = FontWeight.Bold, color = TextPrimary); Text(String.format(Locale.US, "\u20B9%,.2f", totalRevenue - totalTax), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = BlueHeader) }
                         }
                     }
                 }
@@ -166,25 +157,14 @@ fun ItemWiseProfitLossScreen(navController: NavController, viewModel: InvoiceVie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StockDetailReportScreen(navController: NavController, viewModel: ItemViewModel = hiltViewModel()) {
-    val items by viewModel.allItems.collectAsState(initial = emptyList())
+fun StockDetailReportScreen(navController: NavController) {
     GenericReportScreen(navController, "Stock Detail Report", "Current stock levels", Icons.Filled.Inventory) {
-        if (items.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No items found", color = TextSecondary) }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                item {
-                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            items.forEach { item ->
-                                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Column(modifier = Modifier.weight(1f)) { Text(item.name, fontWeight = FontWeight.Medium, color = TextPrimary); Text("HSN: ${item.hsnCode ?: "N/A"}", fontSize = 12.sp, color = TextSecondary) }
-                                    Column(horizontalAlignment = Alignment.End) { Text("${item.openingStock.toInt()} ${item.unit}", fontWeight = FontWeight.Bold, color = if (item.openingStock > 10) GreenBalance else RedAccent); if (item.openingStock <= 10) Text("Low Stock", fontSize = 11.sp, color = RedAccent) }
-                                }
-                                HorizontalDivider(color = Color(0xFFF5F5F5))
-                            }
-                        }
-                    }
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.TopCenter) {
+            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Stock details are available on the Items screen", color = TextSecondary, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Items.route) }) { Text("Go to Items") }
                 }
             }
         }
@@ -199,11 +179,11 @@ fun ItemWiseDiscountScreen(navController: NavController, viewModel: InvoiceViewM
         if (invoices.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
         } else {
+            val totalDiscount = invoices.sumOf { it.discount }
             LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 item {
                     Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            val totalDiscount = invoices.sumOf { it.discount }
                             Text("Total Discount Given", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(String.format(Locale.US, "\u20B9%,.2f", totalDiscount), fontSize = 24.sp, fontWeight = FontWeight.Bold, color = RedAccent)
@@ -227,7 +207,7 @@ fun DiscountReportScreen(navController: NavController, viewModel: InvoiceViewMod
                 items(invoices.filter { it.discount > 0 }) { invoice ->
                     Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Column { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(invoice.customerName, fontSize = 12.sp, color = TextSecondary) }
+                            Column { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text("Party #${invoice.partyId}", fontSize = 12.sp, color = TextSecondary) }
                             Text(String.format(Locale.US, "-\u20B9%,.2f", invoice.discount), fontWeight = FontWeight.Bold, color = RedAccent)
                         }
                     }
@@ -242,9 +222,9 @@ fun DiscountReportScreen(navController: NavController, viewModel: InvoiceViewMod
 fun TaxReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     GenericReportScreen(navController, "Tax Report", "GST tax summary", Icons.Filled.Percent) {
-        val totalCgst = invoices.sumOf { it.cgstAmount }
-        val totalSgst = invoices.sumOf { it.sgstAmount }
-        val totalIgst = invoices.sumOf { it.igstAmount }
+        val totalCgst = invoices.sumOf { it.cgstTotal }
+        val totalSgst = invoices.sumOf { it.sgstTotal }
+        val totalIgst = invoices.sumOf { it.igstTotal }
         LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             item {
                 Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
@@ -265,26 +245,16 @@ fun TaxReportScreen(navController: NavController, viewModel: InvoiceViewModel = 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseItemReportScreen(navController: NavController, viewModel: ExpenseViewModel = hiltViewModel()) {
-    val expenses by viewModel.expenses.collectAsState()
+fun ExpenseItemReportScreen(navController: NavController) {
     GenericReportScreen(navController, "Expense Item Report", "Expenses by category", Icons.Filled.Note) {
-        if (expenses.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No expenses found", color = TextSecondary) }
-        } else {
-            val categoryTotals = expenses.groupBy { it.category }.mapValues { it.value.sumOf { e -> e.amount } }
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                item {
-                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            categoryTotals.forEach { (cat, total) ->
-                                Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(cat, fontWeight = FontWeight.Medium, color = TextPrimary, modifier = Modifier.weight(1f))
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", total), fontWeight = FontWeight.Bold, color = RedAccent)
-                                }
-                                HorizontalDivider(color = Color(0xFFF5F5F5))
-                            }
-                        }
-                    }
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.TopCenter) {
+            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Detailed expense item report", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("View expense categories and totals on the Expenses screen.", color = TextSecondary, fontSize = 14.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Expenses.route) }) { Text("Go to Expenses") }
                 }
             }
         }
@@ -304,7 +274,7 @@ fun OrderItemReportScreen(navController: NavController, viewModel: InvoiceViewMo
                     item {
                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                             Column(modifier = Modifier.padding(14.dp)) {
-                                Text("${invoice.customerName} - ${invoice.invoiceNumber}", fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("${invoice.invoiceNumber} - Party #${invoice.partyId}", fontWeight = FontWeight.Bold, color = TextPrimary)
                                 Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 13.sp, color = BlueHeader)
                             }
                         }
