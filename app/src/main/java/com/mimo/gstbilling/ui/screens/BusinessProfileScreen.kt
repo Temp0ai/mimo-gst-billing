@@ -142,21 +142,7 @@ fun BusinessProfileScreen(
                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                         Button(
                             onClick = {
-                                val shareIntent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-                                    type = "text/plain"
-                                    putExtra(
-                                        android.content.Intent.EXTRA_TEXT,
-                                        buildString {
-                                            appendLine(company.name)
-                                            company.businessType?.let { appendLine("Type: $it") }
-                                            company.gstin?.let { appendLine("GSTIN: $it") }
-                                            company.phone?.let { appendLine("Phone: $it") }
-                                            company.email?.let { appendLine("Email: $it") }
-                                            company.address?.let { appendLine("Address: $it") }
-                                        }
-                                    )
-                                }
-                                context.startActivity(android.content.Intent.createChooser(shareIntent, "Share Business Card"))
+                                navController.navigate(Screen.BusinessCardDesigner.route)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                             shape = RoundedCornerShape(24.dp),
