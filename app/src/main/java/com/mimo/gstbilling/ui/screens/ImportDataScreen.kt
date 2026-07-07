@@ -38,8 +38,13 @@ class ImportViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
     private val invoiceItemDao: InvoiceItemDao,
     private val expenseDao: ExpenseDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
+    suspend fun insertCompany(company: CompanyEntity): Long {
+        return try { companyDao.insertCompany(company) } catch (_: Exception) { 0L }
+    }
+
     suspend fun insertParties(parties: List<PartyEntity>): Int {
         var count = 0
         parties.forEach { party ->

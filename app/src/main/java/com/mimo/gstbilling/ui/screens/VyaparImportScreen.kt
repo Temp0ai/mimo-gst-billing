@@ -321,6 +321,62 @@ fun VyaparImportScreen(
                 }
             }
 
+            // Fetch from URL button
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.CloudSync, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Fetch from Anyclaw", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 15.sp)
+                            Text("Download Arihant billing data directly", fontSize = 12.sp, color = TextSecondary)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            statusMessage = "Fetching data from Anyclaw..."
+                            scope.launch {
+                                try {
+                                    withContext(Dispatchers.IO) {
+                                        val url = java.net.URL("https://arihant-billing.anyclaw.store/data.js")
+                                        val connection = url.openConnection()
+                                        connection.connectTimeout = 30000
+                                        connection.readTimeout = 60000
+                                        val inputStream = connection.getInputStream()
+                                        val dataJs = inputStream.bufferedReader().use { it.readText() }
+                                        inputStream.close()
+
+                                        statusMessage = "Parsing billing data..."
+                                        parseAndImportDataJs(dataJs, viewModel) { msg, parties, items, invoices, expenses, txns ->
+                                            importedParties = parties
+                                            importedItems = items
+                                            importedInvoices = invoices
+                                            importedExpenses = expenses
+                                            importedTransactions = txns
+                                            statusMessage = msg
+                                        }
+                                    }
+                                    showResult = true
+                                } catch (e: Exception) {
+                                    errors = listOf("Error: ${e.message}")
+                                    showResult = true
+                                }
+                                isLoading = false
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                    ) {
+                        Icon(Icons.Filled.CloudDownload, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Fetch & Import Data")
+                    }
+                }
+            }
+
             // Tables found
             if (tablesFound.isNotEmpty()) {
                 Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
@@ -782,4 +838,211 @@ private fun parseDate(dateStr: String): Long {
         }
     } catch (_: Exception) {}
     return System.currentTimeMillis()
+}
+
+private fun parseAndImportDataJs(
+    dataJs: String,
+    viewModel: ImportViewModel,
+    onProgress: (String, Int, Int, Int, Int, Int) -> Unit
+) {
+    // Extract columns and rows for each table from the JS
+    fun extractTable(tableName: String): Pair<List<String>, List<List<String>>>? {
+        // Find "tableName": { "columns": [...], "rows": [...] }
+        val tablePattern = Regex("\"$tableName\"\\s*:\\s*\\{\\s*\"columns\"\\s*:\\s*\\[([^\\]]+)\\]\\s*,\\s*\"rows\"\\s*:\\s*\\[([^\\]]*)\\]")
+        val match = tablePattern.find(dataJs) ?: return null
+
+        val columnsStr = match.groupValues[1]
+        val columns = Regex("\"([^\"]+)\"").findAll(columnsStr).map { it.groupValues[1] }.toList()
+
+        val rowsStr = match.groupValues[2]
+        val rows = mutableListOf<List<String>>()
+        val rowPattern = Regex("\\[([^\\]]*)\\]")
+        for (rowMatch in rowPattern.findAll(rowsStr)) {
+            val cells = Regex("\"([^\"]*?)\"|([0-9.]+)").findAll(rowMatch.groupValues[1])
+                .map { it.groupValues[1].ifEmpty { it.groupValues[2] } }
+                .toList()
+            rows.add(cells)
+        }
+        return Pair(columns, rows)
+    }
+
+    fun getColIndex(columns: List<String>, vararg names: String): Int {
+        return columns.indexOfFirst { col -> names.any { col.equals(it, ignoreCase = true) } }
+    }
+
+    fun getString(row: List<String>, columns: List<String>, vararg names: String): String? {
+        val idx = getColIndex(columns, *names)
+        if (idx < 0 || idx >= row.size) return null
+        val v = row[idx]
+        return if (v.isBlank() || v == "null") null else v.trim()
+    }
+
+    fun getDouble(row: List<String>, columns: List<String>, vararg names: String): Double {
+        val idx = getColIndex(columns, *names)
+        if (idx < 0 || idx >= row.size) return 0.0
+        return row[idx].replace(",", "").toDoubleOrNull() ?: 0.0
+    }
+
+    var totalParties = 0
+    var totalItems = 0
+    var totalInvoices = 0
+    var totalExpenses = 0
+    var totalTxns = 0
+
+    // Import firm details into company
+    val firmData = extractTable("kb_firms") ?: extractTable("firm_details")
+    firmData?.let { (cols, rows) ->
+        if (rows.isNotEmpty()) {
+            val row = rows[0]
+            val name = getString(row, cols, "firm_name") ?: "My Business"
+            val gstin = getString(row, cols, "firm_gstin_number")
+            val phone = getString(row, cols, "firm_phone")
+            val email = getString(row, cols, "firm_email")
+            val address = getString(row, cols, "firm_address")
+            val state = getString(row, cols, "firm_state")
+            val bankName = getString(row, cols, "firm_bank_name")
+            val bankAcct = getString(row, cols, "firm_bank_account_number")
+            val bankIfsc = getString(row, cols, "firm_bank_ifsc_code")
+            val desc = getString(row, cols, "firm_description")
+
+            val company = com.mimo.gstbilling.data.local.entity.CompanyEntity(
+                name = name,
+                gstin = gstin,
+                address = address,
+                phone = phone,
+                email = email,
+                businessType = getString(row, cols, "firm_business_type"),
+                state = state,
+                stateCode = null,
+                logoUri = null,
+                signatureUri = null,
+                bankName = bankName,
+                bankAccountNumber = bankAcct,
+                bankIfsc = bankIfsc,
+                bankBranch = null,
+                bankUpiId = null,
+                termsAndConditions = null,
+                declaration = null,
+                msmeUdyamNumber = null
+            )
+            kotlinx.coroutines.runBlocking { viewModel.insertCompany(company) }
+        }
+    }
+
+    // Import parties
+    val namesData = extractTable("kb_names")
+    namesData?.let { (cols, rows) ->
+        val parties = mutableListOf<com.mimo.gstbilling.data.local.entity.PartyEntity>()
+        for (row in rows) {
+            val nameType = getString(row, cols, "name_type") ?: "1"
+            if (nameType != "1") continue // Only customers, skip expense categories
+            val name = getString(row, cols, "full_name") ?: continue
+            if (name.isBlank()) continue
+
+            val phone = getString(row, cols, "phone_number")
+            val gstin = getString(row, cols, "name_gstin_number")
+            val email = getString(row, cols, "email")
+            val address = getString(row, cols, "address")
+            val state = getString(row, cols, "name_state")
+
+            parties.add(com.mimo.gstbilling.data.local.entity.PartyEntity(
+                companyId = 1L,
+                name = name,
+                phone = phone,
+                gstin = gstin,
+                email = email,
+                address = address,
+                state = state,
+                stateCode = null,
+                balance = getDouble(row, cols, "amount"),
+                partyType = "customer"
+            ))
+        }
+        totalParties = kotlinx.coroutines.runBlocking { viewModel.insertParties(parties) }
+        onProgress("Imported $totalParties parties", totalParties, totalItems, totalInvoices, totalExpenses, totalTxns)
+    }
+
+    // Import items
+    val itemsData = extractTable("kb_items")
+    itemsData?.let { (cols, rows) ->
+        val items = mutableListOf<com.mimo.gstbilling.data.local.entity.ItemEntity>()
+        for (row in rows) {
+            val name = getString(row, cols, "item_name") ?: continue
+            if (name.isBlank()) continue
+
+            val gstId = getString(row, cols, "item_tax_id") ?: ""
+            val gstRate = when (gstId) {
+                "24" -> 18.0
+                "16" -> 5.0
+                "4" -> 0.0
+                else -> 0.0
+            }
+
+            items.add(com.mimo.gstbilling.data.local.entity.ItemEntity(
+                companyId = 1L,
+                name = name,
+                hsnCode = getString(row, cols, "item_hsn_sac_code"),
+                description = getString(row, cols, "item_description"),
+                salePrice = getDouble(row, cols, "item_sale_unit_price"),
+                purchasePrice = getDouble(row, cols, "item_purchase_unit_price"),
+                gstRate = gstRate,
+                unit = "NOS",
+                stockQuantity = getDouble(row, cols, "item_stock_quantity"),
+                isService = getString(row, cols, "item_type") == "2"
+            ))
+        }
+        totalItems = kotlinx.coroutines.runBlocking { viewModel.insertItems(items) }
+        onProgress("Imported $totalParties parties, $totalItems items", totalParties, totalItems, totalInvoices, totalExpenses, totalTxns)
+    }
+
+    // Import transactions (invoices)
+    val txnData = extractTable("kb_transactions")
+    val namesTable = extractTable("kb_names")
+    val nameMap = mutableMapOf<String, Long>() // name_id -> partyId (we'll use name_id as reference)
+
+    txnData?.let { (cols, rows) ->
+        val invoices = mutableListOf<com.mimo.gstbilling.data.local.entity.InvoiceEntity>()
+        for (row in rows) {
+            val invNum = getString(row, cols, "txn_ref_number_char") ?: continue
+            if (invNum.isBlank()) continue
+
+            val txnType = getString(row, cols, "txn_type") ?: "1"
+            if (txnType != "1" && txnType != "3") continue // Only sales and returns
+
+            val dateMillis = parseDate(getString(row, cols, "txn_date") ?: "")
+            val cashPaid = getDouble(row, cols, "txn_cash_amount")
+            val balance = getDouble(row, cols, "txn_balance_amount")
+            val total = cashPaid + balance
+            val discount = getDouble(row, cols, "txn_discount_amount")
+            val tax = getDouble(row, cols, "txn_tax_amount")
+            val subTotal = total - tax
+
+            val invType = if (txnType == "3") "sales_return" else "sales"
+            val status = when (getString(row, cols, "txn_payment_status")) {
+                "3" -> "paid"
+                "2" -> "partial"
+                else -> "unpaid"
+            }
+
+            invoices.add(com.mimo.gstbilling.data.local.entity.InvoiceEntity(
+                companyId = 1L,
+                partyId = 0L,
+                invoiceNumber = invNum.trim(),
+                invoiceDate = dateMillis,
+                dueDate = null,
+                subTotal = subTotal,
+                discount = discount,
+                taxableAmount = subTotal,
+                cgstTotal = tax / 2,
+                sgstTotal = tax / 2,
+                igstTotal = 0.0,
+                totalAmount = total,
+                paymentStatus = status,
+                invoiceType = invType
+            ))
+        }
+        totalInvoices = kotlinx.coroutines.runBlocking { viewModel.insertInvoices(invoices) }
+        totalTxns = totalInvoices
+        onProgress("Imported $totalParties parties, $totalItems items, $totalInvoices invoices", totalParties, totalItems, totalInvoices, totalExpenses, totalTxns)
+    }
 }
