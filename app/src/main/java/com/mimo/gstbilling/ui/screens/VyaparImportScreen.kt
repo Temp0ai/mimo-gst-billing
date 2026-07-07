@@ -76,18 +76,18 @@ fun VyaparImportScreen(
                         // Some .vyb files are raw SQLite without standard header
                         val mightBeRawDb = !isZip && !isSqlite && bytesRead >= 4
 
-                        val tempFile: File
+                        var tempFile = File(context.cacheDir, "vyapar_import.db")
 
                         if (isZip) {
                             statusMessage = "Extracting zip archive..."
-                            tempFile = File(context.cacheDir, "vyapar_extracted.db")
-                            tempFile.delete()
+                            val zipFile = File(context.cacheDir, "vyapar_extracted.db")
+                            zipFile.delete()
                             try {
-                                extractDbFromZip(headerStream, tempFile)
+                                extractDbFromZip(headerStream, zipFile)
+                                tempFile = zipFile
                             } catch (zipEx: Exception) {
                                 // ZIP extraction failed — try raw file as SQLite
                                 statusMessage = "ZIP extraction failed, trying raw file..."
-                                tempFile = File(context.cacheDir, "vyapar_import.db")
                                 val rawInput = resolver.openInputStream(it) ?: throw Exception("Cannot reopen file")
                                 tempFile.outputStream().use { out -> rawInput.copyTo(out) }
                                 rawInput.close()
