@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -295,25 +296,24 @@ fun BusinessCard(company: CompanyEntity) {
                         .background(Primary.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (company.logoUri != null) {
-                        try {
-                            val uri = Uri.parse(company.logoUri)
-                            val inputStream = context.contentResolver.openInputStream(uri)
-                            val bitmap = BitmapFactory.decodeStream(inputStream)
-                            inputStream?.close()
-                            if (bitmap != null) {
-                                androidx.compose.foundation.Image(
-                                    bitmap = bitmap.asImageBitmap(),
-                                    contentDescription = "Company Logo",
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            } else {
-                                Text(company.name.take(1).uppercase(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Primary)
-                            }
-                        } catch (_: Exception) {
-                            Text(company.name.take(1).uppercase(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Primary)
+                    val logoBitmap = remember(company.logoUri) {
+                        company.logoUri?.let { uriStr ->
+                            try {
+                                val uri = Uri.parse(uriStr)
+                                val inputStream = context.contentResolver.openInputStream(uri)
+                                val bmp = BitmapFactory.decodeStream(inputStream)
+                                inputStream?.close()
+                                bmp
+                            } catch (_: Exception) { null }
                         }
+                    }
+                    if (logoBitmap != null) {
+                        Image(
+                            bitmap = logoBitmap.asImageBitmap(),
+                            contentDescription = "Company Logo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
                     } else {
                         Text(
                             company.name.take(1).uppercase(),
@@ -746,29 +746,24 @@ fun BasicDetailsTab(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (signatureUri != null) {
-                try {
-                    val uri = Uri.parse(signatureUri)
-                    val inputStream = context.contentResolver.openInputStream(uri)
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    inputStream?.close()
-                    if (bitmap != null) {
-                        androidx.compose.foundation.Image(
-                            bitmap = bitmap.asImageBitmap(),
-                            contentDescription = "Signature",
-                            modifier = Modifier.fillMaxWidth().height(100.dp),
-                            contentScale = ContentScale.Fit
-                        )
-                    } else {
-                        Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Divider.copy(alpha = 0.3f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                            Text("Signature", color = TextSecondary)
-                        }
-                    }
-                } catch (_: Exception) {
-                    Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Divider.copy(alpha = 0.3f), RoundedCornerShape(8.dp)), contentAlignment = Alignment.Center) {
-                        Text("Signature", color = TextSecondary)
-                    }
+            val sigBitmap = remember(signatureUri) {
+                signatureUri?.let { uriStr ->
+                    try {
+                        val uri = Uri.parse(uriStr)
+                        val inputStream = context.contentResolver.openInputStream(uri)
+                        val bmp = BitmapFactory.decodeStream(inputStream)
+                        inputStream?.close()
+                        bmp
+                    } catch (_: Exception) { null }
                 }
+            }
+            if (sigBitmap != null) {
+                Image(
+                    bitmap = sigBitmap.asImageBitmap(),
+                    contentDescription = "Signature",
+                    modifier = Modifier.fillMaxWidth().height(100.dp),
+                    contentScale = ContentScale.Fit
+                )
             } else {
                 Box(
                     modifier = Modifier
@@ -778,7 +773,7 @@ fun BasicDetailsTab(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.Draw, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(32.dp))
+                        Icon(Icons.Filled.Edit, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(32.dp))
                         Spacer(modifier = Modifier.height(4.dp))
                         Text("No signature added", fontSize = 12.sp, color = TextSecondary)
                     }
@@ -803,7 +798,7 @@ fun BasicDetailsTab(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(Icons.Filled.Upload, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Filled.CloudUpload, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Upload", fontSize = 12.sp)
                 }
