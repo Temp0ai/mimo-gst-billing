@@ -44,16 +44,33 @@ object PdfGenerator {
         val rightMargin = if (isThermal) (pageWidth - 10f) else (pageWidth - 40f)
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.US)
 
-        // Company Header
+        // Company Header with Logo
+        var logoHeight = 0f
+        company?.logoUri?.let { uriStr ->
+            try {
+                val uri = android.net.Uri.parse(uriStr)
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val logoBitmap = android.graphics.BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+                if (logoBitmap != null) {
+                    val logoSize = if (isThermal) 40f else 50f
+                    val scaledLogo = Bitmap.createScaledBitmap(logoBitmap, logoSize.toInt(), logoSize.toInt(), true)
+                    canvas.drawBitmap(scaledLogo, leftMargin, y - logoSize + 4f, paint)
+                    scaledLogo.recycle()
+                    logoHeight = logoSize
+                }
+            } catch (_: Exception) {}
+        }
+        val textOffsetX = if (logoHeight > 0) leftMargin + logoHeight + 10f else leftMargin
         paint.textSize = if (isThermal) 14f else 20f
         boldPaint.textSize = paint.textSize
-        canvas.drawText(company?.name ?: "My Business", leftMargin, y, boldPaint)
+        canvas.drawText(company?.name ?: "My Business", textOffsetX, y, boldPaint)
         y += if (isThermal) 18f else 28f
 
         paint.textSize = if (isThermal) 10f else 11f
-        company?.address?.let { canvas.drawText(it, leftMargin, y, paint); y += if (isThermal) 14f else 16f }
-        company?.phone?.let { canvas.drawText("Ph: $it", leftMargin, y, paint); y += if (isThermal) 14f else 16f }
-        company?.gstin?.let { canvas.drawText("GSTIN: $it", leftMargin, y, paint); y += if (isThermal) 14f else 16f }
+        company?.address?.let { canvas.drawText(it, textOffsetX, y, paint); y += if (isThermal) 14f else 16f }
+        company?.phone?.let { canvas.drawText("Ph: $it", textOffsetX, y, paint); y += if (isThermal) 14f else 16f }
+        company?.gstin?.let { canvas.drawText("GSTIN: $it", textOffsetX, y, paint); y += if (isThermal) 14f else 16f }
 
         y += 8f
         canvas.drawLine(leftMargin, y, rightMargin, y, paint)
