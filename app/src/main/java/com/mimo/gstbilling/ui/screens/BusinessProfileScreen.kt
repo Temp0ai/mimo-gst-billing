@@ -848,7 +848,7 @@ fun BusinessDetailsTab(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showStateDropdown) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(),
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(
@@ -880,7 +880,7 @@ fun BusinessDetailsTab(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showBusinessTypeDropdown) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(),
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(
@@ -930,7 +930,7 @@ fun BusinessDetailsTab(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showBusinessCategoryDropdown) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor(),
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(

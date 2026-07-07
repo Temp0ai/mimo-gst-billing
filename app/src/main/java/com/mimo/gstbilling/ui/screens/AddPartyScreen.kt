@@ -63,7 +63,7 @@ fun AddPartyScreen(navController: NavController, viewModel: PartyViewModel = hil
                     OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Address", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), minLines = 2, leadingIcon = { Icon(Icons.Filled.Home, contentDescription = null, tint = Primary) })
 
                     ExposedDropdownMenuBox(expanded = showTypeMenu, onExpandedChange = { showTypeMenu = it }) {
-                        OutlinedTextField(value = types.first { it.first == partyType }.second, onValueChange = {}, readOnly = true, label = { Text("Party Type", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTypeMenu) }, leadingIcon = { Icon(Icons.Filled.Category, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = types.first { it.first == partyType }.second, onValueChange = {}, readOnly = true, label = { Text("Party Type", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTypeMenu) }, leadingIcon = { Icon(Icons.Filled.Category, contentDescription = null, tint = Primary) })
                         ExposedDropdownMenu(expanded = showTypeMenu, onDismissRequest = { showTypeMenu = false }) {
                             types.forEach { (value, label) -> DropdownMenuItem(text = { Text(label) }, onClick = { partyType = value; showTypeMenu = false }) }
                         }

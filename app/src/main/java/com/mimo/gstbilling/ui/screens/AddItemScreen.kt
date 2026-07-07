@@ -63,7 +63,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                     OutlinedTextField(value = hsnCode, onValueChange = { hsnCode = it }, label = { Text("HSN Code", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = Primary) })
 
                     ExposedDropdownMenuBox(expanded = showGstMenu, onExpandedChange = { showGstMenu = it }) {
-                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = Primary) })
                         ExposedDropdownMenu(expanded = showGstMenu, onDismissRequest = { showGstMenu = false }) {
                             gstOptions.forEach { rate -> DropdownMenuItem(text = { Text("$rate%") }, onClick = { gstRate = rate; showGstMenu = false }) }
                         }
@@ -77,7 +77,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                     OutlinedTextField(value = stockQty, onValueChange = { stockQty = it }, label = { Text("Opening Stock", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Store, contentDescription = null, tint = Primary) })
 
                     ExposedDropdownMenuBox(expanded = showUnitMenu, onExpandedChange = { showUnitMenu = it }) {
-                        OutlinedTextField(value = unit, onValueChange = {}, readOnly = true, label = { Text("Unit", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUnitMenu) }, leadingIcon = { Icon(Icons.Filled.Straighten, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = unit, onValueChange = {}, readOnly = true, label = { Text("Unit", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUnitMenu) }, leadingIcon = { Icon(Icons.Filled.Straighten, contentDescription = null, tint = Primary) })
                         ExposedDropdownMenu(expanded = showUnitMenu, onDismissRequest = { showUnitMenu = false }) {
                             unitOptions.forEach { u -> DropdownMenuItem(text = { Text(u) }, onClick = { unit = u; showUnitMenu = false }) }
                         }

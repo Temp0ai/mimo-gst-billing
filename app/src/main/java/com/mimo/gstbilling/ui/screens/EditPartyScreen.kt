@@ -205,7 +205,7 @@ fun EditPartyScreen(
                             onValueChange = {},
                             readOnly = true,
                             label = { Text("Party Type", fontSize = 14.sp) },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
                             shape = RoundedCornerShape(10.dp),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showTypeMenu) },
                             leadingIcon = { Icon(Icons.Filled.Category, contentDescription = null, tint = Primary) }
