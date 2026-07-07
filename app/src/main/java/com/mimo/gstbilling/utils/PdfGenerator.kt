@@ -199,19 +199,36 @@ object PdfGenerator {
             }
         }
 
-        // Terms & Conditions
-        company?.termsAndConditions?.let {
+        // Declaration (numbered bullets)
+        val declarationText = company?.declaration
+        if (!declarationText.isNullOrBlank()) {
             if (hasBankDetails || !upiId.isNullOrBlank()) {
                 y += if (upiId.isNullOrBlank() || isThermal) 10f else 135f
             } else {
                 y += 10f
             }
-            paint.textSize = if (isThermal) 7f else 8f
+            paint.textSize = if (isThermal) 9f else 11f
             boldPaint.textSize = paint.textSize
-            canvas.drawText("Terms & Conditions:", leftMargin, y, boldPaint)
-            y += 12f
-            paint.textSize = if (isThermal) 7f else 8f
-            canvas.drawText(it.take(if (isThermal) 80 else 100), leftMargin, y, paint)
+            canvas.drawText("Terms and Conditions:", leftMargin, y, boldPaint)
+            y += 16f
+
+            paint.textSize = if (isThermal) 7f else 9f
+            val lines = declarationText.split("\n").filter { it.isNotBlank() }
+            lines.forEachIndexed { index, line ->
+                val numberedLine = "${index + 1}. ${line.trim()}"
+                val maxChars = if (isThermal) 50 else 80
+                canvas.drawText(numberedLine.take(maxChars), leftMargin + 8f, y, paint)
+                y += 13f
+            }
+            y += 6f
+        }
+
+        // MSME / Udyam Number
+        val msme = company?.msmeUdyamNumber
+        if (!msme.isNullOrBlank()) {
+            paint.textSize = if (isThermal) 8f else 9f
+            boldPaint.textSize = paint.textSize
+            canvas.drawText("MSME/Udyam: $msme", leftMargin, y, boldPaint)
             y += 14f
         }
 

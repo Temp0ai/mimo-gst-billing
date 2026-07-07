@@ -23,6 +23,8 @@ data class CompanyEntity(
     val bankBranch: String?,
     val bankUpiId: String?,
     val termsAndConditions: String?,
+    val declaration: String?,
+    val msmeUdyamNumber: String?,
     val isSelected: Boolean = true,
     val createdAt: Long = System.currentTimeMillis()
 )

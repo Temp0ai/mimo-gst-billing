@@ -447,6 +447,11 @@ fun BusinessProfileEditScreen(
     var showCategoryOnCard by remember { mutableStateOf(true) }
 
     var selectedTab by remember { mutableIntStateOf(0) }
+
+    var declaration by remember {
+        mutableStateOf(company?.declaration ?: "1. Goods once sold cannot be taken back or exchanged.\n2. We are not the manufacturers, company will stand for warranty as per their terms and conditions.\n3. Interest @24% p.a. will be charged for uncleared bills beyond 15 days.\n4. Subject to Pune Jurisdiction.")
+    }
+    var msmeUdyamNumber by remember { mutableStateOf(company?.msmeUdyamNumber ?: "") }
     var showStateDropdown by remember { mutableStateOf(false) }
     var showBusinessTypeDropdown by remember { mutableStateOf(false) }
     var showBusinessCategoryDropdown by remember { mutableStateOf(false) }
@@ -506,6 +511,8 @@ fun BusinessProfileEditScreen(
                                     bankBranch = company?.bankBranch,
                                     bankUpiId = company?.bankUpiId,
                                     termsAndConditions = company?.termsAndConditions,
+                                    declaration = declaration.trim().ifBlank { null },
+                                    msmeUdyamNumber = msmeUdyamNumber.trim().ifBlank { null },
                                     isSelected = company?.isSelected ?: true,
                                     createdAt = company?.createdAt ?: System.currentTimeMillis()
                                 )
@@ -595,7 +602,9 @@ fun BusinessProfileEditScreen(
                         showCategoryOnCard = showCategoryOnCard, onShowCategoryOnCardChange = { showCategoryOnCard = it },
                         showStateDropdown = showStateDropdown, onShowStateDropdownChange = { showStateDropdown = it },
                         showBusinessTypeDropdown = showBusinessTypeDropdown, onShowBusinessTypeDropdownChange = { showBusinessTypeDropdown = it },
-                        showBusinessCategoryDropdown = showBusinessCategoryDropdown, onShowBusinessCategoryDropdownChange = { showBusinessCategoryDropdown = it }
+                        showBusinessCategoryDropdown = showBusinessCategoryDropdown, onShowBusinessCategoryDropdownChange = { showBusinessCategoryDropdown = it },
+                        declaration = declaration, onDeclarationChange = { declaration = it },
+                        msmeUdyamNumber = msmeUdyamNumber, onMsmeUdyamNumberChange = { msmeUdyamNumber = it }
                     )
                 }
             }
@@ -820,7 +829,9 @@ fun BusinessDetailsTab(
     showCategoryOnCard: Boolean, onShowCategoryOnCardChange: (Boolean) -> Unit,
     showStateDropdown: Boolean, onShowStateDropdownChange: (Boolean) -> Unit,
     showBusinessTypeDropdown: Boolean, onShowBusinessTypeDropdownChange: (Boolean) -> Unit,
-    showBusinessCategoryDropdown: Boolean, onShowBusinessCategoryDropdownChange: (Boolean) -> Unit
+    showBusinessCategoryDropdown: Boolean, onShowBusinessCategoryDropdownChange: (Boolean) -> Unit,
+    declaration: String, onDeclarationChange: (String) -> Unit,
+    msmeUdyamNumber: String, onMsmeUdyamNumberChange: (String) -> Unit
 ) {
     Text("State", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
     ExposedDropdownMenuBox(
@@ -951,6 +962,31 @@ fun BusinessDetailsTab(
             )
         )
     }
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Text("MSME / Udyam Number", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+    OutlinedTextField(
+        value = msmeUdyamNumber,
+        onValueChange = onMsmeUdyamNumberChange,
+        placeholder = { Text("Enter MSME/Udyam Registration Number") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        singleLine = true
+    )
+
+    Spacer(modifier = Modifier.height(12.dp))
+
+    Text("Declaration (one per line)", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+    OutlinedTextField(
+        value = declaration,
+        onValueChange = onDeclarationChange,
+        placeholder = { Text("Each line will be numbered automatically on the invoice.") },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        minLines = 4,
+        maxLines = 10
+    )
 
     Spacer(modifier = Modifier.height(16.dp))
 }
