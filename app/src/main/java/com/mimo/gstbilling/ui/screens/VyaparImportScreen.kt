@@ -73,21 +73,31 @@ fun VyaparImportScreen(
 
                         val isZip = bytesRead >= 2 && headerBytes[0] == 0x50.toByte() && headerBytes[1] == 0x4B.toByte()
                         val isSqlite = bytesRead >= 16 && String(headerBytes, 0, 15).contains("SQLite format")
+                        // Some .vyb files are raw SQLite without standard header
+                        val mightBeRawDb = !isZip && !isSqlite && bytesRead >= 4
 
                         val tempFile: File
 
                         if (isZip) {
                             statusMessage = "Extracting zip archive..."
-                            // Vyapar .vyb might be a zip file containing .db or .sqlite
                             tempFile = File(context.cacheDir, "vyapar_extracted.db")
                             tempFile.delete()
-                            extractDbFromZip(headerStream, tempFile)
+                            try {
+                                extractDbFromZip(headerStream, tempFile)
+                            } catch (zipEx: Exception) {
+                                // ZIP extraction failed — try raw file as SQLite
+                                statusMessage = "ZIP extraction failed, trying raw file..."
+                                tempFile = File(context.cacheDir, "vyapar_import.db")
+                                val rawInput = resolver.openInputStream(it) ?: throw Exception("Cannot reopen file")
+                                tempFile.outputStream().use { out -> rawInput.copyTo(out) }
+                                rawInput.close()
+                            }
                         } else if (isSqlite) {
                             statusMessage = "Reading SQLite database..."
                             tempFile = File(context.cacheDir, "vyapar_import.db")
                             tempFile.outputStream().use { out -> headerStream.copyTo(out) }
                         } else {
-                            // Try as raw SQLite anyway
+                            // Try as raw SQLite or other format
                             statusMessage = "Trying to read as database..."
                             tempFile = File(context.cacheDir, "vyapar_import.db")
                             tempFile.outputStream().use { out -> headerStream.copyTo(out) }
@@ -397,19 +407,43 @@ fun VyaparImportScreen(
 private fun extractDbFromZip(inputStream: java.io.BufferedInputStream, outputFile: File) {
     val zis = ZipInputStream(inputStream)
     var entry = zis.nextEntry
+    val entries = mutableListOf<Pair<String, Long>>()
+
+    // First pass: collect all entries with their sizes
     while (entry != null) {
-        val name = entry.name.lowercase()
-        if (name.endsWith(".db") || name.endsWith(".sqlite") || name.endsWith(".sqlite3") || name.endsWith(".vyb")) {
-            outputFile.outputStream().use { out ->
-                zis.copyTo(out)
-            }
-            zis.closeEntry()
-            zis.close()
-            return
+        if (!entry.isDirectory) {
+            entries.add(Pair(entry.name, entry.size))
         }
+        zis.closeEntry()
         entry = zis.nextEntry
     }
     zis.close()
+
+    // Re-open for extraction
+    val zis2 = ZipInputStream(java.io.BufferedInputStream(inputStream))
+    var entry2 = zis2.nextEntry
+    while (entry2 != null) {
+        val name = entry2.name.lowercase()
+        // Match by extension OR by common database names
+        val isDbFile = name.endsWith(".db") || name.endsWith(".sqlite") || name.endsWith(".sqlite3") ||
+                name.endsWith(".vyb") || name.endsWith(".sql") ||
+                name.contains("database") || name.contains("backup") || name.contains("data")
+
+        // If single entry, extract it regardless of name
+        val isSingleEntry = entries.size == 1
+
+        if (isDbFile || isSingleEntry) {
+            outputFile.outputStream().use { out ->
+                zis2.copyTo(out)
+            }
+            zis2.closeEntry()
+            zis2.close()
+            return
+        }
+        zis2.closeEntry()
+        entry2 = zis2.nextEntry
+    }
+    zis2.close()
     throw Exception("No database file found inside the zip archive")
 }
 
