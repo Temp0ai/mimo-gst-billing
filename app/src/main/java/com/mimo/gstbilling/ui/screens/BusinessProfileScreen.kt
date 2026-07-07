@@ -279,6 +279,7 @@ fun BusinessProfileScreen(
 
 @Composable
 fun BusinessCard(company: CompanyEntity) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -629,6 +630,7 @@ fun BasicDetailsTab(
     signatureUri: String?, onSignatureChange: (String?) -> Unit,
     gstinVerified: Boolean
 ) {
+    val context = LocalContext.current
     Text("Business Name", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
     OutlinedTextField(
         value = name,
