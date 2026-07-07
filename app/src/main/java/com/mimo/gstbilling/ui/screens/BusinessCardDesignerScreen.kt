@@ -17,10 +17,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
@@ -150,24 +147,27 @@ fun BusinessCardDesignerScreen(
                     ) {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                company.logoUri?.let { uriStr ->
-                                    try {
-                                        val uri = Uri.parse(uriStr)
-                                        val inputStream = context.contentResolver.openInputStream(uri)
-                                        val bmp = android.graphics.BitmapFactory.decodeStream(inputStream)
-                                        inputStream?.close()
-                                        if (bmp != null) {
-                                            Image(
-                                                bitmap = bmp.asImageBitmap(),
-                                                contentDescription = "Logo",
-                                                modifier = Modifier
-                                                    .size(48.dp)
-                                                    .clip(RoundedCornerShape(8.dp)),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            Spacer(modifier = Modifier.width(12.dp))
-                                        }
-                                    } catch (_: Exception) {}
+                                val logoBitmap = remember(company.logoUri) {
+                                    company.logoUri?.let { uriStr ->
+                                        try {
+                                            val uri = Uri.parse(uriStr)
+                                            val inputStream = context.contentResolver.openInputStream(uri)
+                                            val bmp = android.graphics.BitmapFactory.decodeStream(inputStream)
+                                            inputStream?.close()
+                                            bmp
+                                        } catch (_: Exception) { null }
+                                    }
+                                }
+                                if (logoBitmap != null) {
+                                    Image(
+                                        bitmap = logoBitmap.asImageBitmap(),
+                                        contentDescription = "Logo",
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(RoundedCornerShape(8.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
                                 }
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
