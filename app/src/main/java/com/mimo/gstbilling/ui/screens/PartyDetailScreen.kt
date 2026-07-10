@@ -77,7 +77,7 @@ fun PartyDetailScreen(
 ) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val party by partyViewModel.currentParty.collectAsState()
-    val invoices by invoiceViewModel.getInvoices("sales").collectAsState(initial = emptyList())
+    val allInvoices by invoiceViewModel.getInvoices().collectAsState(initial = emptyList())
     var selectedTab by remember { mutableIntStateOf(0) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
@@ -85,8 +85,10 @@ fun PartyDetailScreen(
         partyViewModel.getPartyById(partyId)
     }
 
-    val partyInvoices = invoices.filter { it.partyId == partyId }
-    val totalReceivable = partyInvoices.filter { it.paymentStatus != "paid" }.sumOf { it.totalAmount - it.amountPaid }
+    val partyInvoices = allInvoices.filter { it.partyId == partyId }
+    val totalReceivable = partyInvoices.filter { it.invoiceType == "sales" && it.paymentStatus != "paid" }.sumOf { it.totalAmount - it.amountPaid }
+    val totalPayable = partyInvoices.filter { it.invoiceType == "purchase" && it.paymentStatus != "paid" }.sumOf { it.totalAmount - it.amountPaid }
+    val partyBalance = totalReceivable - totalPayable
 
     Scaffold(
         topBar = {
@@ -180,11 +182,11 @@ fun PartyDetailScreen(
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Note, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Filled.Note, contentDescription = null, tint = if (partyBalance >= 0) GreenBalance else RedAccent, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("Receivable:", fontSize = 12.sp, color = TextSecondary)
+                                    Text(if (partyBalance >= 0) "Receivable:" else "Payable:", fontSize = 12.sp, color = TextSecondary)
                                 }
-                                Text(String.format(Locale.US, "\u20B9%,.2f", totalReceivable), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = GreenBalance)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance)), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (partyBalance >= 0) GreenBalance else RedAccent)
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -227,7 +229,14 @@ fun PartyDetailScreen(
                         Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                             Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text("Sale", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Text(
+                                        when (invoice.invoiceType) {
+                                            "sales" -> "Sale"
+                                            "purchase" -> "Purchase"
+                                            else -> invoice.invoiceType.replaceFirstChar { it.uppercase() }
+                                        },
+                                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary
+                                    )
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(invoice.invoiceNumber, fontSize = 13.sp, color = TextSecondary)
                                         Text(dateFormat.format(Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary)

@@ -404,20 +404,20 @@ fun DashboardScreen(
                             Text("See All", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { navController.navigate(Screen.Parties.route) })
                         }
                     }
-                    items(data.recentParties) { party ->
-                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.PartyDetail.createRoute(party.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                    items(data.recentParties) { partyBalance ->
+                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.PartyDetail.createRoute(partyBalance.party.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                             Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Primary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
                                     Icon(Icons.Filled.Business, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(party.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                    Text(party.phone ?: "", fontSize = 12.sp, color = TextSecondary)
+                                    Text(partyBalance.party.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                    Text(partyBalance.party.phone ?: "", fontSize = 12.sp, color = TextSecondary)
                                 }
                                 Column(horizontalAlignment = Alignment.End) {
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", party.balance), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (party.balance > 0) GreenBalance else RedAccent)
-                                    Text("You'll Get", fontSize = 11.sp, color = GreenBalance)
+                                    Text(String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance.balance)), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (partyBalance.isReceivable) GreenBalance else RedAccent)
+                                    Text(if (partyBalance.isReceivable) "You'll Get" else "You'll Give", fontSize = 11.sp, color = if (partyBalance.isReceivable) GreenBalance else RedAccent)
                                 }
                             }
                         }

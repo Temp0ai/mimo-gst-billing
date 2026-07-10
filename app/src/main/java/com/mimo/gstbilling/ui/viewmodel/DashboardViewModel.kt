@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class PartyBalance(
+    val party: PartyEntity,
+    val balance: Double,
+    val isReceivable: Boolean
+)
+
 data class DashboardData(
     val companyName: String = "My Business",
     val totalSales: Double = 0.0,
@@ -18,7 +24,7 @@ data class DashboardData(
     val totalExpenses: Double = 0.0,
     val totalTax: Double = 0.0,
     val todaySales: Double = 0.0,
-    val recentParties: List<PartyEntity> = emptyList(),
+    val recentParties: List<PartyBalance> = emptyList(),
     val recentInvoices: List<InvoiceEntity> = emptyList()
 )
 
@@ -66,7 +72,23 @@ class DashboardViewModel @Inject constructor(
                     it.invoiceType == "sales" && it.invoiceDate >= todayStart
                 }.sumOf { it.totalAmount }
 
-                val recentParties = parties.take(5)
+                val partyBalances = parties.map { party ->
+                    val partyInvoices = invoices.filter { it.partyId == party.id }
+                    val receivable = partyInvoices
+                        .filter { it.invoiceType == "sales" && it.paymentStatus != "paid" }
+                        .sumOf { it.totalAmount - it.amountPaid }
+                    val payable = partyInvoices
+                        .filter { it.invoiceType == "purchase" && it.paymentStatus != "paid" }
+                        .sumOf { it.totalAmount - it.amountPaid }
+                    val balance = receivable - payable
+                    PartyBalance(
+                        party = party,
+                        balance = balance,
+                        isReceivable = balance >= 0
+                    )
+                }.sortedByDescending { it.balance }
+                    .take(5)
+
                 val recentInvoices = invoices.take(5)
 
                 DashboardData(
@@ -78,7 +100,7 @@ class DashboardViewModel @Inject constructor(
                     totalExpenses = totalExpenses,
                     totalTax = totalTax,
                     todaySales = todaySales,
-                    recentParties = recentParties,
+                    recentParties = partyBalances,
                     recentInvoices = recentInvoices
                 )
             }.collect { _data.value = it }

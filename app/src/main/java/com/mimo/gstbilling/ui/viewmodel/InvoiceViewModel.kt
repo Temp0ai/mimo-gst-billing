@@ -214,6 +214,7 @@ class InvoiceViewModel @Inject constructor(
                 )
             }
             invoiceItemDao.insertAll(invoiceItems)
+            updatePartyBalance(state.partyId)
             _uiState.update { it.copy(isSaving = false, savedInvoiceId = invoiceId) }
         }
     }
