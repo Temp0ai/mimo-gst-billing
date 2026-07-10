@@ -2,8 +2,6 @@ package com.mimo.gstbilling.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.mimo.gstbilling.data.local.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -23,23 +21,7 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "mimo_gst_billing_db"
-        ).fallbackToDestructiveMigration()
-            .addCallback(object : RoomDatabase.Callback() {
-                override fun onCreate(db: SupportSQLiteDatabase) {
-                    super.onCreate(db)
-                    try {
-                        val inputStream = context.resources.openRawResource(
-                            context.resources.getIdentifier("prepopulate", "raw", context.packageName)
-                        )
-                        val sql = inputStream.bufferedReader().use { it.readText() }
-                        inputStream.close()
-                        sql.split("\n").filter { it.isNotBlank() }.forEach { line ->
-                            try { db.execSQL(line) } catch (_: Exception) {}
-                        }
-                    } catch (_: Exception) {}
-                }
-            })
-            .build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides fun provideCompanyDao(db: AppDatabase) = db.companyDao()
