@@ -74,6 +74,7 @@ fun DashboardScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
+    var showTransactionSheet by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -305,7 +306,7 @@ fun DashboardScreen(
                             Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         }
                         Button(
-                            onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                            onClick = { showTransactionSheet = true },
                             modifier = Modifier.size(52.dp),
                             shape = CircleShape,
                             colors = ButtonDefaults.buttonColors(containerColor = Primary),
@@ -315,7 +316,7 @@ fun DashboardScreen(
                             Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(26.dp))
                         }
                         Button(
-                            onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                            onClick = { showTransactionSheet = true },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(25.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
@@ -450,5 +451,25 @@ fun DashboardScreen(
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
+    }
+
+    if (showTransactionSheet) {
+        TransactionTypeSheet(
+            onDismiss = { showTransactionSheet = false },
+            onSelect = { transactionType ->
+                when (transactionType) {
+                    "sale_invoice", "credit_note", "sale_order", "estimate", "delivery_challan", "mobile_pos" -> {
+                        navController.navigate(Screen.CreateInvoice.route)
+                    }
+                    "payment_in" -> navController.navigate(Screen.CashBank.route)
+                    "purchase", "debit_note", "purchase_order" -> {
+                        navController.navigate(Screen.Purchases.route)
+                    }
+                    "payment_out" -> navController.navigate(Screen.CashBank.route)
+                    "expense" -> navController.navigate(Screen.Expenses.route)
+                    "party_transfer" -> navController.navigate(Screen.CashBank.route)
+                }
+            }
+        )
     }
 }

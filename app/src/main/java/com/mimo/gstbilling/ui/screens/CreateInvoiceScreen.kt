@@ -1,33 +1,27 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.Manifest
+import android.content.ContentResolver
+import android.provider.ContactsContract
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,6 +34,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MenuAnchorType
@@ -62,7 +58,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -76,8 +74,9 @@ import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.LightBlueBg
 import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
-import com.mimo.gstbilling.data.local.entity.ItemEntity
 import kotlinx.coroutines.launch
+
+data class PhoneContact(val name: String, val phone: String)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,14 +88,50 @@ fun CreateInvoiceScreen(
     var partyName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var invoiceNo by remember { mutableStateOf(uiState.invoiceNumber) }
-    var invoiceDate by remember { mutableStateOf("01/07/2026") }
+    var invoiceDate by remember { mutableStateOf("11/07/2026") }
     var igstEnabled by remember { mutableStateOf(false) }
     var discount by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var partyMenuExpanded by remember { mutableStateOf(false) }
     var showItemPicker by remember { mutableStateOf(false) }
+    var isCashSale by remember { mutableStateOf(false) }
+    var customerSearchQuery by remember { mutableStateOf("") }
+    var showPhoneContacts by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
+    var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
+
+    val contactsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            phoneContacts = readPhoneContacts(context)
+        }
+    }
+
+    LaunchedEffect(customerSearchQuery) {
+        if (customerSearchQuery.length >= 2 && uiState.allParties.none { it.name.contains(customerSearchQuery, ignoreCase = true) }) {
+            phoneContacts = readPhoneContacts(context).filter {
+                it.name.contains(customerSearchQuery, ignoreCase = true) ||
+                it.phone.contains(customerSearchQuery, ignoreCase = true)
+            }
+            showPhoneContacts = phoneContacts.isNotEmpty()
+        } else {
+            showPhoneContacts = false
+            phoneContacts = emptyList()
+        }
+    }
+
+    val filteredParties = if (customerSearchQuery.isEmpty()) {
+        uiState.allParties
+    } else {
+        uiState.allParties.filter {
+            it.name.contains(customerSearchQuery, ignoreCase = true) ||
+            it.phone?.contains(customerSearchQuery, ignoreCase = true) == true
+        }
+    }
 
     LaunchedEffect(uiState.invoiceNumber) {
         invoiceNo = uiState.invoiceNumber
@@ -125,12 +160,7 @@ fun CreateInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text("Sale", fontWeight = FontWeight.Bold)
-                        if (uiState.selectedTemplate != "tax_invoice") {
-                            Text(uiState.selectedTemplate.replace("_", " ").replaceFirstChar { it.uppercase() }, fontSize = 11.sp, color = Color.White.copy(alpha = 0.8f))
-                        }
-                    }
+                    Text("Sale", fontWeight = FontWeight.Bold)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -138,14 +168,36 @@ fun CreateInvoiceScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { navController.navigate(Screen.InvoiceTemplates.route) }) {
-                        Icon(Icons.Filled.Note, contentDescription = "Templates")
+                    Row(
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
+                    ) {
+                        FilterChip(
+                            selected = !isCashSale,
+                            onClick = { isCashSale = false },
+                            label = { Text("Credit", fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = GreenBalance,
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.Transparent,
+                                labelColor = Color.White.copy(alpha = 0.7f)
+                            )
+                        )
+                        FilterChip(
+                            selected = isCashSale,
+                            onClick = { isCashSale = true },
+                            label = { Text("Cash", fontSize = 13.sp, fontWeight = FontWeight.SemiBold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = Color.White,
+                                selectedLabelColor = Primary,
+                                containerColor = Color.Transparent,
+                                labelColor = Color.White.copy(alpha = 0.7f)
+                            )
+                        )
                     }
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.Share, contentDescription = "Share")
-                    }
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                    IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -162,9 +214,9 @@ fun CreateInvoiceScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
-                    .padding(WindowInsets.navigationBars.asPaddingValues())
+                    .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = { navController.popBackStack() },
@@ -174,14 +226,17 @@ fun CreateInvoiceScreen(
                 ) {
                     Text("Cancel", color = TextPrimary, fontWeight = FontWeight.SemiBold)
                 }
-                Spacer(modifier = Modifier.width(12.dp))
                 Button(
                     onClick = {
-                        if (uiState.partyId > 0L && uiState.items.isNotEmpty()) {
+                        val canSave = (isCashSale || uiState.partyId > 0L) && uiState.items.isNotEmpty()
+                        if (canSave) {
                             viewModel.saveInvoice()
                         } else {
                             scope.launch {
-                                snackbarHostState.showSnackbar("Select a customer and add items first")
+                                val msg = if (!isCashSale && uiState.partyId <= 0L) "Select a customer first"
+                                else if (uiState.items.isEmpty()) "Add at least one item"
+                                else "Please fill all required fields"
+                                snackbarHostState.showSnackbar(msg)
                             }
                         }
                     },
@@ -211,33 +266,35 @@ fun CreateInvoiceScreen(
                 ) {
                     Column {
                         Text("Invoice No.", fontSize = 12.sp, color = TextSecondary)
-                        OutlinedTextField(
-                            value = invoiceNo,
-                            onValueChange = { invoiceNo = it },
-                            placeholder = { Text("Auto") },
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.width(150.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = invoiceNo,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
-                        )
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .clickable { },
+                                tint = TextSecondary
+                            )
+                        }
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text("Date", fontSize = 12.sp, color = TextSecondary)
-                        OutlinedTextField(
-                            value = invoiceDate,
-                            onValueChange = { invoiceDate = it },
-                            trailingIcon = {
-                                Icon(Icons.Filled.CalendarToday, contentDescription = "Date", modifier = Modifier.size(18.dp))
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.width(150.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = invoiceDate,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
                             )
-                        )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(Icons.Filled.CalendarToday, contentDescription = "Date", modifier = Modifier.size(16.dp), tint = TextSecondary)
+                        }
                     }
                 }
             }
@@ -247,76 +304,127 @@ fun CreateInvoiceScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(Color.White)
-                        .padding(16.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    ExposedDropdownMenuBox(
-                        expanded = partyMenuExpanded,
-                        onExpandedChange = { partyMenuExpanded = it }
-                    ) {
-                        OutlinedTextField(
-                            value = partyName,
-                            onValueChange = { partyName = it },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                            label = { Text("Customer Name *") },
-                            placeholder = { Text("Select or enter party name") },
-                            shape = RoundedCornerShape(16.dp),
-                            singleLine = true,
-                            readOnly = true,
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = partyMenuExpanded)
-                            },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
-                            )
-                        )
-                        ExposedDropdownMenu(
-                            expanded = partyMenuExpanded,
-                            onDismissRequest = { partyMenuExpanded = false }
-                        ) {
-                            uiState.allParties.forEach { party ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column {
-                                            Text(party.name, fontWeight = FontWeight.Medium)
-                                            Text(party.phone ?: "", fontSize = 12.sp, color = TextSecondary)
-                                        }
-                                    },
-                                    onClick = {
-                                        partyName = party.name
-                                        phone = party.phone ?: ""
-                                        viewModel.setParty(party.id, party.name, party.phone ?: "")
-                                        partyMenuExpanded = false
-                                    }
-                                )
-                            }
-                            if (uiState.allParties.isEmpty()) {
-                                DropdownMenuItem(
-                                    text = { Text("No parties found. Add a party first.") },
-                                    onClick = { partyMenuExpanded = false }
-                                )
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
                     OutlinedTextField(
-                        value = phone,
-                        onValueChange = { phone = it },
+                        value = customerSearchQuery,
+                        onValueChange = {
+                            customerSearchQuery = it
+                            partyName = it
+                            if (it.isEmpty()) {
+                                viewModel.setParty(0L, "", "")
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Phone Number") },
-                        placeholder = { Text("Enter phone number") },
+                        label = { Text("Customer *") },
+                        placeholder = { Text("Type name or phone number") },
                         shape = RoundedCornerShape(16.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Primary,
                             unfocusedBorderColor = Color(0xFFE0E0E0)
                         )
                     )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (customerSearchQuery.isEmpty()) "Showing Saved Parties" else "Showing from phone Book",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = "Add new party",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Primary,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screen.AddParty.route)
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (filteredParties.isEmpty() && !showPhoneContacts) {
+                        Text(
+                            text = if (customerSearchQuery.isEmpty()) "No saved parties yet" else "No matching contacts found",
+                            fontSize = 13.sp,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+
+                    if (filteredParties.isNotEmpty()) {
+                        filteredParties.forEach { party ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        partyName = party.name
+                                        phone = party.phone ?: ""
+                                        customerSearchQuery = party.name
+                                        viewModel.setParty(party.id, party.name, party.phone ?: "")
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(party.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                    if (!party.phone.isNullOrBlank()) {
+                                        Text(party.phone, fontSize = 12.sp, color = TextSecondary)
+                                    }
+                                }
+                                if (party.balance != 0.0) {
+                                    Text(
+                                        text = String.format(java.util.Locale.US, "\u20B9%,.2f", kotlin.math.abs(party.balance)),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (party.balance > 0) GreenBalance else RedAccent
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
+                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    }
+
+                    if (showPhoneContacts && phoneContacts.isNotEmpty()) {
+                        phoneContacts.forEach { contact ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        partyName = contact.name
+                                        phone = contact.phone
+                                        customerSearchQuery = contact.name
+                                        viewModel.setParty(0L, contact.name, contact.phone)
+                                        showPhoneContacts = false
+                                    }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(contact.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                    Text(contact.phone, fontSize = 12.sp, color = TextSecondary)
+                                }
+                                Text("0.00", fontSize = 14.sp, color = TextSecondary)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            }
+                        }
+                    }
                 }
             }
 
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             item {
@@ -590,4 +698,31 @@ fun CreateInvoiceScreen(
             }
         )
     }
+}
+
+private fun readPhoneContacts(context: android.content.Context): List<PhoneContact> {
+    val contacts = mutableListOf<PhoneContact>()
+    try {
+        val resolver: ContentResolver = context.contentResolver
+        val cursor = resolver.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+            arrayOf(
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+                ContactsContract.CommonDataKinds.Phone.NUMBER
+            ),
+            null, null,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC"
+        )
+        cursor?.use {
+            val nameIdx = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val phoneIdx = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+            while (it.moveToNext()) {
+                val name = it.getString(nameIdx) ?: continue
+                val number = it.getString(phoneIdx) ?: continue
+                contacts.add(PhoneContact(name, number))
+            }
+        }
+    } catch (_: Exception) {
+    }
+    return contacts
 }
