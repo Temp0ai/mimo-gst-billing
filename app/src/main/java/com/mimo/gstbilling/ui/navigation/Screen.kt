@@ -73,4 +73,7 @@ sealed class Screen(val route: String) {
     object EWayBill : Screen("e_way_bill")
     object ItemSettings : Screen("item_settings")
     object BusinessCardDesigner : Screen("business_card_designer")
+    object PartySettings : Screen("party_settings")
+    object TransactionSettings : Screen("transaction_settings")
+    object TaxSettings : Screen("tax_settings")
 }
