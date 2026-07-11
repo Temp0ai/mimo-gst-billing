@@ -2,7 +2,9 @@ package com.mimo.gstbilling.ui.screens
 
 import android.Manifest
 import android.content.ContentResolver
+import android.content.Intent
 import android.provider.ContactsContract
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -97,6 +99,12 @@ fun CreateInvoiceScreen(
     var isCashSale by remember { mutableStateOf(false) }
     var customerSearchQuery by remember { mutableStateOf("") }
     var showPhoneContacts by remember { mutableStateOf(false) }
+    var showQuickAddItem by remember { mutableStateOf(false) }
+    var quickItemName by remember { mutableStateOf("") }
+    var quickItemPrice by remember { mutableStateOf("") }
+    var quickItemGst by remember { mutableStateOf("18") }
+    var quickItemHsn by remember { mutableStateOf("") }
+    var quickItemUnit by remember { mutableStateOf("Pcs") }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -173,6 +181,31 @@ fun CreateInvoiceScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        val partyLabel = if (isCashSale) "Cash" else uiState.partyName.ifBlank { "Customer" }
+                        val itemsSummary = uiState.items.joinToString("\n") { item ->
+                            "${item.itemName} x${item.quantity.toInt()} = ${String.format(java.util.Locale.US, "\u20B9%,.2f", item.totalAmount)}"
+                        }
+                        val billText = buildString {
+                            appendLine(" invoice from ${uiState.partyName.ifBlank { "My Business" }}")
+                            appendLine("Invoice: ${uiState.invoiceNumber}")
+                            appendLine("Date: $invoiceDate")
+                            appendLine("Party: $partyLabel")
+                            appendLine("---")
+                            appendLine(itemsSummary)
+                            appendLine("---")
+                            appendLine("Subtotal: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.items.sumOf { it.taxableAmount })}")
+                            appendLine("Tax: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.cgstTotal + uiState.sgstTotal + uiState.igstTotal)}")
+                            appendLine("Total: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.totalAmount)}")
+                            appendLine("Payment: ${if (isCashSale) "Cash" else "Credit"}")
+                            appendLine("Thank you!")
+                        }
+                        val encoded = Uri.encode(billText)
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                        context.startActivity(intent)
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Share on WhatsApp", tint = Color.White)
+                    }
                     Row(
                         modifier = Modifier
                             .padding(end = 4.dp)
@@ -670,31 +703,47 @@ fun CreateInvoiceScreen(
         }
     }
 
-    if (showItemPicker) {
+    if (showItemPicker && !showQuickAddItem) {
         AlertDialog(
             onDismissRequest = { showItemPicker = false },
             title = { Text("Select Item", fontWeight = FontWeight.Bold) },
             text = {
-                if (uiState.allItems.isEmpty()) {
-                    Text("No items found. Add items first from Items screen.")
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        items(uiState.allItems.size) { index ->
-                            val item = uiState.allItems[index]
-                            Card(
-                                modifier = Modifier.fillMaxWidth().clickable {
-                                    viewModel.addItem(item)
-                                    showItemPicker = false
-                                },
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
-                            ) {
-                                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Column {
-                                        Text(item.name, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                        Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}%", fontSize = 12.sp, color = TextSecondary)
+                Column {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            showQuickAddItem = true
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = GreenBalance.copy(alpha = 0.1f))
+                    ) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Add, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("Add New Item", fontWeight = FontWeight.Bold, color = GreenBalance, fontSize = 15.sp)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    if (uiState.allItems.isEmpty()) {
+                        Text("No items found. Create one using the button above.", fontSize = 13.sp, color = TextSecondary)
+                    } else {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.heightIn(max = 400.dp)) {
+                            items(uiState.allItems.size) { index ->
+                                val item = uiState.allItems[index]
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable {
+                                        viewModel.addItem(item)
+                                        showItemPicker = false
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ) {
+                                    Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Column {
+                                            Text(item.name, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                            Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}%", fontSize = 12.sp, color = TextSecondary)
+                                        }
+                                        Text(String.format(java.util.Locale.US, "\u20B9%.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary)
                                     }
-                                    Text(String.format(java.util.Locale.US, "\u20B9%.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary)
                                 }
                             }
                         }
@@ -703,6 +752,106 @@ fun CreateInvoiceScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showItemPicker = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showQuickAddItem) {
+        AlertDialog(
+            onDismissRequest = { showQuickAddItem = false; showItemPicker = false },
+            title = { Text("Add New Item", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = quickItemName,
+                        onValueChange = { quickItemName = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Item Name *") },
+                        placeholder = { Text("e.g. Rice 1kg") },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    )
+                    OutlinedTextField(
+                        value = quickItemPrice,
+                        onValueChange = { quickItemPrice = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Sale Price *") },
+                        placeholder = { Text("0.00") },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        OutlinedTextField(
+                            value = quickItemGst,
+                            onValueChange = { quickItemGst = it },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("GST %") },
+                            placeholder = { Text("18") },
+                            shape = RoundedCornerShape(16.dp),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        )
+                        OutlinedTextField(
+                            value = quickItemHsn,
+                            onValueChange = { quickItemHsn = it },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("HSN Code") },
+                            placeholder = { Text("Optional") },
+                            shape = RoundedCornerShape(16.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        )
+                    }
+                    ExposedDropdownMenuBox(
+                        expanded = false,
+                        onExpandedChange = {}
+                    ) {
+                        OutlinedTextField(
+                            value = quickItemUnit,
+                            onValueChange = {},
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Unit") },
+                            shape = RoundedCornerShape(16.dp),
+                            readOnly = true,
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { showQuickAddItem = false; showItemPicker = false }) {
+                        Text("Cancel", color = TextSecondary)
+                    }
+                    Button(
+                        onClick = {
+                            val name = quickItemName.trim()
+                            val price = quickItemPrice.toDoubleOrNull() ?: 0.0
+                            val gst = quickItemGst.toDoubleOrNull() ?: 18.0
+                            if (name.isNotBlank() && price > 0) {
+                                scope.launch {
+                                    val newItem = viewModel.createQuickItem(name, price, gst, quickItemHsn.trim(), quickItemUnit)
+                                    viewModel.addItem(newItem)
+                                    quickItemName = ""
+                                    quickItemPrice = ""
+                                    quickItemGst = "18"
+                                    quickItemHsn = ""
+                                    showQuickAddItem = false
+                                    showItemPicker = false
+                                }
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
+                        enabled = quickItemName.isNotBlank() && (quickItemPrice.toDoubleOrNull() ?: 0.0) > 0
+                    ) {
+                        Text("Save & Add", fontWeight = FontWeight.Bold)
+                    }
+                }
             }
         )
     }
