@@ -102,27 +102,32 @@ fun CreateInvoiceScreen(
     val context = LocalContext.current
 
     var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
+    var allPhoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
 
     val contactsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
-            phoneContacts = readPhoneContacts(context)
+            allPhoneContacts = readPhoneContacts(context)
         }
     }
 
+    val filteredPhoneContacts = if (customerSearchQuery.length >= 2) {
+        allPhoneContacts.filter {
+            it.name.contains(customerSearchQuery, ignoreCase = true) ||
+            it.phone.contains(customerSearchQuery, ignoreCase = true)
+        }
+    } else emptyList()
+
     LaunchedEffect(customerSearchQuery) {
         if (customerSearchQuery.length >= 2 && uiState.allParties.none { it.name.contains(customerSearchQuery, ignoreCase = true) }) {
-            phoneContacts = readPhoneContacts(context).filter {
-                it.name.contains(customerSearchQuery, ignoreCase = true) ||
-                it.phone.contains(customerSearchQuery, ignoreCase = true)
+            if (allPhoneContacts.isEmpty()) {
+                contactsLauncher.launch(Manifest.permission.READ_CONTACTS)
             }
-            showPhoneContacts = phoneContacts.isNotEmpty()
-        } else {
-            showPhoneContacts = false
-            phoneContacts = emptyList()
         }
     }
+
+    showPhoneContacts = customerSearchQuery.length >= 2 && filteredPhoneContacts.isNotEmpty()
 
     val filteredParties = if (customerSearchQuery.isEmpty()) {
         uiState.allParties
@@ -395,17 +400,20 @@ fun CreateInvoiceScreen(
                         }
                     }
 
-                    if (showPhoneContacts && phoneContacts.isNotEmpty()) {
-                        phoneContacts.forEach { contact ->
+                    if (showPhoneContacts && filteredPhoneContacts.isNotEmpty()) {
+                        filteredPhoneContacts.forEach { contact ->
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        partyName = contact.name
-                                        phone = contact.phone
-                                        customerSearchQuery = contact.name
-                                        viewModel.setParty(0L, contact.name, contact.phone)
-                                        showPhoneContacts = false
+                                        scope.launch {
+                                            val partyId = viewModel.createPartyFromContact(contact.name, contact.phone)
+                                            partyName = contact.name
+                                            phone = contact.phone
+                                            customerSearchQuery = contact.name
+                                            viewModel.setParty(partyId, contact.name, contact.phone)
+                                            showPhoneContacts = false
+                                        }
                                     }
                                     .padding(vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically

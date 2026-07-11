@@ -288,4 +288,26 @@ class InvoiceViewModel @Inject constructor(
     suspend fun getAllParties(): List<PartyEntity> {
         return partyDao.getPartiesByCompany(companyId).first()
     }
+
+    suspend fun createPartyFromContact(name: String, phone: String): Long {
+        val existingParties = partyDao.getPartiesByCompany(companyId).first()
+        val existing = existingParties.find { it.phone == phone }
+        if (existing != null) return existing.id
+
+        val newParty = PartyEntity(
+            companyId = companyId,
+            name = name,
+            phone = phone,
+            email = null,
+            gstin = null,
+            address = null,
+            state = null,
+            stateCode = null,
+            balance = 0.0,
+            partyType = "Customer"
+        )
+        val newId = partyDao.insertParty(newParty)
+        loadReferenceData()
+        return newId
+    }
 }
