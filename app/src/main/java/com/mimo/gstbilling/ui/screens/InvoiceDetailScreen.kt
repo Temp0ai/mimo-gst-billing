@@ -108,7 +108,8 @@ fun InvoiceDetailScreen(
                     }
                     IconButton(onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            val templateStyle = navController.currentBackStackEntry?.savedStateHandle?.get<String>("template_style")
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false, templateStyle = templateStyle)
                             PdfGenerator.sharePdf(context, file)
                         }
                     }) {
@@ -160,7 +161,8 @@ fun InvoiceDetailScreen(
                 Button(
                     onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            val templateStyle = navController.currentBackStackEntry?.savedStateHandle?.get<String>("template_style")
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false, templateStyle = templateStyle)
                             PdfGenerator.printPdf(context, file)
                         }
                     },

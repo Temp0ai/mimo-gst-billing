@@ -26,8 +26,20 @@ object PdfGenerator {
         invoice: InvoiceEntity,
         items: List<InvoiceItemEntity>,
         company: CompanyEntity?,
-        isThermal: Boolean = false
+        isThermal: Boolean = false,
+        templateStyle: String? = null
     ): File {
+        val style = try { InvoiceStyle.valueOf(templateStyle ?: "CLASSIC") } catch (_: Exception) { InvoiceStyle.CLASSIC }
+
+        if (style != InvoiceStyle.CLASSIC || isThermal) {
+            val document = PdfTemplateRenderer.renderPdf(context, invoice, items, company, style, isThermal)
+            val fileName = "Invoice_${invoice.invoiceNumber}.pdf"
+            val file = File(context.cacheDir, fileName)
+            FileOutputStream(file).use { out -> document.writeTo(out) }
+            document.close()
+            return file
+        }
+
         val pageWidth = if (isThermal) 576 else 595
         val pageHeight = if (isThermal) 3200 else 842
 
