@@ -33,14 +33,14 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Purchase Report", Screen.Purchases.route),
             ReportItem("Day Book", Screen.DayBookReport.route),
             ReportItem("All Transactions", Screen.Sales.route),
-            ReportItem("Bill Wise Profit", Screen.ProfitLossReport.route),
+            ReportItem("Bill Wise Profit", Screen.BillWiseProfitLoss.route),
             ReportItem("Profit & Loss", Screen.ProfitLossReport.route),
             ReportItem("Cashflow", Screen.CashFlowReport.route),
             ReportItem("Balance Sheet", Screen.BalanceSheet.route)
         ),
         "Party reports" to listOf(
             ReportItem("Party Statement", Screen.PartyStatement.createRoute(1L)),
-            ReportItem("Party Wise Profit & Loss", Screen.ProfitLossReport.route),
+            ReportItem("Party Wise Profit & Loss", Screen.PartyWiseProfitLoss.route),
             ReportItem("All Parties Report", Screen.Parties.route),
             ReportItem("Party Report by Items", Screen.PartyReportByItems.route),
             ReportItem("Sale/Purchase by Party", Screen.SalePurchaseByParty.route),
@@ -48,12 +48,12 @@ fun ReportsScreen(navController: NavController) {
         ),
         "GST reports" to listOf(
             ReportItem("GSTR-1", Screen.Gstr1Filing.route),
-            ReportItem("GSTR-2", Screen.Gstr1Report.route),
+            ReportItem("GSTR-2", Screen.Gstr2Filing.route),
             ReportItem("GSTR-3B", Screen.Gstr3bFiling.route),
             ReportItem("GST Transaction report", Screen.TaxReport.route),
-            ReportItem("GSTR-9", Screen.Gstr1Report.route),
-            ReportItem("Sale Summary by HSN", Screen.Gstr1Report.route),
-            ReportItem("SAC Report", Screen.Gstr1Report.route),
+            ReportItem("GSTR-9", Screen.Gstr9aFiling.route),
+            ReportItem("Sale Summary by HSN", Screen.HsnSummary.route),
+            ReportItem("SAC Report", Screen.HsnSummary.route),
             ReportItem("e-Way Bill", Screen.EWayBill.route)
         ),
         "Item/Stock reports" to listOf(
@@ -74,7 +74,7 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Discount Report", Screen.DiscountReport.route)
         ),
         "Taxes" to listOf(
-            ReportItem("GST Report", Screen.Gstr1Report.route),
+            ReportItem("GST Report", Screen.Gstr3bFiling.route),
             ReportItem("GST Rate Report", Screen.TaxReport.route),
             ReportItem("Form No. 27EQ", Screen.TaxReport.route),
             ReportItem("TCS Receivable", Screen.TaxReport.route),

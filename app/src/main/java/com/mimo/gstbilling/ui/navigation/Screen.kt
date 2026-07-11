@@ -82,4 +82,10 @@ sealed class Screen(val route: String) {
     object PaymentTerms : Screen("payment_terms")
     object TransactionPrefixes : Screen("transaction_prefixes")
     object WhatsAppCards : Screen("whatsapp_cards")
+    object Gstr2Filing : Screen("gstr2_filing")
+    object Gstr4Filing : Screen("gstr4_filing")
+    object Gstr9aFiling : Screen("gstr9a_filing")
+    object HsnSummary : Screen("hsn_summary")
+    object BillWiseProfitLoss : Screen("bill_wise_profit_loss")
+    object PartyWiseProfitLoss : Screen("party_wise_profit_loss")
 }

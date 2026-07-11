@@ -32,7 +32,7 @@ import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val gstFilingMonths = listOf(
+internal val gstFilingMonths = listOf(
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 )
@@ -526,7 +526,7 @@ fun Gstr3bFilingScreen(
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
+internal fun SummaryRow(label: String, value: String, isBold: Boolean = false) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, fontSize = if (isBold) 14.sp else 13.sp, color = if (isBold) TextPrimary else TextSecondary, fontWeight = if (isBold) FontWeight.Bold else FontWeight.Normal)
         Text(value, fontSize = if (isBold) 14.sp else 13.sp, color = if (isBold) BlueHeader else TextPrimary, fontWeight = if (isBold) FontWeight.Bold else FontWeight.Medium)

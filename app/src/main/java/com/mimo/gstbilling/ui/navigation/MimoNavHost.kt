@@ -98,5 +98,11 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.PaymentTerms.route) { PaymentTermsScreen(navController) }
         composable(Screen.TransactionPrefixes.route) { TransactionPrefixScreen(navController) }
         composable(Screen.WhatsAppCards.route) { WhatsAppCardsScreen(navController) }
+        composable(Screen.Gstr2Filing.route) { Gstr2FilingScreen(navController) }
+        composable(Screen.Gstr4Filing.route) { Gstr4FilingScreen(navController) }
+        composable(Screen.Gstr9aFiling.route) { Gstr9aFilingScreen(navController) }
+        composable(Screen.HsnSummary.route) { HsnSummaryScreen(navController) }
+        composable(Screen.BillWiseProfitLoss.route) { BillWiseProfitLossScreen(navController) }
+        composable(Screen.PartyWiseProfitLoss.route) { PartyWiseProfitLossScreen(navController) }
     }
 }
