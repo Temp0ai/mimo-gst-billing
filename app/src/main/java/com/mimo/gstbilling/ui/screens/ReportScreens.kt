@@ -286,24 +286,3 @@ fun OrderItemReportScreen(navController: NavController, viewModel: InvoiceViewMo
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun LoanStatementScreen(navController: NavController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Loan Statement", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
-        }
-    ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.AccountBalance, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Loan Statement", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Loan tracking coming soon", fontSize = 14.sp, color = TextSecondary)
-            }
-        }
-    }
-}
