@@ -32,57 +32,57 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Sale Report", Screen.Sales.route),
             ReportItem("Purchase Report", Screen.Purchases.route),
             ReportItem("Day Book", Screen.DayBookReport.route),
-            ReportItem("All Transactions", Screen.Sales.route),
+            ReportItem("All Transactions", Screen.AllTransactionsReport.route),
             ReportItem("Bill Wise Profit", Screen.BillWiseProfitLoss.route),
             ReportItem("Profit & Loss", Screen.ProfitLossReport.route),
             ReportItem("Cashflow", Screen.CashFlowReport.route),
             ReportItem("Balance Sheet", Screen.BalanceSheet.route)
         ),
         "Party reports" to listOf(
-            ReportItem("Party Statement", Screen.PartyStatement.createRoute(1L)),
+            ReportItem("Party Statement", Screen.Parties.route),
             ReportItem("Party Wise Profit & Loss", Screen.PartyWiseProfitLoss.route),
-            ReportItem("All Parties Report", Screen.Parties.route),
+            ReportItem("All Parties Report", Screen.AllPartiesReport.route),
             ReportItem("Party Report by Items", Screen.PartyReportByItems.route),
             ReportItem("Sale/Purchase by Party", Screen.SalePurchaseByParty.route),
-            ReportItem("Sale/Purchase By Party Groups", Screen.PartyGroups.route)
+            ReportItem("Sale/Purchase By Party Groups", Screen.Parties.route)
         ),
         "GST reports" to listOf(
             ReportItem("GSTR-1", Screen.Gstr1Filing.route),
             ReportItem("GSTR-2", Screen.Gstr2Filing.route),
             ReportItem("GSTR-3B", Screen.Gstr3bFiling.route),
-            ReportItem("GST Transaction report", Screen.TaxReport.route),
+            ReportItem("GST Transaction report", Screen.GstrSummary.route),
             ReportItem("GSTR-9", Screen.Gstr9aFiling.route),
             ReportItem("Sale Summary by HSN", Screen.HsnSummary.route),
-            ReportItem("SAC Report", Screen.HsnSummary.route),
+            ReportItem("SAC Report", Screen.SacReport.route),
             ReportItem("e-Way Bill", Screen.EWayBill.route)
         ),
         "Item/Stock reports" to listOf(
-            ReportItem("Stock Summary Report", Screen.Items.route),
+            ReportItem("Stock Summary Report", Screen.StockSummaryReport.route),
             ReportItem("Item Report by Party", Screen.ItemReportByParty.route),
             ReportItem("Item Wise Profit & Loss", Screen.ItemWiseProfitLoss.route),
-            ReportItem("Low Stock Summary Report", Screen.Items.route),
-            ReportItem("Item Detail Report", Screen.StockDetailReport.route),
-            ReportItem("Stock Detail Report", Screen.StockDetailReport.route),
-            ReportItem("Sale/Purchase By Item Category", Screen.Items.route),
-            ReportItem("Stock summary By Item Category", Screen.Items.route),
+            ReportItem("Low Stock Summary Report", Screen.LowStockReport.route),
+            ReportItem("Item Detail Report", Screen.StockSummaryReport.route),
+            ReportItem("Stock Detail Report", Screen.StockSummaryReport.route),
+            ReportItem("Sale/Purchase By Item Category", Screen.CategorySalePurchase.route),
+            ReportItem("Stock summary By Item Category", Screen.CategoryStockReport.route),
             ReportItem("Item Batch Report", Screen.ItemBatchTracking.route),
-            ReportItem("Item Serial Report", Screen.ItemBatchTracking.route),
+            ReportItem("Item Serial Report", Screen.SerialReport.route),
             ReportItem("Item Wise Discount", Screen.ItemWiseDiscount.route)
         ),
         "Business status" to listOf(
-            ReportItem("Bank Statement", Screen.CashBank.route),
+            ReportItem("Bank Statement", Screen.BankStatementReport.route),
             ReportItem("Discount Report", Screen.DiscountReport.route)
         ),
         "Taxes" to listOf(
-            ReportItem("GST Report", Screen.Gstr3bFiling.route),
-            ReportItem("GST Rate Report", Screen.TaxReport.route),
-            ReportItem("Form No. 27EQ", Screen.TaxReport.route),
-            ReportItem("TCS Receivable", Screen.TaxReport.route),
-            ReportItem("TDS Payable", Screen.TaxReport.route),
-            ReportItem("TDS Receivable", Screen.TaxReport.route)
+            ReportItem("GST Report", Screen.GstrSummary.route),
+            ReportItem("GST Rate Report", Screen.GstrSummary.route),
+            ReportItem("Form No. 27EQ", Screen.Form27Eq.route),
+            ReportItem("TCS Receivable", Screen.TcsReceivable.route),
+            ReportItem("TDS Payable", Screen.TdsPayable.route),
+            ReportItem("TDS Receivable", Screen.TdsReceivable.route)
         ),
         "Expense reports" to listOf(
-            ReportItem("Expense Transaction Report", Screen.Expenses.route),
+            ReportItem("Expense Transaction Report", Screen.ExpenseTransactionReport.route),
             ReportItem("Expense Category Report", Screen.ExpenseCategoryReport.route),
             ReportItem("Expense Item Report", Screen.ExpenseItemReport.route)
         ),

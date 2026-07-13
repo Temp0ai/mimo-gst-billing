@@ -104,5 +104,29 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.HsnSummary.route) { HsnSummaryScreen(navController) }
         composable(Screen.BillWiseProfitLoss.route) { BillWiseProfitLossScreen(navController) }
         composable(Screen.PartyWiseProfitLoss.route) { PartyWiseProfitLossScreen(navController) }
+        composable(Screen.InvoiceSettings.route) { InvoiceSettingsScreen(navController) }
+        composable(Screen.PrintFormat.route) { PrintFormatScreen(navController) }
+        composable(Screen.StaffSettings.route) { StaffSettingsScreen(navController) }
+        composable(Screen.Permissions.route) { PermissionsScreen(navController) }
+        composable(Screen.SmsTemplates.route) { SmsTemplatesScreen(navController) }
+        composable(Screen.AutoSend.route) { AutoSendScreen(navController) }
+        composable(Screen.StockAlerts.route) { StockAlertsScreen(navController) }
+        composable(Screen.UnitsCategories.route) { UnitsCategoriesScreen(navController) }
+        composable(Screen.CurrencySettings.route) { CurrencySettingsScreen(navController) }
+        composable(Screen.StockSummaryReport.route) { StockSummaryReportScreen(navController) }
+        composable(Screen.LowStockReport.route) { LowStockReportScreen(navController) }
+        composable(Screen.CategoryStockReport.route) { CategoryStockReportScreen(navController) }
+        composable(Screen.CategorySalePurchase.route) { CategorySalePurchaseScreen(navController) }
+        composable(Screen.SerialReport.route) { SerialReportScreen(navController) }
+        composable(Screen.BankStatementReport.route) { BankStatementReportScreen(navController) }
+        composable(Screen.GstrSummary.route) { GstrSummaryScreen(navController) }
+        composable(Screen.Form27Eq.route) { Form27EqScreen(navController) }
+        composable(Screen.TcsReceivable.route) { TcsReceivableScreen(navController) }
+        composable(Screen.TdsPayable.route) { TdsPayableScreen(navController) }
+        composable(Screen.TdsReceivable.route) { TdsReceivableScreen(navController) }
+        composable(Screen.SacReport.route) { SacReportScreen(navController) }
+        composable(Screen.AllTransactionsReport.route) { AllTransactionsReportScreen(navController) }
+        composable(Screen.ExpenseTransactionReport.route) { ExpenseTransactionReportScreen(navController) }
+        composable(Screen.AllPartiesReport.route) { AllPartiesReportScreen(navController) }
     }
 }
