@@ -92,7 +92,7 @@ fun DashboardScreen(
         DrawerMenuItem("Backup/Restore", Icons.Filled.Warning, hasExpand = true, subtitle = "Auto backup not enabled.", subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Plans & Pricing", Icons.Filled.LocalOffer, subtitle = "Free Plan"),
         DrawerMenuItem("Grow Your Business", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("Business Dashboard", "Analytics")),
-        DrawerMenuItem("Utilities", Icons.Filled.Build, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data")),
+        DrawerMenuItem("Utilities", Icons.Filled.Build, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
         DrawerMenuItem("Help & Support", Icons.Filled.Notifications, hasExpand = true, subItems = listOf("FAQs", "Contact Support"))
     )
 
@@ -247,7 +247,8 @@ fun DashboardScreen(
                                     "Analytics" -> navController.navigate(Screen.Reports.route)
                                     "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
                                     "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                                    "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                            "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                            "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
                                     "FAQs" -> navController.navigate(Screen.Settings.route)
                                     "Contact Support" -> navController.navigate(Screen.Settings.route)
                                             }

@@ -92,6 +92,141 @@ class ImportViewModel @Inject constructor(
         }
         return count
     }
+
+    fun addParty(name: String, phone: String?, email: String?, gstin: String?, address: String?, state: String?, stateCode: String?, partyType: String, balance: Double) {
+        kotlinx.coroutines.GlobalScope.launch {
+            partyDao.insertParty(PartyEntity(companyId = 1L, name = name, phone = phone, email = email, gstin = gstin, address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType))
+        }
+    }
+
+    fun addItem(name: String, hsnCode: String?, description: String?, salePrice: Double, purchasePrice: Double, gstRate: Double, unit: String, stockQuantity: Double, isService: Boolean) {
+        kotlinx.coroutines.GlobalScope.launch {
+            itemDao.insertItem(ItemEntity(companyId = 1L, name = name, hsnCode = hsnCode, description = description, salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gstRate, unit = unit, stockQuantity = stockQuantity, isService = isService))
+        }
+    }
+
+    fun addInvoice(partyName: String, invoiceNumber: String, invoiceDate: String, subTotal: Double, discount: Double, taxableAmount: Double, cgst: Double, sgst: Double, igst: Double, total: Double, paid: Double, status: String, type: String) {
+        kotlinx.coroutines.GlobalScope.launch {
+            val dateMillis = try { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(invoiceDate)?.time ?: System.currentTimeMillis() } catch (_: Exception) { System.currentTimeMillis() }
+            val party = partyDao.getPartiesByCompany(1L).let { flow ->
+                var result: com.mimo.gstbilling.data.local.entity.PartyEntity? = null
+                flow.collect { list -> result = list.find { it.name == partyName } }
+                result
+            }
+            invoiceDao.insertInvoice(InvoiceEntity(
+                companyId = 1L, partyId = party?.id ?: 0L, invoiceNumber = invoiceNumber, invoiceDate = dateMillis,
+                dueDate = null, subTotal = subTotal, discount = discount, taxableAmount = taxableAmount,
+                cgstTotal = cgst, sgstTotal = sgst, igstTotal = igst, totalAmount = total, amountPaid = paid,
+                paymentStatus = status, invoiceType = type
+            ))
+        }
+    }
+
+    fun generateSampleData(onComplete: (Int) -> Unit) {
+        kotlinx.coroutines.GlobalScope.launch {
+            var count = 0
+            val random = java.util.Random()
+            val states = listOf("Maharashtra" to "27", "Karnataka" to "29", "Delhi" to "07", "Tamil Nadu" to "33", "Gujarat" to "24", "Rajasthan" to "08", "Uttar Pradesh" to "09", "West Bengal" to "19", "Telangana" to "36", "Kerala" to "32")
+            val gstinPrefixes = listOf("27", "29", "07", "33", "24", "08", "09", "19", "36", "32")
+
+            // Sample Parties - Realistic Indian Business Names
+            val partyData = listOf(
+                Triple("Rajesh Traders", "9876543210", "Customer") to Triple("Mumbai, Maharashtra", "27AABCU9603R1ZM", 25000.0),
+                Triple("Priya Enterprises", "9812345678", "Customer") to Triple("Bangalore, Karnataka", "29AABCP9876R1ZM", 18500.0),
+                Triple("Amit Hardware", "9988776655", "Supplier") to Triple("Delhi, NCR", "07AABCA1234R1ZM", -45000.0),
+                Triple("Suresh & Sons", "9765432109", "Customer") to Triple("Chennai, Tamil Nadu", "33AABCS5678R1ZM", 32000.0),
+                Triple("Vijay Electronics", "9654321098", "Customer") to Triple("Ahmedabad, Gujarat", "24AABCV9012R1ZM", 12000.0),
+                Triple("Deepak Steel", "9543210987", "Supplier") to Triple("Jaipur, Rajasthan", "08AABCD3456R1ZM", -67500.0),
+                Triple("Anita Fashion Hub", "9432109876", "Customer") to Triple("Lucknow, UP", "09AABCF7890R1ZM", 8900.0),
+                Triple("Ganesh Industries", "9321098765", "Supplier") to Triple("Kolkata, West Bengal", "19AABCG1234R1ZM", -28000.0),
+                Triple("Meera Textiles", "9210987654", "Customer") to Triple("Hyderabad, Telangana", "36AABCM5678R1ZM", 41000.0),
+                Triple("Kumar Plumbing", "9109876543", "Customer") to Triple("Kochi, Kerala", "32AABCK9012R1ZM", 15500.0),
+                Triple("Sharma Medical", "9098765432", "Supplier") to Triple("Pune, Maharashtra", "27AABCS3456R1ZM", -22000.0),
+                Triple("Verma Auto Parts", "8987654321", "Customer") to Triple("Nagpur, Maharashtra", "27AABCV7890R1ZM", 9500.0),
+                Triple("Joshi Builders", "8876543210", "Customer") to Triple("Indore, MP", "23AABCJ1234R1ZM", 55000.0),
+                Triple("Reddy Pharmaceuticals", "8765432109", "Supplier") to Triple("Visakhapatnam, AP", "37AABCR5678R1ZM", -38000.0),
+                Triple("Iyer Software Solutions", "8654321098", "Customer") to Triple("Coimbatore, TN", "33AABCI9012R1ZM", 72000.0)
+            )
+
+            partyData.forEachIndexed { idx, (pair, details) ->
+                val (namePhoneType) = pair
+                val (addr, gstin, balance) = details
+                val (name, phone, type) = namePhoneType
+                val stateIdx = idx % states.size
+                partyDao.insertParty(PartyEntity(
+                    companyId = 1L, name = name, phone = phone, email = "${name.lowercase().replace(" ", "")}@email.com",
+                    gstin = gstin, address = addr, state = states[stateIdx].first, stateCode = states[stateIdx].second,
+                    balance = balance, partyType = type
+                ))
+                count++
+            }
+
+            // Sample Items - Realistic Indian Products
+            val itemData = listOf(
+                ("Laptop HP 15s", "8471", 45000.0, 38000.0, 18.0, "Pcs", 25.0, false),
+                ("Printer Canon G3010", "8443", 13500.0, 11000.0, 18.0, "Pcs", 8.0, false),
+                ("Office Chair", "9401", 8500.0, 6500.0, 18.0, "Pcs", 15.0, false),
+                ("AC Voltas 1.5 Ton", "8415", 35000.0, 28000.0, 18.0, "Pcs", 5.0, false),
+                ("Cement ACC 50kg", "2523", 380.0, 320.0, 28.0, "Bag", 500.0, false),
+                ("TMT Bar 12mm", "7214", 55.0, 48.0, 18.0, "Kg", 2000.0, false),
+                ("Plywood 19mm", "4412", 85.0, 72.0, 18.0, "Sft", 1500.0, false),
+                ("Paint Asian Paints", "3209", 2800.0, 2200.0, 28.0, "Bucket", 30.0, false),
+                ("LED Bulb 9W", "9405", 120.0, 85.0, 18.0, "Pcs", 200.0, false),
+                ("Pipe SS 1 inch", "7306", 450.0, 380.0, 18.0, "Mtr", 100.0, false),
+                ("CPU Intel i5", "8471", 28000.0, 24000.0, 18.0, "Pcs", 12.0, false),
+                ("Mouse Logitech", "8471", 450.0, 320.0, 18.0, "Pcs", 50.0, false),
+                ("Keyboard Dell", "8471", 1200.0, 900.0, 18.0, "Pcs", 30.0, false),
+                ("Monitor LG 24 inch", "8528", 14000.0, 11500.0, 18.0, "Pcs", 10.0, false),
+                ("UPS APC 1KVA", "8504", 6500.0, 5200.0, 18.0, "Pcs", 7.0, false),
+                ("Cable Cat6", "8544", 3.5, 2.8, 18.0, "Mtr", 5000.0, false),
+                ("Switch Socket", "8536", 85.0, 65.0, 18.0, "Pcs", 150.0, false),
+                ("Wire 2.5 sq mm", "8544", 18.0, 14.5, 18.0, "Mtr", 3000.0, false),
+                ("Consulting Service", "9983", 5000.0, 0.0, 18.0, "Hrs", 0.0, true),
+                ("AMC Service", "9987", 12000.0, 0.0, 18.0, "Year", 0.0, true)
+            )
+
+            itemData.forEach { (name, hsn, salePrice, purchasePrice, gst, unit, stock, isService) ->
+                itemDao.insertItem(ItemEntity(
+                    companyId = 1L, name = name, hsnCode = hsn, description = name,
+                    salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gst,
+                    unit = unit, stockQuantity = stock, isService = isService
+                ))
+                count++
+            }
+
+            // Sample Invoices - Mix of sales and purchases
+            val invoiceData = listOf(
+                ("Rajesh Traders", "INV-0001", "2026-06-15", 45000.0, 0.0, 45000.0, 4050.0, 4050.0, 0.0, 53100.0, 53100.0, "paid", "sales"),
+                ("Priya Enterprises", "INV-0002", "2026-06-20", 13500.0, 0.0, 13500.0, 1215.0, 1215.0, 0.0, 15930.0, 10000.0, "partial", "sales"),
+                ("Amit Hardware", "PUR-0001", "2026-06-18", 28000.0, 0.0, 28000.0, 2520.0, 2520.0, 0.0, 33040.0, 33040.0, "paid", "purchase"),
+                ("Suresh & Sons", "INV-0003", "2026-06-22", 8500.0, 500.0, 8000.0, 720.0, 720.0, 0.0, 9440.0, 0.0, "unpaid", "sales"),
+                ("Vijay Electronics", "INV-0004", "2026-06-25", 35000.0, 0.0, 35000.0, 3150.0, 3150.0, 0.0, 41300.0, 20000.0, "partial", "sales"),
+                ("Deepak Steel", "PUR-0002", "2026-06-28", 55000.0, 0.0, 55000.0, 4950.0, 4950.0, 0.0, 64900.0, 64900.0, "paid", "purchase"),
+                ("Anita Fashion Hub", "INV-0005", "2026-07-01", 12000.0, 0.0, 12000.0, 1080.0, 1080.0, 0.0, 14160.0, 14160.0, "paid", "sales"),
+                ("Ganesh Industries", "PUR-0003", "2026-07-03", 18000.0, 1000.0, 17000.0, 1530.0, 1530.0, 0.0, 20060.0, 10000.0, "partial", "purchase"),
+                ("Meera Textiles", "INV-0006", "2026-07-05", 22000.0, 0.0, 22000.0, 1980.0, 1980.0, 0.0, 25960.0, 0.0, "unpaid", "sales"),
+                ("Kumar Plumbing", "INV-0007", "2026-07-08", 8500.0, 0.0, 8500.0, 765.0, 765.0, 0.0, 10030.0, 10030.0, "paid", "sales"),
+                ("Sharma Medical", "PUR-0004", "2026-07-10", 32000.0, 0.0, 32000.0, 2880.0, 2880.0, 0.0, 37760.0, 37760.0, "paid", "purchase"),
+                ("Verma Auto Parts", "INV-0008", "2026-07-12", 6500.0, 0.0, 6500.0, 585.0, 585.0, 0.0, 7670.0, 0.0, "unpaid", "sales")
+            )
+
+            invoiceData.forEach { (partyName, invNum, dateStr, subTotal, disc, taxable, cgst, sgst, igst, total, paid, status, type) ->
+                val dateMillis = try { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(dateStr)?.time ?: System.currentTimeMillis() } catch (_: Exception) { System.currentTimeMillis() }
+                val parties = mutableListOf<PartyEntity>()
+                partyDao.getPartiesByCompany(1L).collect { parties.addAll(it) }
+                val party = parties.find { it.name == partyName }
+                invoiceDao.insertInvoice(InvoiceEntity(
+                    companyId = 1L, partyId = party?.id ?: 0L, invoiceNumber = invNum, invoiceDate = dateMillis,
+                    dueDate = dateMillis + 86400000L * 30, subTotal = subTotal, discount = disc, discountType = "amount",
+                    taxableAmount = taxable, cgstTotal = cgst, sgstTotal = sgst, igstTotal = igst,
+                    totalAmount = total, amountPaid = paid, paymentStatus = status, invoiceType = type
+                ))
+                count++
+            }
+
+            onComplete(count)
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
