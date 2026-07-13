@@ -28,7 +28,9 @@ import com.mimo.gstbilling.data.local.entity.*
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,6 +43,7 @@ class ImportViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
     private val companyDao: CompanyDao
 ) : ViewModel() {
+
     suspend fun insertCompany(company: CompanyEntity): Long {
         return try { companyDao.insertCompany(company) } catch (_: Exception) { 0L }
     }
@@ -94,27 +97,35 @@ class ImportViewModel @Inject constructor(
     }
 
     fun addParty(name: String, phone: String?, email: String?, gstin: String?, address: String?, state: String?, stateCode: String?, partyType: String, balance: Double) {
-        kotlinx.coroutines.GlobalScope.launch {
-            partyDao.insertParty(PartyEntity(companyId = 1L, name = name, phone = phone, email = email, gstin = gstin, address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType))
+        viewModelScope.launch(Dispatchers.IO) {
+            partyDao.insertParty(PartyEntity(
+                companyId = 1L, name = name, phone = phone, email = email, gstin = gstin,
+                address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType
+            ))
         }
     }
 
     fun addItem(name: String, hsnCode: String?, description: String?, salePrice: Double, purchasePrice: Double, gstRate: Double, unit: String, stockQuantity: Double, isService: Boolean) {
-        kotlinx.coroutines.GlobalScope.launch {
-            itemDao.insertItem(ItemEntity(companyId = 1L, name = name, hsnCode = hsnCode, description = description, salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gstRate, unit = unit, stockQuantity = stockQuantity, isService = isService))
+        viewModelScope.launch(Dispatchers.IO) {
+            itemDao.insertItem(ItemEntity(
+                companyId = 1L, name = name, hsnCode = hsnCode, description = description,
+                salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gstRate,
+                unit = unit, stockQuantity = stockQuantity, isService = isService
+            ))
         }
     }
 
     fun addInvoice(partyName: String, invoiceNumber: String, invoiceDate: String, subTotal: Double, discount: Double, taxableAmount: Double, cgst: Double, sgst: Double, igst: Double, total: Double, paid: Double, status: String, type: String) {
-        kotlinx.coroutines.GlobalScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val dateMillis = try { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(invoiceDate)?.time ?: System.currentTimeMillis() } catch (_: Exception) { System.currentTimeMillis() }
-            val party = partyDao.getPartiesByCompany(1L).let { flow ->
-                var result: com.mimo.gstbilling.data.local.entity.PartyEntity? = null
-                flow.collect { list -> result = list.find { it.name == partyName } }
+            val parties = partyDao.getPartiesByCompany(1L).let { flow ->
+                var result: PartyEntity? = null
+                val job = kotlinx.coroutines.GlobalScope.launch { flow.collect { list -> result = list.find { it.name == partyName } } }
+                job.join()
                 result
             }
             invoiceDao.insertInvoice(InvoiceEntity(
-                companyId = 1L, partyId = party?.id ?: 0L, invoiceNumber = invoiceNumber, invoiceDate = dateMillis,
+                companyId = 1L, partyId = parties?.id ?: 0L, invoiceNumber = invoiceNumber, invoiceDate = dateMillis,
                 dueDate = null, subTotal = subTotal, discount = discount, taxableAmount = taxableAmount,
                 cgstTotal = cgst, sgstTotal = sgst, igstTotal = igst, totalAmount = total, amountPaid = paid,
                 paymentStatus = status, invoiceType = type
@@ -123,46 +134,50 @@ class ImportViewModel @Inject constructor(
     }
 
     fun generateSampleData(onComplete: (Int) -> Unit) {
-        kotlinx.coroutines.GlobalScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             var count = 0
-            val random = java.util.Random()
-            val states = listOf("Maharashtra" to "27", "Karnataka" to "29", "Delhi" to "07", "Tamil Nadu" to "33", "Gujarat" to "24", "Rajasthan" to "08", "Uttar Pradesh" to "09", "West Bengal" to "19", "Telangana" to "36", "Kerala" to "32")
-            val gstinPrefixes = listOf("27", "29", "07", "33", "24", "08", "09", "19", "36", "32")
-
-            // Sample Parties - Realistic Indian Business Names
-            val partyData = listOf(
-                Triple("Rajesh Traders", "9876543210", "Customer") to Triple("Mumbai, Maharashtra", "27AABCU9603R1ZM", 25000.0),
-                Triple("Priya Enterprises", "9812345678", "Customer") to Triple("Bangalore, Karnataka", "29AABCP9876R1ZM", 18500.0),
-                Triple("Amit Hardware", "9988776655", "Supplier") to Triple("Delhi, NCR", "07AABCA1234R1ZM", -45000.0),
-                Triple("Suresh & Sons", "9765432109", "Customer") to Triple("Chennai, Tamil Nadu", "33AABCS5678R1ZM", 32000.0),
-                Triple("Vijay Electronics", "9654321098", "Customer") to Triple("Ahmedabad, Gujarat", "24AABCV9012R1ZM", 12000.0),
-                Triple("Deepak Steel", "9543210987", "Supplier") to Triple("Jaipur, Rajasthan", "08AABCD3456R1ZM", -67500.0),
-                Triple("Anita Fashion Hub", "9432109876", "Customer") to Triple("Lucknow, UP", "09AABCF7890R1ZM", 8900.0),
-                Triple("Ganesh Industries", "9321098765", "Supplier") to Triple("Kolkata, West Bengal", "19AABCG1234R1ZM", -28000.0),
-                Triple("Meera Textiles", "9210987654", "Customer") to Triple("Hyderabad, Telangana", "36AABCM5678R1ZM", 41000.0),
-                Triple("Kumar Plumbing", "9109876543", "Customer") to Triple("Kochi, Kerala", "32AABCK9012R1ZM", 15500.0),
-                Triple("Sharma Medical", "9098765432", "Supplier") to Triple("Pune, Maharashtra", "27AABCS3456R1ZM", -22000.0),
-                Triple("Verma Auto Parts", "8987654321", "Customer") to Triple("Nagpur, Maharashtra", "27AABCV7890R1ZM", 9500.0),
-                Triple("Joshi Builders", "8876543210", "Customer") to Triple("Indore, MP", "23AABCJ1234R1ZM", 55000.0),
-                Triple("Reddy Pharmaceuticals", "8765432109", "Supplier") to Triple("Visakhapatnam, AP", "37AABCR5678R1ZM", -38000.0),
-                Triple("Iyer Software Solutions", "8654321098", "Customer") to Triple("Coimbatore, TN", "33AABCI9012R1ZM", 72000.0)
+            val states = listOf(
+                "Maharashtra" to "27", "Karnataka" to "29", "Delhi" to "07",
+                "Tamil Nadu" to "33", "Gujarat" to "24", "Rajasthan" to "08",
+                "Uttar Pradesh" to "09", "West Bengal" to "19", "Telangana" to "36", "Kerala" to "32"
             )
 
-            partyData.forEachIndexed { idx, (pair, details) ->
-                val (namePhoneType) = pair
-                val (addr, gstin, balance) = details
-                val (name, phone, type) = namePhoneType
-                val stateIdx = idx % states.size
-                partyDao.insertParty(PartyEntity(
-                    companyId = 1L, name = name, phone = phone, email = "${name.lowercase().replace(" ", "")}@email.com",
-                    gstin = gstin, address = addr, state = states[stateIdx].first, stateCode = states[stateIdx].second,
-                    balance = balance, partyType = type
+            // STEP 1: Insert all parties first and collect their IDs
+            data class PartyData(val name: String, val phone: String, val type: String, val addr: String, val gstin: String, val balance: Double, val stateIdx: Int)
+
+            val partyList = listOf(
+                PartyData("Rajesh Traders", "9876543210", "customer", "Mumbai, Maharashtra", "27AABCU9603R1ZM", 25000.0, 0),
+                PartyData("Priya Enterprises", "9812345678", "customer", "Bangalore, Karnataka", "29AABCP9876R1ZM", 18500.0, 1),
+                PartyData("Amit Hardware", "9988776655", "supplier", "Delhi, NCR", "07AABCA1234R1ZM", -45000.0, 2),
+                PartyData("Suresh & Sons", "9765432109", "customer", "Chennai, Tamil Nadu", "33AABCS5678R1ZM", 32000.0, 3),
+                PartyData("Vijay Electronics", "9654321098", "customer", "Ahmedabad, Gujarat", "24AABCV9012R1ZM", 12000.0, 4),
+                PartyData("Deepak Steel", "9543210987", "supplier", "Jaipur, Rajasthan", "08AABCD3456R1ZM", -67500.0, 5),
+                PartyData("Anita Fashion Hub", "9432109876", "customer", "Lucknow, UP", "09AABCF7890R1ZM", 8900.0, 6),
+                PartyData("Ganesh Industries", "9321098765", "supplier", "Kolkata, West Bengal", "19AABCG1234R1ZM", -28000.0, 7),
+                PartyData("Meera Textiles", "9210987654", "customer", "Hyderabad, Telangana", "36AABCM5678R1ZM", 41000.0, 8),
+                PartyData("Kumar Plumbing", "9109876543", "customer", "Kochi, Kerala", "32AABCK9012R1ZM", 15500.0, 9),
+                PartyData("Sharma Medical", "9098765432", "supplier", "Pune, Maharashtra", "27AABCS3456R1ZM", -22000.0, 0),
+                PartyData("Verma Auto Parts", "8987654321", "customer", "Nagpur, Maharashtra", "27AABCV7890R1ZM", 9500.0, 0),
+                PartyData("Joshi Builders", "8876543210", "customer", "Indore, MP", "23AABCJ1234R1ZM", 55000.0, 5),
+                PartyData("Reddy Pharmaceuticals", "8765432109", "supplier", "Visakhapatnam, AP", "37AABCR5678R1ZM", -38000.0, 8),
+                PartyData("Iyer Software Solutions", "8654321098", "customer", "Coimbatore, TN", "33AABCI9012R1ZM", 72000.0, 3)
+            )
+
+            val partyIdMap = mutableMapOf<String, Long>()
+            partyList.forEach { pd ->
+                val id = partyDao.insertParty(PartyEntity(
+                    companyId = 1L, name = pd.name, phone = pd.phone,
+                    email = "${pd.name.lowercase().replace(" ", "").replace("&", "and")}@email.com",
+                    gstin = pd.gstin, address = pd.addr,
+                    state = states[pd.stateIdx].first, stateCode = states[pd.stateIdx].second,
+                    balance = pd.balance, partyType = pd.type
                 ))
+                partyIdMap[pd.name] = id
                 count++
             }
 
-            // Sample Items - Realistic Indian Products
-            val itemData = listOf(
+            // STEP 2: Insert items
+            val itemList = listOf(
                 ("Laptop HP 15s", "8471", 45000.0, 38000.0, 18.0, "Pcs", 25.0, false),
                 ("Printer Canon G3010", "8443", 13500.0, 11000.0, 18.0, "Pcs", 8.0, false),
                 ("Office Chair", "9401", 8500.0, 6500.0, 18.0, "Pcs", 15.0, false),
@@ -185,7 +200,7 @@ class ImportViewModel @Inject constructor(
                 ("AMC Service", "9987", 12000.0, 0.0, 18.0, "Year", 0.0, true)
             )
 
-            itemData.forEach { (name, hsn, salePrice, purchasePrice, gst, unit, stock, isService) ->
+            itemList.forEach { (name, hsn, salePrice, purchasePrice, gst, unit, stock, isService) ->
                 itemDao.insertItem(ItemEntity(
                     companyId = 1L, name = name, hsnCode = hsn, description = name,
                     salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gst,
@@ -194,37 +209,44 @@ class ImportViewModel @Inject constructor(
                 count++
             }
 
-            // Sample Invoices - Mix of sales and purchases
-            val invoiceData = listOf(
-                ("Rajesh Traders", "INV-0001", "2026-06-15", 45000.0, 0.0, 45000.0, 4050.0, 4050.0, 0.0, 53100.0, 53100.0, "paid", "sales"),
-                ("Priya Enterprises", "INV-0002", "2026-06-20", 13500.0, 0.0, 13500.0, 1215.0, 1215.0, 0.0, 15930.0, 10000.0, "partial", "sales"),
-                ("Amit Hardware", "PUR-0001", "2026-06-18", 28000.0, 0.0, 28000.0, 2520.0, 2520.0, 0.0, 33040.0, 33040.0, "paid", "purchase"),
-                ("Suresh & Sons", "INV-0003", "2026-06-22", 8500.0, 500.0, 8000.0, 720.0, 720.0, 0.0, 9440.0, 0.0, "unpaid", "sales"),
-                ("Vijay Electronics", "INV-0004", "2026-06-25", 35000.0, 0.0, 35000.0, 3150.0, 3150.0, 0.0, 41300.0, 20000.0, "partial", "sales"),
-                ("Deepak Steel", "PUR-0002", "2026-06-28", 55000.0, 0.0, 55000.0, 4950.0, 4950.0, 0.0, 64900.0, 64900.0, "paid", "purchase"),
-                ("Anita Fashion Hub", "INV-0005", "2026-07-01", 12000.0, 0.0, 12000.0, 1080.0, 1080.0, 0.0, 14160.0, 14160.0, "paid", "sales"),
-                ("Ganesh Industries", "PUR-0003", "2026-07-03", 18000.0, 1000.0, 17000.0, 1530.0, 1530.0, 0.0, 20060.0, 10000.0, "partial", "purchase"),
-                ("Meera Textiles", "INV-0006", "2026-07-05", 22000.0, 0.0, 22000.0, 1980.0, 1980.0, 0.0, 25960.0, 0.0, "unpaid", "sales"),
-                ("Kumar Plumbing", "INV-0007", "2026-07-08", 8500.0, 0.0, 8500.0, 765.0, 765.0, 0.0, 10030.0, 10030.0, "paid", "sales"),
-                ("Sharma Medical", "PUR-0004", "2026-07-10", 32000.0, 0.0, 32000.0, 2880.0, 2880.0, 0.0, 37760.0, 37760.0, "paid", "purchase"),
-                ("Verma Auto Parts", "INV-0008", "2026-07-12", 6500.0, 0.0, 6500.0, 585.0, 585.0, 0.0, 7670.0, 0.0, "unpaid", "sales")
+            // STEP 3: Insert invoices with correct partyId from the map
+            data class InvoiceData(val partyName: String, val invNum: String, val date: String, val sub: Double, val disc: Double, val taxable: Double, val cgst: Double, val sgst: Double, val igst: Double, val total: Double, val paid: Double, val status: String, val type: String)
+
+            val invoiceList = listOf(
+                InvoiceData("Rajesh Traders", "INV-0001", "2026-06-15", 45000.0, 0.0, 45000.0, 4050.0, 4050.0, 0.0, 53100.0, 53100.0, "paid", "sales"),
+                InvoiceData("Priya Enterprises", "INV-0002", "2026-06-20", 13500.0, 0.0, 13500.0, 1215.0, 1215.0, 0.0, 15930.0, 10000.0, "partial", "sales"),
+                InvoiceData("Amit Hardware", "PUR-0001", "2026-06-18", 28000.0, 0.0, 28000.0, 2520.0, 2520.0, 0.0, 33040.0, 33040.0, "paid", "purchase"),
+                InvoiceData("Suresh & Sons", "INV-0003", "2026-06-22", 8500.0, 500.0, 8000.0, 720.0, 720.0, 0.0, 9440.0, 0.0, "unpaid", "sales"),
+                InvoiceData("Vijay Electronics", "INV-0004", "2026-06-25", 35000.0, 0.0, 35000.0, 3150.0, 3150.0, 0.0, 41300.0, 20000.0, "partial", "sales"),
+                InvoiceData("Deepak Steel", "PUR-0002", "2026-06-28", 55000.0, 0.0, 55000.0, 4950.0, 4950.0, 0.0, 64900.0, 64900.0, "paid", "purchase"),
+                InvoiceData("Anita Fashion Hub", "INV-0005", "2026-07-01", 12000.0, 0.0, 12000.0, 1080.0, 1080.0, 0.0, 14160.0, 14160.0, "paid", "sales"),
+                InvoiceData("Ganesh Industries", "PUR-0003", "2026-07-03", 18000.0, 1000.0, 17000.0, 1530.0, 1530.0, 0.0, 20060.0, 10000.0, "partial", "purchase"),
+                InvoiceData("Meera Textiles", "INV-0006", "2026-07-05", 22000.0, 0.0, 22000.0, 1980.0, 1980.0, 0.0, 25960.0, 0.0, "unpaid", "sales"),
+                InvoiceData("Kumar Plumbing", "INV-0007", "2026-07-08", 8500.0, 0.0, 8500.0, 765.0, 765.0, 0.0, 10030.0, 10030.0, "paid", "sales"),
+                InvoiceData("Sharma Medical", "PUR-0004", "2026-07-10", 32000.0, 0.0, 32000.0, 2880.0, 2880.0, 0.0, 37760.0, 37760.0, "paid", "purchase"),
+                InvoiceData("Verma Auto Parts", "INV-0008", "2026-07-12", 6500.0, 0.0, 6500.0, 585.0, 585.0, 0.0, 7670.0, 0.0, "unpaid", "sales"),
+                InvoiceData("Joshi Builders", "INV-0009", "2026-07-14", 65000.0, 5000.0, 60000.0, 5400.0, 5400.0, 0.0, 70800.0, 40000.0, "partial", "sales"),
+                InvoiceData("Reddy Pharmaceuticals", "PUR-0005", "2026-07-15", 42000.0, 0.0, 42000.0, 3780.0, 3780.0, 0.0, 49560.0, 49560.0, "paid", "purchase"),
+                InvoiceData("Iyer Software Solutions", "INV-0010", "2026-07-16", 24000.0, 0.0, 24000.0, 2160.0, 2160.0, 0.0, 28320.0, 0.0, "unpaid", "sales")
             )
 
-            invoiceData.forEach { (partyName, invNum, dateStr, subTotal, disc, taxable, cgst, sgst, igst, total, paid, status, type) ->
-                val dateMillis = try { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(dateStr)?.time ?: System.currentTimeMillis() } catch (_: Exception) { System.currentTimeMillis() }
-                val parties = mutableListOf<PartyEntity>()
-                partyDao.getPartiesByCompany(1L).collect { parties.addAll(it) }
-                val party = parties.find { it.name == partyName }
+            invoiceList.forEach { inv ->
+                val dateMillis = try { java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse(inv.date)?.time ?: System.currentTimeMillis() } catch (_: Exception) { System.currentTimeMillis() }
+                val partyId = partyIdMap[inv.partyName] ?: 0L
+
                 invoiceDao.insertInvoice(InvoiceEntity(
-                    companyId = 1L, partyId = party?.id ?: 0L, invoiceNumber = invNum, invoiceDate = dateMillis,
-                    dueDate = dateMillis + 86400000L * 30, subTotal = subTotal, discount = disc, discountType = "amount",
-                    taxableAmount = taxable, cgstTotal = cgst, sgstTotal = sgst, igstTotal = igst,
-                    totalAmount = total, amountPaid = paid, paymentStatus = status, invoiceType = type
+                    companyId = 1L, partyId = partyId, invoiceNumber = inv.invNum, invoiceDate = dateMillis,
+                    dueDate = dateMillis + 86400000L * 30, subTotal = inv.sub, discount = inv.disc,
+                    discountType = "amount", taxableAmount = inv.taxable, cgstTotal = inv.cgst,
+                    sgstTotal = inv.sgst, igstTotal = inv.igst, totalAmount = inv.total,
+                    amountPaid = inv.paid, paymentStatus = inv.status, invoiceType = inv.type
                 ))
                 count++
             }
 
-            onComplete(count)
+            withContext(Dispatchers.Main) {
+                onComplete(count)
+            }
         }
     }
 }
@@ -323,15 +345,12 @@ fun ImportDataScreen(
                                 val gstIdx = headers.indexOfFirst { it.contains("tax") || it.contains("gst") }
                                 val unitIdx = headers.indexOfFirst { it.contains("unit") || it.contains("uom") }
                                 val stockIdx = headers.indexOfFirst { it.contains("stock") || it.contains("quantity") || it.contains("opening") }
-                                val codeIdx = headers.indexOfFirst { it.contains("item code") || it.contains("code") || it.contains("sku") }
-                                val descIdx = headers.indexOfFirst { it.contains("description") || it.contains("desc") }
 
                                 items.add(
                                     ItemEntity(
-                                        companyId = 1L,
-                                        name = name,
+                                        companyId = 1L, name = name,
                                         hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
-                                        description = descIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
+                                        description = name,
                                         salePrice = priceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
                                         purchasePrice = purchasePriceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
                                         gstRate = gstIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
@@ -365,8 +384,6 @@ fun ImportDataScreen(
                                 val typeIdx = headers.indexOfFirst { it.contains("type") || it.contains("party type") || it.contains("category") }
                                 val stateIdx = headers.indexOfFirst { it.contains("state") }
                                 val balanceIdx = headers.indexOfFirst { it.contains("balance") || it.contains("opening") }
-                                val cityIdx = headers.indexOfFirst { it.contains("city") }
-                                val pincodeIdx = headers.indexOfFirst { it.contains("pincode") || it.contains("pin") || it.contains("zip") }
 
                                 val type = typeIdx.takeIf { it >= 0 }?.let { cols[it] }?.lowercase() ?: "customer"
                                 val partyType = when {
@@ -375,20 +392,13 @@ fun ImportDataScreen(
                                     else -> "customer"
                                 }
 
-                                val address = buildString {
-                                    addrIdx.takeIf { it >= 0 }?.let { cols[it] }?.let { append(it) }
-                                    cityIdx.takeIf { it >= 0 }?.let { cols[it] }?.let { if (isNotEmpty()) append(", "); append(it) }
-                                    pincodeIdx.takeIf { it >= 0 }?.let { cols[it] }?.let { if (isNotEmpty()) append(" - "); append(it) }
-                                }.ifBlank { null }
-
                                 parties.add(
                                     PartyEntity(
-                                        companyId = 1L,
-                                        name = name,
+                                        companyId = 1L, name = name,
                                         phone = phoneIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         gstin = gstinIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         email = emailIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
-                                        address = address,
+                                        address = addrIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         state = stateIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         stateCode = null,
                                         balance = balanceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
@@ -431,13 +441,12 @@ fun ImportDataScreen(
                     Text("Import Data", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Text("Import from Vyapar Excel, CSV, or any spreadsheet", fontSize = 13.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { navController.navigate(Screen.VyaparImport.route) }, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
+                    Button(onClick = { navController.navigate(Screen.VyaparDataImport.route) }, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
                         Icon(Icons.Filled.Storage, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Vyapar Backup (.vyb)")
                     }
                 }
             }
 
-            // Vyapar Excel Import
             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -472,7 +481,6 @@ fun ImportDataScreen(
                 }
             }
 
-            // CSV Import
             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
