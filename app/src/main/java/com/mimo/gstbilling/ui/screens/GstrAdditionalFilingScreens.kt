@@ -406,7 +406,7 @@ fun HsnSummaryScreen(
                             hsnData.forEach { inv ->
                                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
                                     Text("N/A", fontSize = 13.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                                    Text("${inv.quantity}", fontSize = 13.sp, color = TextPrimary, modifier = Modifier.weight(0.5f))
+                                    Text("N/A", fontSize = 13.sp, color = TextPrimary, modifier = Modifier.weight(0.5f))
                                     Text(String.format(Locale.US, "\u20B9%,.2f", inv.taxableAmount), fontSize = 13.sp, color = TextPrimary, modifier = Modifier.weight(1f))
                                     Text(String.format(Locale.US, "\u20B9%,.2f", inv.cgstTotal + inv.sgstTotal + inv.igstTotal), fontSize = 13.sp, color = BlueHeader, modifier = Modifier.weight(1f))
                                 }

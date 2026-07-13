@@ -145,8 +145,9 @@ fun PartyWiseProfitLossScreen(
                 .mapValues { (_, partyInvoices) ->
                     val totalSales = partyInvoices.sumOf { it.taxableAmount }
                     totalSales
+                }.let { data ->
+                    data.toSortedMap(compareByDescending { data[it] ?: 0.0 })
                 }
-                .toSortedMap(compareByDescending { partyData[it] ?: 0.0 })
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp),

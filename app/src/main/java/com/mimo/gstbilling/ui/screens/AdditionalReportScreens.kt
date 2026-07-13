@@ -481,7 +481,7 @@ fun AllPartiesReportScreen(navController: NavController, viewModel: InvoiceViewM
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Total Parties: ${parties.size}", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Customers: ${parties.count { it.type == "customer" }} | Suppliers: ${parties.count { it.type == "supplier" }}", fontSize = 13.sp, color = TextSecondary)
+                        Text("Customers: ${parties.count { it.partyType == "customer" }} | Suppliers: ${parties.count { it.partyType == "supplier" }}", fontSize = 13.sp, color = TextSecondary)
                     }
                 }
             }
@@ -491,7 +491,7 @@ fun AllPartiesReportScreen(navController: NavController, viewModel: InvoiceViewM
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                             Column {
                                 Text(party.name, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                Text(party.type?.uppercase() ?: "N/A", fontSize = 12.sp, color = TextSecondary)
+                                Text(party.partyType.uppercase(), fontSize = 12.sp, color = TextSecondary)
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Text(String.format(Locale.US, "\u20B9%,.2f", party.balance), fontWeight = FontWeight.Bold, color = if (party.balance >= 0) GreenBalance else RedAccent)
