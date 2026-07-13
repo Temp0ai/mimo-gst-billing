@@ -29,6 +29,9 @@ import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ImportViewModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,6 +152,82 @@ fun VyaparDataImportScreen(
                         importType = "invoices"; csvLauncher.launch("text/*")
                     }
                 }
+            }
+
+            // Google Sheets Import
+            var showGoogleSheetsDialog by remember { mutableStateOf(false) }
+            var googleSheetsUrl by remember { mutableStateOf("") }
+
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Import from Google Sheets", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF1B5E20))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Paste your Google Sheets export URL or CSV data directly.", fontSize = 13.sp, color = Color(0xFF2E7D32))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { showGoogleSheetsDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                        enabled = !isImporting
+                    ) {
+                        Icon(Icons.Filled.CloudDownload, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Import from Google Sheets / Paste CSV")
+                    }
+                }
+            }
+
+            if (showGoogleSheetsDialog) {
+                AlertDialog(
+                    onDismissRequest = { showGoogleSheetsDialog = false },
+                    title = { Text("Import Transaction Data", fontWeight = FontWeight.Bold) },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Text("Paste the Google Sheets export URL or the raw CSV text below:", fontSize = 13.sp, color = TextSecondary)
+                            OutlinedTextField(
+                                value = googleSheetsUrl,
+                                onValueChange = { googleSheetsUrl = it },
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
+                                label = { Text("URL or CSV Data") },
+                                placeholder = { Text("https://docs.google.com/spreadsheets/d/.../export?format=csv\n\nOR paste the CSV text directly...") }
+                            )
+                            Text("Format: Date, Party Name, Phone, GSTIN, Order No, Invoice No, Transaction Type, Amount, Payment Type, Received, Balance", fontSize = 11.sp, color = Color.Gray)
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showGoogleSheetsDialog = false
+                                isImporting = true
+                                importStatus = "Fetching data..."
+                                val url = googleSheetsUrl.trim()
+                                googleSheetsUrl = ""
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try {
+                                        val csvData = if (url.startsWith("http")) {
+                                            val connection = java.net.URL(url).openConnection()
+                                            connection.connectTimeout = 15000
+                                            connection.readTimeout = 15000
+                                            connection.getInputStream().bufferedReader().readText()
+                                        } else {
+                                            url
+                                        }
+                                        importViewModel.importVyaparTransactions(csvData) { result ->
+                                            importStatus = result; isImporting = false
+                                        }
+                                    } catch (e: Exception) {
+                                        importStatus = "Error fetching URL: ${e.message}\nTip: Make sure the sheet is shared publicly or use 'Paste CSV' instead."; isImporting = false
+                                    }
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))
+                        ) { Text("Import") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showGoogleSheetsDialog = false; googleSheetsUrl = "" }) { Text("Cancel") }
+                    }
+                )
             }
 
             // Sample Data Generator

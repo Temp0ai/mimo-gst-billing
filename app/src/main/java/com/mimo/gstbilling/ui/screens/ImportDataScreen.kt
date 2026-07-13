@@ -133,6 +133,100 @@ class ImportViewModel @Inject constructor(
         }
     }
 
+    fun importVyaparTransactions(csvText: String, onComplete: (String) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val lines = csvText.lines().filter { it.isNotBlank() }
+                if (lines.size < 4) { withContext(Dispatchers.Main) { onComplete("Error: Not enough data rows") }; return@launch }
+
+                val dataLines = lines.drop(3)
+                val headerLine = lines[2].lowercase()
+
+                var partiesCreated = 0
+                var invoicesCreated = 0
+                var skippedCancelled = 0
+                val partyIdMap = mutableMapOf<String, Long>()
+
+                for (line in dataLines) {
+                    try {
+                        val cols = parseCsvLine(line)
+                        if (cols.size < 8) continue
+
+                        val dateStr = cols[0].trim()
+                        val partyName = cols[1].trim().replace("\n", " ")
+                        val phone = cols[2].trim().ifBlank { null }?.replace("+91", "")?.trim()
+                        val gstin = cols[3].trim().ifBlank { null }
+                        val invoiceNo = cols[5].trim()
+                        val txnType = cols[6].trim()
+                        val totalAmountStr = cols[7].trim().replace(",", "")
+                        val paymentType = cols.getOrElse(8) { "" }.trim()
+                        val receivedStr = cols.getOrElse(9) { "" }.trim().replace(",", "")
+                        val balanceStr = cols.getOrElse(10) { "" }.trim().replace(",", "")
+
+                        if (partyName.isBlank()) continue
+                        if (txnType.contains("Cancelled", ignoreCase = true)) { skippedCancelled++; continue }
+                        if (txnType.contains("Estimate", ignoreCase = true) || txnType.contains("Quotation", ignoreCase = true)) continue
+
+                        val dateMillis = try {
+                            val parts = dateStr.split("/")
+                            if (parts.size == 3) {
+                                val cal = java.util.Calendar.getInstance()
+                                cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt(), 0, 0, 0)
+                                cal.timeInMillis
+                            } else System.currentTimeMillis()
+                        } catch (_: Exception) { System.currentTimeMillis() }
+
+                        if (!partyIdMap.containsKey(partyName)) {
+                            val stateCode = gstin?.take(2) ?: ""
+                            val id = partyDao.insertParty(PartyEntity(
+                                companyId = 1L, name = partyName, phone = phone, gstin = gstin,
+                                email = null, address = null, state = stateCode, stateCode = stateCode,
+                                balance = 0.0, partyType = "customer"
+                            ))
+                            partyIdMap[partyName] = id
+                            partiesCreated++
+                        }
+
+                        val partyId = partyIdMap[partyName] ?: 0L
+                        val totalAmount = totalAmountStr.toDoubleOrNull() ?: 0.0
+                        val received = receivedStr.toDoubleOrNull() ?: 0.0
+                        val balance = balanceStr.toDoubleOrNull() ?: 0.0
+
+                        val isPaid = received > 0 && balance <= 0.01
+                        val isPartial = received > 0 && balance > 0.01
+                        val paymentStatus = when {
+                            txnType.contains("Payment-in", ignoreCase = true) -> "paid"
+                            isPaid -> "paid"
+                            isPartial -> "partial"
+                            else -> "unpaid"
+                        }
+
+                        invoiceDao.insertInvoice(InvoiceEntity(
+                            companyId = 1L, partyId = partyId, invoiceNumber = invoiceNo,
+                            invoiceDate = dateMillis, dueDate = null,
+                            subTotal = totalAmount, discount = 0.0, taxableAmount = totalAmount,
+                            cgstTotal = 0.0, sgstTotal = 0.0, igstTotal = 0.0,
+                            totalAmount = totalAmount, amountPaid = received,
+                            paymentStatus = paymentStatus, invoiceType = "sales",
+                            notes = cols.getOrElse(11) { "" }.trim().ifBlank { null }
+                        ))
+                        invoicesCreated++
+                    } catch (_: Exception) { }
+                }
+
+                val summary = buildString {
+                    append("Import complete!\n")
+                    append("Parties created: $partiesCreated\n")
+                    append("Invoices created: $invoicesCreated\n")
+                    if (skippedCancelled > 0) append("Cancelled sales skipped: $skippedCancelled")
+                }
+                withContext(Dispatchers.Main) { onComplete(summary) }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) { onComplete("Error: ${e.message}") }
+            }
+        }
+    }
+
     fun generateSampleData(onComplete: (Int) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             var count = 0
