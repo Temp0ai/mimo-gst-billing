@@ -137,42 +137,65 @@ class ImportViewModel @Inject constructor(
     fun importVyaparTransactions(csvText: String, onComplete: (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val lines = csvText.lines().filter { it.isNotBlank() }
-                if (lines.size < 4) { withContext(Dispatchers.Main) { onComplete("Error: Not enough data rows") }; return@launch }
+                val rows = parseFullCsv(csvText)
+                if (rows.size < 5) { withContext(Dispatchers.Main) { onComplete("Error: Not enough data rows (${rows.size} found)") }; return@launch }
 
-                val dataLines = lines.drop(3)
-                val headerLine = lines[2].lowercase()
+                // Find header row (contains "Date" and "Party Name")
+                val headerIdx = rows.indexOfFirst { row ->
+                    row.any { it.contains("Date", ignoreCase = true) } && row.any { it.contains("Party Name", ignoreCase = true) }
+                }
+                if (headerIdx == -1) { withContext(Dispatchers.Main) { onComplete("Error: Could not find header row with 'Date' and 'Party Name' columns") }; return@launch }
+
+                val headers = rows[headerIdx].map { it.trim().lowercase() }
+                val dateCol = headers.indexOfFirst { it == "date" }
+                val partyCol = headers.indexOfFirst { it.contains("party name") || it == "party" }
+                val phoneCol = headers.indexOfFirst { it.contains("phone") }
+                val gstinCol = headers.indexOfFirst { it.contains("gstin") || it.contains("gst no") }
+                val invNoCol = headers.indexOfFirst { it.contains("invoice no") || it.contains("ref no") }
+                val typeCol = headers.indexOfFirst { it.contains("transaction type") }
+                val amountCol = headers.indexOfFirst { it.contains("total amount") || it.contains("amount") }
+                val paymentCol = headers.indexOfFirst { it.contains("payment type") }
+                val receivedCol = headers.indexOfFirst { it.contains("received") }
+                val balanceCol = headers.indexOfFirst { it.contains("balance") }
+                val descCol = headers.indexOfFirst { it.contains("description") }
+
+                if (partyCol == -1 || amountCol == -1) {
+                    withContext(Dispatchers.Main) { onComplete("Error: Missing required columns (Party Name or Amount)") }; return@launch
+                }
 
                 var partiesCreated = 0
                 var invoicesCreated = 0
                 var skippedCancelled = 0
                 val partyIdMap = mutableMapOf<String, Long>()
 
-                for (line in dataLines) {
+                val dataRows = rows.drop(headerIdx + 1)
+                for (cols in dataRows) {
                     try {
-                        val cols = parseCsvLine(line)
-                        if (cols.size < 8) continue
-
-                        val dateStr = cols[0].trim()
-                        val partyName = cols[1].trim().replace("\n", " ")
-                        val phone = cols[2].trim().ifBlank { null }?.replace("+91", "")?.trim()
-                        val gstin = cols[3].trim().ifBlank { null }
-                        val invoiceNo = cols[5].trim()
-                        val txnType = cols[6].trim()
-                        val totalAmountStr = cols[7].trim().replace(",", "")
-                        val paymentType = cols.getOrElse(8) { "" }.trim()
-                        val receivedStr = cols.getOrElse(9) { "" }.trim().replace(",", "")
-                        val balanceStr = cols.getOrElse(10) { "" }.trim().replace(",", "")
-
+                        val partyName = cols.getOrElse(partyCol) { "" }.trim().replace("\n", " ")
                         if (partyName.isBlank()) continue
+
+                        val txnType = cols.getOrElse(typeCol) { "" }.trim()
                         if (txnType.contains("Cancelled", ignoreCase = true)) { skippedCancelled++; continue }
                         if (txnType.contains("Estimate", ignoreCase = true) || txnType.contains("Quotation", ignoreCase = true)) continue
+
+                        val dateStr = cols.getOrElse(dateCol) { "" }.trim()
+                        val phone = cols.getOrElse(phoneCol) { "" }.trim().replace("+91", "").replace(" ", "").ifBlank { null }
+                        val gstin = cols.getOrElse(gstinCol) { "" }.trim().ifBlank { null }
+                        val invoiceNo = cols.getOrElse(invNoCol) { "" }.trim().ifBlank { "N/A" }
+                        val totalAmountStr = cols.getOrElse(amountCol) { "0" }.trim().replace(",", "")
+                        val receivedStr = cols.getOrElse(receivedCol) { "0" }.trim().replace(",", "")
+                        val balanceStr = cols.getOrElse(balanceCol) { "0" }.trim().replace(",", "")
+                        val description = cols.getOrElse(descCol) { "" }.trim().ifBlank { null }
+
+                        val totalAmount = totalAmountStr.toDoubleOrNull() ?: 0.0
+                        if (totalAmount <= 0) continue
 
                         val dateMillis = try {
                             val parts = dateStr.split("/")
                             if (parts.size == 3) {
                                 val cal = java.util.Calendar.getInstance()
                                 cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt(), 0, 0, 0)
+                                cal.set(java.util.Calendar.MILLISECOND, 0)
                                 cal.timeInMillis
                             } else System.currentTimeMillis()
                         } catch (_: Exception) { System.currentTimeMillis() }
@@ -189,7 +212,6 @@ class ImportViewModel @Inject constructor(
                         }
 
                         val partyId = partyIdMap[partyName] ?: 0L
-                        val totalAmount = totalAmountStr.toDoubleOrNull() ?: 0.0
                         val received = receivedStr.toDoubleOrNull() ?: 0.0
                         val balance = balanceStr.toDoubleOrNull() ?: 0.0
 
@@ -209,7 +231,7 @@ class ImportViewModel @Inject constructor(
                             cgstTotal = 0.0, sgstTotal = 0.0, igstTotal = 0.0,
                             totalAmount = totalAmount, amountPaid = received,
                             paymentStatus = paymentStatus, invoiceType = "sales",
-                            notes = cols.getOrElse(11) { "" }.trim().ifBlank { null }
+                            notes = description
                         ))
                         invoicesCreated++
                     } catch (_: Exception) { }
@@ -712,6 +734,49 @@ private fun parsePartiesCsv(header: List<String>, lines: List<String>): Pair<Lis
         } catch (e: Exception) { errs.add("Row ${i + 1}: ${e.message}") }
     }
     return Pair(parties, errs)
+}
+
+private fun parseFullCsv(text: String): List<List<String>> {
+    val rows = mutableListOf<List<String>>()
+    var i = 0
+    val len = text.length
+    while (i < len) {
+        val row = mutableListOf<String>()
+        while (i < len) {
+            val sb = StringBuilder()
+            if (i < len && text[i] == '"') {
+                i++
+                while (i < len) {
+                    if (text[i] == '"') {
+                        if (i + 1 < len && text[i + 1] == '"') {
+                            sb.append('"'); i += 2
+                        } else {
+                            i++; break
+                        }
+                    } else {
+                        sb.append(text[i]); i++
+                    }
+                }
+                if (i < len && text[i] == ',') i++
+                else if (i < len && text[i] == '\r') i++
+                if (i < len && text[i] == '\n') i++
+                row.add(sb.toString())
+                if (i >= len || text[i - 1] == '\n') break
+            } else {
+                while (i < len && text[i] != ',' && text[i] != '\n' && text[i] != '\r') {
+                    sb.append(text[i]); i++
+                }
+                row.add(sb.toString())
+                if (i < len && text[i] == ',') { i++; continue }
+                if (i < len && text[i] == '\r') i++
+                if (i < len && text[i] == '\n') i++
+                break
+            }
+        }
+        if (row.isNotEmpty() && !(row.size == 1 && row[0].isBlank())) rows.add(row)
+        if (i == len && row.isEmpty()) break
+    }
+    return rows
 }
 
 private fun parseCsvLine(line: String): List<String> {
