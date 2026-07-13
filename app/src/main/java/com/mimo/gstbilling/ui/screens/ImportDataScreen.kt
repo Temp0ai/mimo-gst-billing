@@ -271,34 +271,36 @@ class ImportViewModel @Inject constructor(
             }
 
             // STEP 2: Insert items
+            data class ItemData(val name: String, val hsn: String, val salePrice: Double, val purchasePrice: Double, val gst: Double, val unit: String, val stock: Double, val isService: Boolean)
+
             val itemList = listOf(
-                ("Laptop HP 15s", "8471", 45000.0, 38000.0, 18.0, "Pcs", 25.0, false),
-                ("Printer Canon G3010", "8443", 13500.0, 11000.0, 18.0, "Pcs", 8.0, false),
-                ("Office Chair", "9401", 8500.0, 6500.0, 18.0, "Pcs", 15.0, false),
-                ("AC Voltas 1.5 Ton", "8415", 35000.0, 28000.0, 18.0, "Pcs", 5.0, false),
-                ("Cement ACC 50kg", "2523", 380.0, 320.0, 28.0, "Bag", 500.0, false),
-                ("TMT Bar 12mm", "7214", 55.0, 48.0, 18.0, "Kg", 2000.0, false),
-                ("Plywood 19mm", "4412", 85.0, 72.0, 18.0, "Sft", 1500.0, false),
-                ("Paint Asian Paints", "3209", 2800.0, 2200.0, 28.0, "Bucket", 30.0, false),
-                ("LED Bulb 9W", "9405", 120.0, 85.0, 18.0, "Pcs", 200.0, false),
-                ("Pipe SS 1 inch", "7306", 450.0, 380.0, 18.0, "Mtr", 100.0, false),
-                ("CPU Intel i5", "8471", 28000.0, 24000.0, 18.0, "Pcs", 12.0, false),
-                ("Mouse Logitech", "8471", 450.0, 320.0, 18.0, "Pcs", 50.0, false),
-                ("Keyboard Dell", "8471", 1200.0, 900.0, 18.0, "Pcs", 30.0, false),
-                ("Monitor LG 24 inch", "8528", 14000.0, 11500.0, 18.0, "Pcs", 10.0, false),
-                ("UPS APC 1KVA", "8504", 6500.0, 5200.0, 18.0, "Pcs", 7.0, false),
-                ("Cable Cat6", "8544", 3.5, 2.8, 18.0, "Mtr", 5000.0, false),
-                ("Switch Socket", "8536", 85.0, 65.0, 18.0, "Pcs", 150.0, false),
-                ("Wire 2.5 sq mm", "8544", 18.0, 14.5, 18.0, "Mtr", 3000.0, false),
-                ("Consulting Service", "9983", 5000.0, 0.0, 18.0, "Hrs", 0.0, true),
-                ("AMC Service", "9987", 12000.0, 0.0, 18.0, "Year", 0.0, true)
+                ItemData("Laptop HP 15s", "8471", 45000.0, 38000.0, 18.0, "Pcs", 25.0, false),
+                ItemData("Printer Canon G3010", "8443", 13500.0, 11000.0, 18.0, "Pcs", 8.0, false),
+                ItemData("Office Chair", "9401", 8500.0, 6500.0, 18.0, "Pcs", 15.0, false),
+                ItemData("AC Voltas 1.5 Ton", "8415", 35000.0, 28000.0, 18.0, "Pcs", 5.0, false),
+                ItemData("Cement ACC 50kg", "2523", 380.0, 320.0, 28.0, "Bag", 500.0, false),
+                ItemData("TMT Bar 12mm", "7214", 55.0, 48.0, 18.0, "Kg", 2000.0, false),
+                ItemData("Plywood 19mm", "4412", 85.0, 72.0, 18.0, "Sft", 1500.0, false),
+                ItemData("Paint Asian Paints", "3209", 2800.0, 2200.0, 28.0, "Bucket", 30.0, false),
+                ItemData("LED Bulb 9W", "9405", 120.0, 85.0, 18.0, "Pcs", 200.0, false),
+                ItemData("Pipe SS 1 inch", "7306", 450.0, 380.0, 18.0, "Mtr", 100.0, false),
+                ItemData("CPU Intel i5", "8471", 28000.0, 24000.0, 18.0, "Pcs", 12.0, false),
+                ItemData("Mouse Logitech", "8471", 450.0, 320.0, 18.0, "Pcs", 50.0, false),
+                ItemData("Keyboard Dell", "8471", 1200.0, 900.0, 18.0, "Pcs", 30.0, false),
+                ItemData("Monitor LG 24 inch", "8528", 14000.0, 11500.0, 18.0, "Pcs", 10.0, false),
+                ItemData("UPS APC 1KVA", "8504", 6500.0, 5200.0, 18.0, "Pcs", 7.0, false),
+                ItemData("Cable Cat6", "8544", 3.5, 2.8, 18.0, "Mtr", 5000.0, false),
+                ItemData("Switch Socket", "8536", 85.0, 65.0, 18.0, "Pcs", 150.0, false),
+                ItemData("Wire 2.5 sq mm", "8544", 18.0, 14.5, 18.0, "Mtr", 3000.0, false),
+                ItemData("Consulting Service", "9983", 5000.0, 0.0, 18.0, "Hrs", 0.0, true),
+                ItemData("AMC Service", "9987", 12000.0, 0.0, 18.0, "Year", 0.0, true)
             )
 
-            itemList.forEach { (name, hsn, salePrice, purchasePrice, gst, unit, stock, isService) ->
+            itemList.forEach { item ->
                 itemDao.insertItem(ItemEntity(
-                    companyId = 1L, name = name, hsnCode = hsn, description = name,
-                    salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gst,
-                    unit = unit, stockQuantity = stock, isService = isService
+                    companyId = 1L, name = item.name, hsnCode = item.hsn, description = item.name,
+                    salePrice = item.salePrice, purchasePrice = item.purchasePrice, gstRate = item.gst,
+                    unit = item.unit, stockQuantity = item.stock, isService = item.isService
                 ))
                 count++
             }
