@@ -103,6 +103,15 @@ class ImportViewModel @Inject constructor(
         return count
     }
 
+    suspend fun insertPartyDirect(party: PartyEntity): Long {
+        val existing = partyDao.getPartyByName(1L, party.name)
+        return existing?.id ?: partyDao.insertParty(party)
+    }
+
+    suspend fun insertInvoiceDirect(invoice: InvoiceEntity): Long {
+        return try { invoiceDao.insertInvoice(invoice) } catch (_: Exception) { 0L }
+    }
+
     fun addParty(name: String, phone: String?, email: String?, gstin: String?, address: String?, state: String?, stateCode: String?, partyType: String, balance: Double) {
         viewModelScope.launch(Dispatchers.IO) {
             val existing = partyDao.getPartyByName(1L, name)
@@ -578,10 +587,6 @@ fun ImportDataScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Import Data", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Text("Import from Vyapar Excel, CSV, or any spreadsheet", fontSize = 13.sp, color = TextSecondary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { navController.navigate(Screen.VyaparDataImport.route) }, shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
-                        Icon(Icons.Filled.Storage, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Vyapar Backup (.vyb)")
-                    }
                 }
             }
 
@@ -755,7 +760,7 @@ private fun parsePartiesCsv(header: List<String>, lines: List<String>): Pair<Lis
     return Pair(parties, errs)
 }
 
-private fun parseFullCsv(text: String): List<List<String>> {
+internal fun parseFullCsv(text: String): List<List<String>> {
     val rows = mutableListOf<List<String>>()
     var i = 0
     val len = text.length

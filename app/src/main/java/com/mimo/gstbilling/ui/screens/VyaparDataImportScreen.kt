@@ -375,34 +375,103 @@ private fun importInvoicesFromCsv(context: Context, uri: Uri, viewModel: ImportV
     try {
         val inputStream = context.contentResolver.openInputStream(uri) ?: return onResult("Error: Cannot read file")
         val reader = BufferedReader(InputStreamReader(inputStream))
-        val lines = reader.readLines()
+        val csvText = reader.readText()
         reader.close()
 
-        if (lines.size < 2) return onResult("Error: CSV file is empty or has no data rows")
+        val rows = parseFullCsv(csvText)
+        if (rows.size < 5) return onResult("Error: Not enough data rows (${rows.size} found)")
+
+        val headerIdx = rows.indexOfFirst { row ->
+            row.any { it.contains("Date", ignoreCase = true) } && row.any { it.contains("Party Name", ignoreCase = true) }
+        }
+        if (headerIdx == -1) return onResult("Error: Could not find header row with 'Date' and 'Party Name' columns")
+
+        val headers = rows[headerIdx].map { it.trim().lowercase() }
+        val dateCol = headers.indexOfFirst { it == "date" }
+        val partyCol = headers.indexOfFirst { it.contains("party name") || it == "party" }
+        val phoneCol = headers.indexOfFirst { it.contains("phone") }
+        val gstinCol = headers.indexOfFirst { it.contains("gstin") || it.contains("gst no") }
+        val invNoCol = headers.indexOfFirst { it.contains("invoice no") || it.contains("ref no") }
+        val typeCol = headers.indexOfFirst { it.contains("transaction type") }
+        val amountCol = headers.indexOfFirst { it.contains("total amount") || it.contains("amount") }
+        val receivedCol = headers.indexOfFirst { it.contains("received") }
+        val balanceCol = headers.indexOfFirst { it.contains("balance") }
+        val descCol = headers.indexOfFirst { it.contains("description") }
+
+        if (partyCol == -1 || amountCol == -1) return onResult("Error: Missing required columns (Party Name or Amount)")
 
         var count = 0
-        lines.drop(1).forEach { line ->
-            val parts = line.split(",").map { it.trim() }
-            if (parts.size >= 13) {
-                viewModel.addInvoice(
-                    partyName = parts[0],
-                    invoiceNumber = parts[1],
-                    invoiceDate = parts[2],
-                    subTotal = parts[3].toDoubleOrNull() ?: 0.0,
-                    discount = parts[4].toDoubleOrNull() ?: 0.0,
-                    taxableAmount = parts[5].toDoubleOrNull() ?: 0.0,
-                    cgst = parts[6].toDoubleOrNull() ?: 0.0,
-                    sgst = parts[7].toDoubleOrNull() ?: 0.0,
-                    igst = parts[8].toDoubleOrNull() ?: 0.0,
-                    total = parts[9].toDoubleOrNull() ?: 0.0,
-                    paid = parts[10].toDoubleOrNull() ?: 0.0,
-                    status = parts[11].ifBlank { "unpaid" },
-                    type = parts[12].ifBlank { "sales" }
-                )
+        var skippedCancelled = 0
+        val partyIdMap = mutableMapOf<String, Long>()
+
+        val dataRows = rows.drop(headerIdx + 1)
+        for (cols in dataRows) {
+            try {
+                val partyName = cols.getOrElse(partyCol) { "" }.trim().replace("\n", " ")
+                if (partyName.isBlank()) continue
+
+                val txnType = cols.getOrElse(typeCol) { "" }.trim()
+                if (txnType.contains("Cancelled", ignoreCase = true)) { skippedCancelled++; continue }
+                if (txnType.contains("Estimate", ignoreCase = true) || txnType.contains("Quotation", ignoreCase = true)) continue
+
+                val dateStr = cols.getOrElse(dateCol) { "" }.trim()
+                val phone = cols.getOrElse(phoneCol) { "" }.trim().replace("+91", "").replace(" ", "").ifBlank { null }
+                val gstin = cols.getOrElse(gstinCol) { "" }.trim().ifBlank { null }
+                val invoiceNo = cols.getOrElse(invNoCol) { "" }.trim().ifBlank { "N/A" }
+                val totalAmountStr = cols.getOrElse(amountCol) { "0" }.trim().replace(",", "")
+                val receivedStr = cols.getOrElse(receivedCol) { "0" }.trim().replace(",", "")
+                val balanceStr = cols.getOrElse(balanceCol) { "0" }.trim().replace(",", "")
+                val description = cols.getOrElse(descCol) { "" }.trim().ifBlank { null }
+
+                val totalAmount = totalAmountStr.toDoubleOrNull() ?: 0.0
+                if (totalAmount <= 0) continue
+
+                val dateMillis = try {
+                    val parts = dateStr.split("/")
+                    if (parts.size == 3) {
+                        val cal = java.util.Calendar.getInstance()
+                        cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt(), 0, 0, 0)
+                        cal.set(java.util.Calendar.MILLISECOND, 0)
+                        cal.timeInMillis
+                    } else System.currentTimeMillis()
+                } catch (_: Exception) { System.currentTimeMillis() }
+
+                if (!partyIdMap.containsKey(partyName)) {
+                    val stateCode = gstin?.take(2) ?: ""
+                    val id = viewModel.insertPartyDirect(PartyEntity(
+                        companyId = 1L, name = partyName, phone = phone, gstin = gstin,
+                        email = null, address = null, state = stateCode, stateCode = stateCode,
+                        balance = 0.0, partyType = "customer"
+                    ))
+                    partyIdMap[partyName] = id
+                }
+
+                val partyId = partyIdMap[partyName] ?: 0L
+                val received = receivedStr.toDoubleOrNull() ?: 0.0
+                val balance = balanceStr.toDoubleOrNull() ?: 0.0
+
+                val isPaid = received > 0 && balance <= 0.01
+                val isPartial = received > 0 && balance > 0.01
+                val paymentStatus = when {
+                    txnType.contains("Payment-in", ignoreCase = true) -> "paid"
+                    isPaid -> "paid"
+                    isPartial -> "partial"
+                    else -> "unpaid"
+                }
+
+                viewModel.insertInvoiceDirect(InvoiceEntity(
+                    companyId = 1L, partyId = partyId, invoiceNumber = invoiceNo,
+                    invoiceDate = dateMillis, dueDate = null,
+                    subTotal = totalAmount, discount = 0.0, taxableAmount = totalAmount,
+                    cgstTotal = 0.0, sgstTotal = 0.0, igstTotal = 0.0,
+                    totalAmount = totalAmount, amountPaid = received,
+                    paymentStatus = paymentStatus, invoiceType = "sales",
+                    notes = description
+                ))
                 count++
-            }
+            } catch (_: Exception) { }
         }
-        onResult("Successfully imported $count invoices!")
+        onResult("Imported $count invoices! ($skippedCancelled cancelled skipped)")
     } catch (e: Exception) {
         onResult("Error: ${e.message}")
     }
