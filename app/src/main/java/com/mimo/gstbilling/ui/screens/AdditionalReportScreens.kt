@@ -119,20 +119,46 @@ fun LowStockReportScreen(navController: NavController, viewModel: InvoiceViewMod
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategoryStockReportScreen(navController: NavController) {
+fun CategoryStockReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val items by viewModel.getItems().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Stock by Category", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.Category, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Assign categories to items in Items screen", fontSize = 14.sp, color = TextSecondary)
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Items.route) }) { Text("Go to Items") }
+        val goods = items.filter { !it.isService }
+        val grouped = goods.groupBy { it.hsnCode ?: "Uncategorized" }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Stock by Category (HSN)", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Categories", color = TextSecondary); Text("${grouped.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Stock", color = TextSecondary); Text("${goods.sumOf { it.stockQuantity.toInt() }}", fontWeight = FontWeight.Bold, color = Primary) }
+                    }
+                }
+            }
+            if (grouped.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No stock items found", color = TextSecondary) } }
+            }
+            grouped.forEach { (category, catItems) ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(category, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("${catItems.size} items", fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("${catItems.sumOf { it.stockQuantity.toInt() }} units", fontWeight = FontWeight.Bold, color = Primary)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", catItems.sumOf { it.stockQuantity * it.salePrice }), fontSize = 12.sp, color = GreenBalance)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -140,20 +166,56 @@ fun CategoryStockReportScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CategorySalePurchaseScreen(navController: NavController) {
+fun CategorySalePurchaseScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Sale/Purchase by Category", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.Category, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Assign categories to items first", fontSize = 14.sp, color = TextSecondary)
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Items.route) }) { Text("Go to Items") }
+        val salesInvoices = invoices.filter { it.invoiceType == "sales" }
+        val purchaseInvoices = invoices.filter { it.invoiceType == "purchase" }
+        val totalSales = salesInvoices.sumOf { it.totalAmount }
+        val totalPurchases = purchaseInvoices.sumOf { it.totalAmount }
+        val netProfit = totalSales - totalPurchases
+
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Sale vs Purchase Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Sales", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalSales), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Purchases", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalPurchases), fontWeight = FontWeight.Bold, color = RedAccent) }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Net", fontWeight = FontWeight.Bold); Text(String.format(Locale.US, "\u20B9%,.2f", netProfit), fontWeight = FontWeight.Bold, color = if (netProfit >= 0) GreenBalance else RedAccent) }
+                    }
+                }
+            }
+            item { Text("Recent Sales", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary, modifier = Modifier.padding(horizontal = 4.dp)) }
+            salesInvoices.take(10).forEach { inv ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(java.text.SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date(inv.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", inv.totalAmount), fontWeight = FontWeight.Bold, color = GreenBalance); Text(inv.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (inv.paymentStatus == "paid") GreenBalance else RedAccent) }
+                        }
+                    }
+                }
+            }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+            item { Text("Recent Purchases", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary, modifier = Modifier.padding(horizontal = 4.dp)) }
+            purchaseInvoices.take(10).forEach { inv ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(java.text.SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date(inv.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", inv.totalAmount), fontWeight = FontWeight.Bold, color = RedAccent); Text(inv.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (inv.paymentStatus == "paid") GreenBalance else RedAccent) }
+                        }
+                    }
+                }
             }
         }
     }
@@ -161,18 +223,47 @@ fun CategorySalePurchaseScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SerialReportScreen(navController: NavController) {
+fun SerialReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val items by viewModel.getItems().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Item Serial Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.QrCodeScanner, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Enable serial number tracking in Item Settings", fontSize = 14.sp, color = TextSecondary)
+        val itemsWithStock = items.filter { !it.isService && it.stockQuantity > 0 }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Item Stock Details", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Items with Stock", color = TextSecondary); Text("${itemsWithStock.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Units", color = TextSecondary); Text("${itemsWithStock.sumOf { it.stockQuantity.toInt() }}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", itemsWithStock.sumOf { it.stockQuantity * it.salePrice }), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                    }
+                }
+            }
+            itemsWithStock.forEach { item ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.name, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("HSN: ${item.hsnCode ?: "N/A"} | Unit: ${item.unit}", fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("${item.stockQuantity.toInt()} ${item.unit}", fontWeight = FontWeight.Bold, color = Primary)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", item.salePrice * item.stockQuantity), fontSize = 12.sp, color = GreenBalance)
+                            }
+                        }
+                    }
+                }
+            }
+            if (itemsWithStock.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No items with stock found", color = TextSecondary) } }
             }
         }
     }
@@ -180,20 +271,41 @@ fun SerialReportScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BankStatementReportScreen(navController: NavController) {
+fun BankStatementReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Bank Statement", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.AccountBalance, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("Add bank accounts in Bank Accounts screen", fontSize = 14.sp, color = TextSecondary)
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.BankAccounts.route) }) { Text("Go to Bank Accounts") }
+        val bankInvoices = invoices.filter { it.invoiceType == "sales" }
+        val totalReceived = bankInvoices.sumOf { it.amountPaid }
+        val totalPending = bankInvoices.sumOf { it.totalAmount - it.amountPaid }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Bank Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Received", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalReceived), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Pending", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalPending), fontWeight = FontWeight.Bold, color = RedAccent) }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Net Position", fontWeight = FontWeight.Bold); Text(String.format(Locale.US, "\u20B9%,.2f", totalReceived), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                    }
+                }
+            }
+            item { Text("Received Payments", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary, modifier = Modifier.padding(horizontal = 4.dp)) }
+            bankInvoices.filter { it.amountPaid > 0 }.take(10).forEach { inv ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(java.text.SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date(inv.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", inv.amountPaid), fontWeight = FontWeight.Bold, color = GreenBalance); Text(inv.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (inv.paymentStatus == "paid") GreenBalance else RedAccent) }
+                        }
+                    }
+                }
             }
         }
     }
@@ -240,24 +352,45 @@ fun GstrSummaryScreen(navController: NavController, viewModel: InvoiceViewModel 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Form27EqScreen(navController: NavController) {
+fun Form27EqScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Form 27EQ", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.padding(32.dp)) {
-                Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.Description, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Form 27EQ", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Statement of collection of tax at source under Section 206C of the Income Tax Act", fontSize = 13.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text("TCS (Tax Collected at Source) filing form is applicable when you collect tax from buyers as per Section 206C.", fontSize = 12.sp, color = TextSecondary)
+        val tcsInvoices = invoices.filter { it.tcsAmount > 0 }
+        val totalTcs = tcsInvoices.sumOf { it.tcsAmount }
+        val totalTaxable = tcsInvoices.sumOf { it.taxableAmount }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Form 27EQ - TCS Statement", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Statement of collection of tax at source under Section 206C", fontSize = 12.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Taxable Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalTaxable), fontWeight = FontWeight.Bold, color = TextPrimary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total TCS Collected", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalTcs), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Invoices with TCS", color = TextSecondary); Text("${tcsInvoices.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                    }
                 }
+            }
+            tcsInvoices.forEach { inv ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(java.text.SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date(inv.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", inv.tcsAmount), fontWeight = FontWeight.Bold, color = GreenBalance); Text("TCS ${inv.tcsRate}%", fontSize = 12.sp, color = TextSecondary) }
+                        }
+                    }
+                }
+            }
+            if (tcsInvoices.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No TCS transactions found", color = TextSecondary) } }
             }
         }
     }
@@ -341,22 +474,45 @@ fun TdsPayableScreen(navController: NavController, viewModel: InvoiceViewModel =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TdsReceivableScreen(navController: NavController) {
+fun TdsReceivableScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TDS Receivable", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.padding(32.dp)) {
-                Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(48.dp))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("TDS Receivable", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Tax deducted by customers on your invoices. This is the TDS you can claim as credit.", fontSize = 13.sp, color = TextSecondary, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+        val tdsInvoices = invoices.filter { it.tdsAmount > 0 }
+        val totalTds = tdsInvoices.sumOf { it.tdsAmount }
+        val totalTaxable = tdsInvoices.sumOf { it.taxableAmount }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("TDS Receivable", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Tax deducted by customers on your invoices", fontSize = 12.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Taxable Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalTaxable), fontWeight = FontWeight.Bold, color = TextPrimary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total TDS Deducted", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalTds), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Invoices with TDS", color = TextSecondary); Text("${tdsInvoices.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                    }
                 }
+            }
+            tdsInvoices.forEach { inv ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column { Text(inv.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text(java.text.SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date(inv.invoiceDate)), fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", inv.tdsAmount), fontWeight = FontWeight.Bold, color = GreenBalance); Text("TDS ${inv.tdsRate}%", fontSize = 12.sp, color = TextSecondary) }
+                        }
+                    }
+                }
+            }
+            if (tdsInvoices.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No TDS receivable transactions found", color = TextSecondary) } }
             }
         }
     }
@@ -444,22 +600,42 @@ fun AllTransactionsReportScreen(navController: NavController, viewModel: Invoice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseTransactionReportScreen(navController: NavController) {
+fun ExpenseTransactionReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val expenses by viewModel.getExpenses().collectAsState(initial = emptyList())
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Expense Transaction Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
         }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg), contentAlignment = Alignment.Center) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-                Text("No expense transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("Add expenses from the Expenses screen", fontSize = 14.sp, color = TextSecondary)
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Expenses.route) }) { Text("Go to Expenses") }
+        val totalExpenses = expenses.sumOf { it.amount }
+        val grouped = expenses.groupBy { it.category }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Expense Summary", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Expenses", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalExpenses), fontWeight = FontWeight.Bold, color = RedAccent) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Transactions", color = TextSecondary); Text("${expenses.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Categories", color = TextSecondary); Text("${grouped.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                    }
+                }
+            }
+            grouped.forEach { (category, catExpenses) ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Column(modifier = Modifier.weight(1f)) { Text(category, fontWeight = FontWeight.Bold, color = TextPrimary); Text("${catExpenses.size} transactions", fontSize = 12.sp, color = TextSecondary) }
+                            Column(horizontalAlignment = Alignment.End) { Text(String.format(Locale.US, "\u20B9%,.2f", catExpenses.sumOf { it.amount }), fontWeight = FontWeight.Bold, color = RedAccent) }
+                        }
+                    }
+                }
+            }
+            if (expenses.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No expense transactions yet. Add expenses from the Expenses screen.", color = TextSecondary) } }
             }
         }
     }

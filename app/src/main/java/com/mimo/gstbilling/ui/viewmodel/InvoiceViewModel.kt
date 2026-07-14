@@ -53,7 +53,8 @@ class InvoiceViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
     private val invoiceItemDao: InvoiceItemDao,
     private val itemDao: ItemDao,
-    private val partyDao: PartyDao
+    private val partyDao: PartyDao,
+    private val expenseDao: ExpenseDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InvoiceUiState())
@@ -83,6 +84,8 @@ class InvoiceViewModel @Inject constructor(
     fun setParty(partyId: Long, name: String, phone: String) {
         _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone) }
     }
+
+    fun getExpenses(): Flow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)
 
     fun addItem(item: ItemEntity) {
         val qty = 1.0

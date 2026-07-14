@@ -156,15 +156,54 @@ fun ItemWiseProfitLossScreen(navController: NavController, viewModel: InvoiceVie
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StockDetailReportScreen(navController: NavController) {
-    GenericReportScreen(navController, "Stock Detail Report", "Current stock levels", Icons.Filled.Inventory) {
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.TopCenter) {
-            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Stock details are available on the Items screen", color = TextSecondary, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Items.route) }) { Text("Go to Items") }
+fun StockDetailReportScreen(navController: NavController, viewModel: com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel = hiltViewModel()) {
+    val items by viewModel.getItems().collectAsState(initial = emptyList())
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Stock Detail Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+        }
+    ) { padding ->
+        val goods = items.filter { !it.isService }
+        val totalStock = goods.sumOf { it.stockQuantity }
+        val totalValue = goods.sumOf { it.stockQuantity * it.salePrice }
+        val totalPurchaseValue = goods.sumOf { it.stockQuantity * it.purchasePrice }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Stock Detail", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Items", color = TextSecondary); Text("${goods.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Units in Stock", color = TextSecondary); Text("${totalStock.toInt()}", fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Sale Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalValue), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Purchase Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalPurchaseValue), fontWeight = FontWeight.Bold, color = Primary) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Potential Profit", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalValue - totalPurchaseValue), fontWeight = FontWeight.Bold, color = GreenBalance) }
+                    }
                 }
+            }
+            goods.forEach { item ->
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(item.name, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}% | ${item.unit}", fontSize = 12.sp, color = TextSecondary)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("${item.stockQuantity.toInt()} ${item.unit}", fontWeight = FontWeight.Bold, color = if (item.stockQuantity <= 5) RedAccent else Primary)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", item.salePrice), fontSize = 12.sp, color = TextSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            if (goods.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No stock items found", color = TextSecondary) } }
             }
         }
     }
@@ -246,17 +285,53 @@ fun TaxReportScreen(navController: NavController, viewModel: InvoiceViewModel = 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExpenseItemReportScreen(navController: NavController) {
-    GenericReportScreen(navController, "Expense Item Report", "Expenses by category", Icons.Filled.Note) {
-        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.TopCenter) {
-            Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Detailed expense item report", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("View expense categories and totals on the Expenses screen.", color = TextSecondary, fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.Expenses.route) }) { Text("Go to Expenses") }
+fun ExpenseItemReportScreen(navController: NavController, viewModel: com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel = hiltViewModel()) {
+    val expenses by viewModel.getExpenses().collectAsState(initial = emptyList())
+    Scaffold(
+        topBar = {
+            TopAppBar(title = { Text("Expense Item Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+        }
+    ) { padding ->
+        val grouped = expenses.groupBy { it.category }
+        val totalExpenses = expenses.sumOf { it.amount }
+        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item {
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Expense by Category", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Expenses", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalExpenses), fontWeight = FontWeight.Bold, color = RedAccent) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Categories", color = TextSecondary); Text("${grouped.size}", fontWeight = FontWeight.Bold, color = Primary) }
+                    }
                 }
+            }
+            grouped.forEach { (category, catExpenses) ->
+                val catTotal = catExpenses.sumOf { it.amount }
+                val percentage = if (totalExpenses > 0) (catTotal / totalExpenses * 100) else 0.0
+                item {
+                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                        Column(modifier = Modifier.padding(14.dp)) {
+                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(category, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", catTotal), fontWeight = FontWeight.Bold, color = RedAccent)
+                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            LinearProgressIndicator(
+                                progress = { (percentage / 100).toFloat() },
+                                modifier = Modifier.fillMaxWidth().height(6.dp),
+                                color = RedAccent,
+                                trackColor = RedAccent.copy(alpha = 0.1f)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("${catExpenses.size} transactions | ${String.format(Locale.US, "%.1f", percentage)}%", fontSize = 12.sp, color = TextSecondary)
+                        }
+                    }
+                }
+            }
+            if (expenses.isEmpty()) {
+                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No expenses found. Add expenses from the Expenses screen.", color = TextSecondary) } }
             }
         }
     }
