@@ -184,7 +184,7 @@ class InvoiceViewModel @Inject constructor(
                 invoiceNumber = state.invoiceNumber,
                 invoiceDate = state.invoiceDate,
                 dueDate = null,
-                subTotal = state.items.sumOf { it.totalAmount },
+                subTotal = state.items.sumOf { it.taxableAmount },
                 discount = state.discount,
                 discountType = state.discountType,
                 taxableAmount = state.taxableAmount,

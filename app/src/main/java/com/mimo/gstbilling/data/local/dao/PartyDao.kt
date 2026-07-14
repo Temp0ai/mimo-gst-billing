@@ -26,4 +26,7 @@ interface PartyDao {
 
     @Query("SELECT COUNT(*) FROM parties WHERE companyId = :companyId")
     suspend fun getPartyCount(companyId: Long): Int
+
+    @Query("SELECT * FROM parties WHERE companyId = :companyId AND name = :name LIMIT 1")
+    suspend fun getPartyByName(companyId: Long, name: String): PartyEntity?
 }

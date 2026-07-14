@@ -52,7 +52,13 @@ class ImportViewModel @Inject constructor(
     suspend fun insertParties(parties: List<PartyEntity>): Int {
         var count = 0
         parties.forEach { party ->
-            try { partyDao.insertParty(party); count++ } catch (_: Exception) { }
+            try {
+                val existing = partyDao.getPartyByName(party.companyId, party.name)
+                if (existing == null) {
+                    partyDao.insertParty(party)
+                    count++
+                }
+            } catch (_: Exception) { }
         }
         return count
     }
@@ -99,10 +105,13 @@ class ImportViewModel @Inject constructor(
 
     fun addParty(name: String, phone: String?, email: String?, gstin: String?, address: String?, state: String?, stateCode: String?, partyType: String, balance: Double) {
         viewModelScope.launch(Dispatchers.IO) {
-            partyDao.insertParty(PartyEntity(
-                companyId = 1L, name = name, phone = phone, email = email, gstin = gstin,
-                address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType
-            ))
+            val existing = partyDao.getPartyByName(1L, name)
+            if (existing == null) {
+                partyDao.insertParty(PartyEntity(
+                    companyId = 1L, name = name, phone = phone, email = email, gstin = gstin,
+                    address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType
+                ))
+            }
         }
     }
 
@@ -201,14 +210,19 @@ class ImportViewModel @Inject constructor(
                         } catch (_: Exception) { System.currentTimeMillis() }
 
                         if (!partyIdMap.containsKey(partyName)) {
-                            val stateCode = gstin?.take(2) ?: ""
-                            val id = partyDao.insertParty(PartyEntity(
-                                companyId = 1L, name = partyName, phone = phone, gstin = gstin,
-                                email = null, address = null, state = stateCode, stateCode = stateCode,
-                                balance = 0.0, partyType = "customer"
-                            ))
-                            partyIdMap[partyName] = id
-                            partiesCreated++
+                            val existingParty = partyDao.getPartyByName(1L, partyName)
+                            if (existingParty != null) {
+                                partyIdMap[partyName] = existingParty.id
+                            } else {
+                                val stateCode = gstin?.take(2) ?: ""
+                                val id = partyDao.insertParty(PartyEntity(
+                                    companyId = 1L, name = partyName, phone = phone, gstin = gstin,
+                                    email = null, address = null, state = stateCode, stateCode = stateCode,
+                                    balance = 0.0, partyType = "customer"
+                                ))
+                                partyIdMap[partyName] = id
+                                partiesCreated++
+                            }
                         }
 
                         val partyId = partyIdMap[partyName] ?: 0L
@@ -282,13 +296,18 @@ class ImportViewModel @Inject constructor(
 
             val partyIdMap = mutableMapOf<String, Long>()
             partyList.forEach { pd ->
-                val id = partyDao.insertParty(PartyEntity(
-                    companyId = 1L, name = pd.name, phone = pd.phone,
-                    email = "${pd.name.lowercase().replace(" ", "").replace("&", "and")}@email.com",
-                    gstin = pd.gstin, address = pd.addr,
-                    state = states[pd.stateIdx].first, stateCode = states[pd.stateIdx].second,
-                    balance = pd.balance, partyType = pd.type
-                ))
+                val existingParty = partyDao.getPartyByName(1L, pd.name)
+                val id = if (existingParty != null) {
+                    existingParty.id
+                } else {
+                    partyDao.insertParty(PartyEntity(
+                        companyId = 1L, name = pd.name, phone = pd.phone,
+                        email = "${pd.name.lowercase().replace(" ", "").replace("&", "and")}@email.com",
+                        gstin = pd.gstin, address = pd.addr,
+                        state = states[pd.stateIdx].first, stateCode = states[pd.stateIdx].second,
+                        balance = pd.balance, partyType = pd.type
+                    ))
+                }
                 partyIdMap[pd.name] = id
                 count++
             }
