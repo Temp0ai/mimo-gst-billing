@@ -103,15 +103,6 @@ class ImportViewModel @Inject constructor(
         return count
     }
 
-    suspend fun insertPartyDirect(party: PartyEntity): Long {
-        val existing = partyDao.getPartyByName(1L, party.name)
-        return existing?.id ?: partyDao.insertParty(party)
-    }
-
-    suspend fun insertInvoiceDirect(invoice: InvoiceEntity): Long {
-        return try { invoiceDao.insertInvoice(invoice) } catch (_: Exception) { 0L }
-    }
-
     fun addParty(name: String, phone: String?, email: String?, gstin: String?, address: String?, state: String?, stateCode: String?, partyType: String, balance: Double) {
         viewModelScope.launch(Dispatchers.IO) {
             val existing = partyDao.getPartyByName(1L, name)

@@ -402,7 +402,7 @@ private fun importInvoicesFromCsv(context: Context, uri: Uri, viewModel: ImportV
 
         var count = 0
         var skippedCancelled = 0
-        val partyIdMap = mutableMapOf<String, Long>()
+        val partyNamesAdded = mutableSetOf<String>()
 
         val dataRows = rows.drop(headerIdx + 1)
         for (cols in dataRows) {
@@ -420,38 +420,24 @@ private fun importInvoicesFromCsv(context: Context, uri: Uri, viewModel: ImportV
                 val invoiceNo = cols.getOrElse(invNoCol) { "" }.trim().ifBlank { "N/A" }
                 val totalAmountStr = cols.getOrElse(amountCol) { "0" }.trim().replace(",", "")
                 val receivedStr = cols.getOrElse(receivedCol) { "0" }.trim().replace(",", "")
-                val balanceStr = cols.getOrElse(balanceCol) { "0" }.trim().replace(",", "")
                 val description = cols.getOrElse(descCol) { "" }.trim().ifBlank { null }
 
                 val totalAmount = totalAmountStr.toDoubleOrNull() ?: 0.0
                 if (totalAmount <= 0) continue
 
-                val dateMillis = try {
-                    val parts = dateStr.split("/")
-                    if (parts.size == 3) {
-                        val cal = java.util.Calendar.getInstance()
-                        cal.set(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt(), 0, 0, 0)
-                        cal.set(java.util.Calendar.MILLISECOND, 0)
-                        cal.timeInMillis
-                    } else System.currentTimeMillis()
-                } catch (_: Exception) { System.currentTimeMillis() }
-
-                if (!partyIdMap.containsKey(partyName)) {
-                    val stateCode = gstin?.take(2) ?: ""
-                    val id = viewModel.insertPartyDirect(PartyEntity(
-                        companyId = 1L, name = partyName, phone = phone, gstin = gstin,
-                        email = null, address = null, state = stateCode, stateCode = stateCode,
-                        balance = 0.0, partyType = "customer"
-                    ))
-                    partyIdMap[partyName] = id
+                // Add party if new
+                if (partyName !in partyNamesAdded) {
+                    partyNamesAdded.add(partyName)
+                    viewModel.addParty(
+                        name = partyName, phone = phone, email = null, gstin = gstin,
+                        address = null, state = gstin?.take(2), stateCode = gstin?.take(2),
+                        partyType = "customer", balance = 0.0
+                    )
                 }
 
-                val partyId = partyIdMap[partyName] ?: 0L
                 val received = receivedStr.toDoubleOrNull() ?: 0.0
-                val balance = balanceStr.toDoubleOrNull() ?: 0.0
-
-                val isPaid = received > 0 && balance <= 0.01
-                val isPartial = received > 0 && balance > 0.01
+                val isPaid = received > 0 && totalAmount <= received + 0.01
+                val isPartial = received > 0 && !isPaid
                 val paymentStatus = when {
                     txnType.contains("Payment-in", ignoreCase = true) -> "paid"
                     isPaid -> "paid"
@@ -459,15 +445,18 @@ private fun importInvoicesFromCsv(context: Context, uri: Uri, viewModel: ImportV
                     else -> "unpaid"
                 }
 
-                viewModel.insertInvoiceDirect(InvoiceEntity(
-                    companyId = 1L, partyId = partyId, invoiceNumber = invoiceNo,
-                    invoiceDate = dateMillis, dueDate = null,
+                // Parse date to yyyy-MM-dd
+                val dateFormatted = try {
+                    val parts = dateStr.split("/")
+                    if (parts.size == 3) "${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}" else "2024-01-01"
+                } catch (_: Exception) { "2024-01-01" }
+
+                viewModel.addInvoice(
+                    partyName = partyName, invoiceNumber = invoiceNo, invoiceDate = dateFormatted,
                     subTotal = totalAmount, discount = 0.0, taxableAmount = totalAmount,
-                    cgstTotal = 0.0, sgstTotal = 0.0, igstTotal = 0.0,
-                    totalAmount = totalAmount, amountPaid = received,
-                    paymentStatus = paymentStatus, invoiceType = "sales",
-                    notes = description
-                ))
+                    cgst = 0.0, sgst = 0.0, igst = 0.0, total = totalAmount,
+                    paid = received, status = paymentStatus, type = "sales"
+                )
                 count++
             } catch (_: Exception) { }
         }
