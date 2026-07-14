@@ -66,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material3.LocalTextStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
@@ -98,6 +99,10 @@ fun CreateInvoiceScreen(
     var partyMenuExpanded by remember { mutableStateOf(false) }
     var showItemPicker by remember { mutableStateOf(false) }
     var isCashSale by remember { mutableStateOf(false) }
+    var partySelected by remember { mutableStateOf(false) }
+    var invoicePrefix by remember { mutableStateOf("INV") }
+    var invoiceNumberPart by remember { mutableStateOf("0001") }
+    var showInvoicePrefixEdit by remember { mutableStateOf(false) }
     var customerSearchQuery by remember { mutableStateOf("") }
     var showPhoneContacts by remember { mutableStateOf(false) }
     var showQuickAddItem by remember { mutableStateOf(false) }
@@ -148,7 +153,17 @@ fun CreateInvoiceScreen(
     }
 
     LaunchedEffect(uiState.invoiceNumber) {
+        val parts = uiState.invoiceNumber.split("-")
+        if (parts.size >= 2) {
+            invoicePrefix = parts.dropLast(1).joinToString("-")
+            invoiceNumberPart = parts.last()
+        }
         invoiceNo = uiState.invoiceNumber
+    }
+
+    LaunchedEffect(invoicePrefix, invoiceNumberPart) {
+        invoiceNo = "$invoicePrefix-$invoiceNumberPart"
+        viewModel.updateInvoiceNumber(invoiceNo)
     }
 
     LaunchedEffect(Unit) {
@@ -306,18 +321,39 @@ fun CreateInvoiceScreen(
                     Column {
                         Text("Invoice No.", fontSize = 12.sp, color = TextSecondary)
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = invoiceNo,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
+                            OutlinedTextField(
+                                value = invoicePrefix,
+                                onValueChange = { invoicePrefix = it },
+                                modifier = Modifier.width(80.dp),
+                                singleLine = true,
+                                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedBorderColor = Primary
+                                ),
+                                contentPadding = PaddingValues(0.dp)
                             )
+                            Text("-", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            OutlinedTextField(
+                                value = invoiceNumberPart,
+                                onValueChange = { invoiceNumberPart = it },
+                                modifier = Modifier.width(80.dp),
+                                singleLine = true,
+                                textStyle = LocalTextStyle.current.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedBorderColor = Primary
+                                ),
+                                contentPadding = PaddingValues(0.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 Icons.Filled.Close,
-                                contentDescription = null,
+                                contentDescription = "Clear",
                                 modifier = Modifier
                                     .size(16.dp)
-                                    .clickable { },
+                                    .clickable { invoiceNumberPart = "" },
                                 tint = TextSecondary
                             )
                         }
@@ -350,6 +386,7 @@ fun CreateInvoiceScreen(
                         onValueChange = {
                             customerSearchQuery = it
                             partyName = it
+                            partySelected = false
                             if (it.isEmpty()) {
                                 viewModel.setParty(0L, "", "")
                             }
@@ -367,99 +404,131 @@ fun CreateInvoiceScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (customerSearchQuery.isEmpty()) "Showing Saved Parties" else "Showing from phone Book",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextPrimary
-                        )
-                        Text(
-                            text = "Add new party",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Primary,
-                            modifier = Modifier.clickable {
-                                navController.navigate(Screen.AddParty.route)
-                            }
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    if (filteredParties.isEmpty() && !showPhoneContacts) {
-                        Text(
-                            text = if (customerSearchQuery.isEmpty()) "No saved parties yet" else "No matching contacts found",
-                            fontSize = 13.sp,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
-                    }
-
-                    if (filteredParties.isNotEmpty()) {
-                        filteredParties.forEach { party ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        partyName = party.name
-                                        phone = party.phone ?: ""
-                                        customerSearchQuery = party.name
-                                        viewModel.setParty(party.id, party.name, party.phone ?: "")
-                                    }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(party.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                    if (!party.phone.isNullOrBlank()) {
-                                        Text(party.phone, fontSize = 12.sp, color = TextSecondary)
-                                    }
+                    if (!partySelected) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (customerSearchQuery.isEmpty()) "Showing Saved Parties" else "Showing from phone Book",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextPrimary
+                            )
+                            Text(
+                                text = "Add new party",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = Primary,
+                                modifier = Modifier.clickable {
+                                    navController.navigate(Screen.AddParty.route)
                                 }
-                                if (party.balance != 0.0) {
-                                    Text(
-                                        text = String.format(java.util.Locale.US, "\u20B9%,.2f", kotlin.math.abs(party.balance)),
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = if (party.balance > 0) GreenBalance else RedAccent
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                }
-                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
-                            }
+                            )
                         }
-                    }
 
-                    if (showPhoneContacts && filteredPhoneContacts.isNotEmpty()) {
-                        filteredPhoneContacts.forEach { contact ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        scope.launch {
-                                            val partyId = viewModel.createPartyFromContact(contact.name, contact.phone)
-                                            partyName = contact.name
-                                            phone = contact.phone
-                                            customerSearchQuery = contact.name
-                                            viewModel.setParty(partyId, contact.name, contact.phone)
-                                            showPhoneContacts = false
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        if (filteredParties.isEmpty() && !showPhoneContacts) {
+                            Text(
+                                text = if (customerSearchQuery.isEmpty()) "No saved parties yet" else "No matching contacts found",
+                                fontSize = 13.sp,
+                                color = TextSecondary,
+                                modifier = Modifier.padding(vertical = 8.dp)
+                            )
+                        }
+
+                        if (filteredParties.isNotEmpty()) {
+                            filteredParties.forEach { party ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            partyName = party.name
+                                            phone = party.phone ?: ""
+                                            customerSearchQuery = party.name
+                                            partySelected = true
+                                            viewModel.setParty(party.id, party.name, party.phone ?: "")
+                                        }
+                                        .padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(party.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                        if (!party.phone.isNullOrBlank()) {
+                                            Text(party.phone, fontSize = 12.sp, color = TextSecondary)
                                         }
                                     }
-                                    .padding(vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(contact.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                    Text(contact.phone, fontSize = 12.sp, color = TextSecondary)
+                                    if (party.balance != 0.0) {
+                                        Text(
+                                            text = String.format(java.util.Locale.US, "\u20B9%,.2f", kotlin.math.abs(party.balance)),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (party.balance > 0) GreenBalance else RedAccent
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                                 }
-                                Text("0.00", fontSize = 14.sp, color = TextSecondary)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                             }
+                        }
+
+                        if (showPhoneContacts && filteredPhoneContacts.isNotEmpty()) {
+                            filteredPhoneContacts.forEach { contact ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            scope.launch {
+                                                val partyId = viewModel.createPartyFromContact(contact.name, contact.phone)
+                                                partyName = contact.name
+                                                phone = contact.phone
+                                                customerSearchQuery = contact.name
+                                                partySelected = true
+                                                viewModel.setParty(partyId, contact.name, contact.phone)
+                                                showPhoneContacts = false
+                                            }
+                                        }
+                                        .padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(contact.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                        Text(contact.phone, fontSize = 12.sp, color = TextSecondary)
+                                    }
+                                    Text("0.00", fontSize = 14.sp, color = TextSecondary)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                }
+                            }
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(partyName, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                if (phone.isNotBlank()) {
+                                    Text(phone, fontSize = 12.sp, color = TextSecondary)
+                                }
+                            }
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = "Change party",
+                                modifier = Modifier
+                                    .size(20.dp)
+                                    .clickable {
+                                        partySelected = false
+                                        customerSearchQuery = ""
+                                        partyName = ""
+                                        phone = ""
+                                        viewModel.setParty(0L, "", "")
+                                    },
+                                tint = TextSecondary
+                            )
                         }
                     }
                 }
@@ -584,17 +653,26 @@ fun CreateInvoiceScreen(
             }
 
             item {
-                Button(
-                    onClick = { showItemPicker = true },
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clickable { showItemPicker = true }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add Item", fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("+ Add Items", fontWeight = FontWeight.Bold, color = Primary, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("(Optional)", color = TextSecondary, fontSize = 12.sp)
+                    }
                 }
             }
 
@@ -758,75 +836,122 @@ fun CreateInvoiceScreen(
     }
 
     if (showQuickAddItem) {
+        var quickItemQty by remember { mutableStateOf("1") }
+        var quickItemTaxIncluded by remember { mutableStateOf(false) }
+        var quickItemUnitExpanded by remember { mutableStateOf(false) }
+        val units = listOf("Pcs", "Kg", "Gm", "Ltr", "Mtr", "Sqm", "Box", "Pair", "Set", "Doz", "Btl", "Bag", "Roll", "Bundle", "Pack", "Nos")
+
         AlertDialog(
             onDismissRequest = { showQuickAddItem = false; showItemPicker = false },
-            title = { Text("Add New Item", fontWeight = FontWeight.Bold) },
+            title = { Text("Add Items to Sale", fontWeight = FontWeight.Bold) },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = quickItemName,
                         onValueChange = { quickItemName = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Item Name *") },
-                        placeholder = { Text("e.g. Rice 1kg") },
-                        shape = RoundedCornerShape(16.dp),
+                        label = { Text("Item Name") },
+                        placeholder = { Text("e.g. Chocolate Cake") },
+                        shape = RoundedCornerShape(12.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
                     )
-                    OutlinedTextField(
-                        value = quickItemPrice,
-                        onValueChange = { quickItemPrice = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Sale Price *") },
-                        placeholder = { Text("0.00") },
-                        shape = RoundedCornerShape(16.dp),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(
-                            value = quickItemGst,
-                            onValueChange = { quickItemGst = it },
+                            value = quickItemQty,
+                            onValueChange = { quickItemQty = it },
                             modifier = Modifier.weight(1f),
-                            label = { Text("GST %") },
-                            placeholder = { Text("18") },
-                            shape = RoundedCornerShape(16.dp),
+                            label = { Text("Quantity") },
+                            placeholder = { Text("1") },
+                            shape = RoundedCornerShape(12.dp),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
                         )
-                        OutlinedTextField(
-                            value = quickItemHsn,
-                            onValueChange = { quickItemHsn = it },
-                            modifier = Modifier.weight(1f),
-                            label = { Text("HSN Code") },
-                            placeholder = { Text("Optional") },
-                            shape = RoundedCornerShape(16.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                        )
+
+                        ExposedDropdownMenuBox(
+                            expanded = quickItemUnitExpanded,
+                            onExpandedChange = { quickItemUnitExpanded = it }
+                        ) {
+                            OutlinedTextField(
+                                value = quickItemUnit,
+                                onValueChange = {},
+                                modifier = Modifier.weight(1f).menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                                label = { Text("Unit") },
+                                shape = RoundedCornerShape(12.dp),
+                                readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = quickItemUnitExpanded) },
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                            )
+                            ExposedDropdownMenu(
+                                expanded = quickItemUnitExpanded,
+                                onDismissRequest = { quickItemUnitExpanded = false }
+                            ) {
+                                units.forEach { unit ->
+                                    DropdownMenuItem(
+                                        text = { Text(unit) },
+                                        onClick = { quickItemUnit = unit; quickItemUnitExpanded = false }
+                                    )
+                                }
+                            }
+                        }
                     }
-                    ExposedDropdownMenuBox(
-                        expanded = false,
-                        onExpandedChange = {}
-                    ) {
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         OutlinedTextField(
-                            value = quickItemUnit,
-                            onValueChange = {},
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Unit") },
-                            shape = RoundedCornerShape(16.dp),
-                            readOnly = true,
+                            value = quickItemPrice,
+                            onValueChange = { quickItemPrice = it },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Rate (Price/Unit)") },
+                            placeholder = { Text("0.00") },
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
                         )
+
+                        Column {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row {
+                                FilterChip(
+                                    selected = !quickItemTaxIncluded,
+                                    onClick = { quickItemTaxIncluded = false },
+                                    label = { Text("Without Tax", fontSize = 12.sp) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Primary,
+                                        selectedLabelColor = Color.White
+                                    )
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                FilterChip(
+                                    selected = quickItemTaxIncluded,
+                                    onClick = { quickItemTaxIncluded = true },
+                                    label = { Text("With Tax", fontSize = 12.sp) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Primary,
+                                        selectedLabelColor = Color.White
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             },
             confirmButton = {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { showQuickAddItem = false; showItemPicker = false }) {
-                        Text("Cancel", color = TextSecondary)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(
+                        onClick = { showQuickAddItem = false; showItemPicker = false },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.textButtonColors(containerColor = Color(0xFFF5F5F5))
+                    ) {
+                        Text("Save & New", color = TextPrimary, fontWeight = FontWeight.Bold)
                     }
                     Button(
                         onClick = {
@@ -839,6 +964,7 @@ fun CreateInvoiceScreen(
                                     viewModel.addItem(newItem)
                                     quickItemName = ""
                                     quickItemPrice = ""
+                                    quickItemQty = "1"
                                     quickItemGst = "18"
                                     quickItemHsn = ""
                                     showQuickAddItem = false
@@ -846,11 +972,12 @@ fun CreateInvoiceScreen(
                                 }
                             }
                         },
+                        modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
+                        colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                         enabled = quickItemName.isNotBlank() && (quickItemPrice.toDoubleOrNull() ?: 0.0) > 0
                     ) {
-                        Text("Save & Add", fontWeight = FontWeight.Bold)
+                        Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }

@@ -34,9 +34,12 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,6 +78,8 @@ fun DashboardScreen(
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
     var showTransactionSheet by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableIntStateOf(0) }
+    var partySearchQuery by remember { mutableStateOf("") }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -333,118 +338,267 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(LightBlueBg)
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .background(Color(0xFFF5F6F6)),
+                verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 item {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(20.dp))
+                                Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("You'll Get", fontSize = 14.sp, color = GreenBalance, fontWeight = FontWeight.Medium)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "\u20B9${String.format(Locale.US, "%,.2f", data.pendingReceivables)}",
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = TextPrimary
-                            )
-                        }
-                    }
-                }
-
-                item {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
-                                Text("Total Sales", fontSize = 12.sp, color = TextSecondary)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalSales)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            }
-                        }
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
-                                Text("Total Purchase", fontSize = 12.sp, color = TextSecondary)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalPurchases)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = "\u20B9${String.format(Locale.US, "%,d", data.pendingReceivables.toLong())}",
+                                    fontSize = 28.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextPrimary
+                                )
+                                Text(
+                                    text = ".${String.format(Locale.US, "%02d", ((data.pendingReceivables % 1) * 100).toInt())}",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = TextSecondary
+                                )
                             }
                         }
                     }
                 }
 
                 item {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
-                                Text("You'll Give", fontSize = 12.sp, color = TextSecondary)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.pendingPayables)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        FilterChip(
+                            selected = selectedTab == 0,
+                            onClick = { selectedTab = 0 },
+                            label = { Text("Parties", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium) },
+                            shape = RoundedCornerShape(25.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RedAccent,
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.White,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                        )
+                        FilterChip(
+                            selected = selectedTab == 1,
+                            onClick = { selectedTab = 1 },
+                            label = { Text("Transactions", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium) },
+                            shape = RoundedCornerShape(25.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RedAccent,
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.White,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                        )
+                        FilterChip(
+                            selected = selectedTab == 2,
+                            onClick = { selectedTab = 2 },
+                            label = { Text("Items", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium) },
+                            shape = RoundedCornerShape(25.dp),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RedAccent,
+                                selectedLabelColor = Color.White,
+                                containerColor = Color.White,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                        )
+                    }
+                }
+
+                if (selectedTab == 0) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                                Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                OutlinedTextField(
+                                    value = partySearchQuery,
+                                    onValueChange = { partySearchQuery = it },
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text("SEARCH PARTY", fontSize = 13.sp, color = TextSecondary) },
+                                    singleLine = true,
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        unfocusedBorderColor = Color.Transparent,
+                                        focusedBorderColor = Color.Transparent,
+                                        unfocusedContainerColor = Color.Transparent,
+                                        focusedContainerColor = Color.Transparent
+                                    )
+                                )
+                            }
+                            TextButton(onClick = { navController.navigate(Screen.AddParty.route) }) {
+                                Text("+ New Party", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
-                        Card(modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
-                                Text("Expenses", fontSize = 12.sp, color = TextSecondary)
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text("\u20B9${String.format(Locale.US, "%,.0f", data.totalExpenses)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent)
+                    }
+
+                    val filteredParties = if (partySearchQuery.isEmpty()) {
+                        data.recentParties
+                    } else {
+                        data.recentParties.filter {
+                            it.party.name.contains(partySearchQuery, ignoreCase = true) ||
+                            it.party.phone?.contains(partySearchQuery, ignoreCase = true) == true
+                        }
+                    }
+
+                    if (filteredParties.isEmpty()) {
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(40.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("No parties found", fontSize = 14.sp, color = TextSecondary)
+                            }
+                        }
+                    } else {
+                        items(filteredParties) { partyBalance ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { navController.navigate(Screen.PartyDetail.createRoute(partyBalance.party.id)) }
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            partyBalance.party.name,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        val dateStr = try {
+                                            val invoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id }
+                                            if (invoices.isNotEmpty()) {
+                                                java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoices.maxByOrNull { it.invoiceDate }?.invoiceDate ?: System.currentTimeMillis()))
+                                            } else ""
+                                        } catch (_: Exception) { "" }
+                                        if (dateStr.isNotBlank()) {
+                                            Text(dateStr, fontSize = 12.sp, color = TextSecondary)
+                                        }
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance.balance)),
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (partyBalance.isReceivable) GreenBalance else RedAccent
+                                        )
+                                        Text(
+                                            if (partyBalance.isReceivable) "You'll Get" else "You'll Give",
+                                            fontSize = 12.sp,
+                                            color = if (partyBalance.isReceivable) GreenBalance else RedAccent
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
                             }
                         }
                     }
                 }
 
-                if (data.recentParties.isNotEmpty()) {
-                    item {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("Recent Parties", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            Text("See All", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { navController.navigate(Screen.Parties.route) })
+                if (selectedTab == 1) {
+                    if (data.recentInvoices.isEmpty()) {
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(40.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("No transactions yet", fontSize = 14.sp, color = TextSecondary)
+                            }
                         }
-                    }
-                    items(data.recentParties) { partyBalance ->
-                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.PartyDetail.createRoute(partyBalance.party.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(Primary.copy(alpha = 0.1f)), contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Filled.Business, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
+                    } else {
+                        items(data.recentInvoices) { invoice ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(invoice.invoiceNumber, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)),
+                                            fontSize = 12.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text(
+                                            String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount),
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary
+                                        )
+                                        Text(
+                                            invoice.paymentStatus.replaceFirstChar { it.uppercase() },
+                                            fontSize = 12.sp,
+                                            color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent
+                                        )
+                                    }
                                 }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(partyBalance.party.name, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                    Text(partyBalance.party.phone ?: "", fontSize = 12.sp, color = TextSecondary)
-                                }
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance.balance)), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = if (partyBalance.isReceivable) GreenBalance else RedAccent)
-                                    Text(if (partyBalance.isReceivable) "You'll Get" else "You'll Give", fontSize = 11.sp, color = if (partyBalance.isReceivable) GreenBalance else RedAccent)
-                                }
+                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
                             }
                         }
                     }
                 }
 
-                if (data.recentInvoices.isNotEmpty()) {
+                if (selectedTab == 2) {
+                    val allItems = try {
+                        var result = listOf<com.mimo.gstbilling.data.local.entity.ItemEntity>()
+                        kotlinx.coroutines.GlobalScope.launch {
+                            val dao = com.mimo.gstbilling.data.local.dao.ItemDao::class.java
+                        }
+                        emptyList()
+                    } catch (_: Exception) { emptyList() }
+
                     item {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("Recent Invoices", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            Text("See All", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { navController.navigate(Screen.Sales.route) })
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("All Items", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            TextButton(onClick = { navController.navigate(Screen.Items.route) }) {
+                                Text("See All", color = Primary, fontSize = 13.sp)
+                            }
                         }
                     }
-                    items(data.recentInvoices) { invoice ->
-                        Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }, shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(invoice.invoiceNumber, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                    Text(java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary)
-                                }
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                    Text(invoice.paymentStatus.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent)
-                                }
-                            }
+
+                    item {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(40.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("Tap 'See All' to view items", fontSize = 13.sp, color = TextSecondary)
                         }
                     }
                 }

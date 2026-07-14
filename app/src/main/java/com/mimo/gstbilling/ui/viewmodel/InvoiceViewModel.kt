@@ -153,6 +153,10 @@ class InvoiceViewModel @Inject constructor(
         _uiState.update { it.copy(notes = value) }
     }
 
+    fun updateInvoiceNumber(value: String) {
+        _uiState.update { it.copy(invoiceNumber = value) }
+    }
+
     fun setTemplate(templateId: String) {
         _uiState.update { it.copy(selectedTemplate = templateId) }
     }
