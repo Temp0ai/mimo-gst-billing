@@ -915,22 +915,36 @@ fun CreateInvoiceScreen(
                                 FilterChip(
                                     selected = !quickItemTaxIncluded,
                                     onClick = { quickItemTaxIncluded = false },
-                                    label = { Text("Without Tax", fontSize = 12.sp) },
+                                    label = { Text("Without Tax", fontSize = 12.sp, color = if (!quickItemTaxIncluded) Primary else TextSecondary) },
                                     shape = RoundedCornerShape(12.dp),
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Primary,
-                                        selectedLabelColor = Color.White
+                                        selectedContainerColor = Primary.copy(alpha = 0.12f),
+                                        containerColor = Color.White,
+                                        labelColor = TextSecondary
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        borderColor = Color(0xFFE0E0E0),
+                                        selectedBorderColor = Primary.copy(alpha = 0.4f),
+                                        enabled = true,
+                                        selected = !quickItemTaxIncluded
                                     )
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 FilterChip(
                                     selected = quickItemTaxIncluded,
                                     onClick = { quickItemTaxIncluded = true },
-                                    label = { Text("With Tax", fontSize = 12.sp) },
+                                    label = { Text("With Tax", fontSize = 12.sp, color = if (quickItemTaxIncluded) Primary else TextSecondary) },
                                     shape = RoundedCornerShape(12.dp),
                                     colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Primary,
-                                        selectedLabelColor = Color.White
+                                        selectedContainerColor = Primary.copy(alpha = 0.12f),
+                                        containerColor = Color.White,
+                                        labelColor = TextSecondary
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        borderColor = Color(0xFFE0E0E0),
+                                        selectedBorderColor = Primary.copy(alpha = 0.4f),
+                                        enabled = true,
+                                        selected = quickItemTaxIncluded
                                     )
                                 )
                             }

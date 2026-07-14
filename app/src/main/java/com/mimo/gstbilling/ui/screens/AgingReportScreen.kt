@@ -82,10 +82,17 @@ fun AgingReportScreen(navController: NavController, viewModel: InvoiceViewModel 
                     FilterChip(
                         selected = selectedTab == index,
                         onClick = { selectedTab = index },
-                        label = { Text(title, fontWeight = FontWeight.SemiBold) },
+                        label = { Text(title, fontWeight = FontWeight.SemiBold, color = if (selectedTab == index) { if (index == 0) GreenBalance else RedAccent } else TextSecondary) },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = if (index == 0) GreenBalance else RedAccent,
-                            selectedLabelColor = Color.White
+                            selectedContainerColor = if (index == 0) GreenBalance.copy(alpha = 0.12f) else RedAccent.copy(alpha = 0.12f),
+                            containerColor = Color.White,
+                            labelColor = TextSecondary
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = Color(0xFFE0E0E0),
+                            selectedBorderColor = if (index == 0) GreenBalance.copy(alpha = 0.4f) else RedAccent.copy(alpha = 0.4f),
+                            enabled = true,
+                            selected = selectedTab == index
                         ),
                         modifier = Modifier.weight(1f)
                     )

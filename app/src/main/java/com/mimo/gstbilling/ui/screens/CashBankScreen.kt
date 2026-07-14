@@ -102,14 +102,62 @@ fun CashBankScreen(navController: NavController, viewModel: CashBankViewModel = 
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(selected = txnType == "credit", onClick = { txnType = "credit" }, label = { Text("Cash In") }, modifier = Modifier.weight(1f), colors = FilterChipDefaults.filterChipColors(selectedContainerColor = GreenBalance.copy(alpha = 0.15f), selectedLabelColor = GreenBalance))
-                        FilterChip(selected = txnType == "debit", onClick = { txnType = "debit" }, label = { Text("Cash Out") }, modifier = Modifier.weight(1f), colors = FilterChipDefaults.filterChipColors(selectedContainerColor = RedAccent.copy(alpha = 0.15f), selectedLabelColor = RedAccent))
+                        FilterChip(
+                            selected = txnType == "credit",
+                            onClick = { txnType = "credit" },
+                            label = { Text("Cash In", color = if (txnType == "credit") GreenBalance else TextSecondary) },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = GreenBalance.copy(alpha = 0.12f),
+                                containerColor = Color.White,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = Color(0xFFE0E0E0),
+                                selectedBorderColor = GreenBalance.copy(alpha = 0.4f),
+                                enabled = true,
+                                selected = txnType == "credit"
+                            )
+                        )
+                        FilterChip(
+                            selected = txnType == "debit",
+                            onClick = { txnType = "debit" },
+                            label = { Text("Cash Out", color = if (txnType == "debit") RedAccent else TextSecondary) },
+                            modifier = Modifier.weight(1f),
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RedAccent.copy(alpha = 0.12f),
+                                containerColor = Color.White,
+                                labelColor = TextSecondary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = Color(0xFFE0E0E0),
+                                selectedBorderColor = RedAccent.copy(alpha = 0.4f),
+                                enabled = true,
+                                selected = txnType == "debit"
+                            )
+                        )
                     }
                     OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount *") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = RoundedCornerShape(12.dp))
                     OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         listOf("Cash", "Bank", "UPI", "Cheque").forEach { mode ->
-                            FilterChip(selected = txnMode == mode, onClick = { txnMode = mode }, label = { Text(mode, fontSize = 12.sp) }, modifier = Modifier.weight(1f))
+                            FilterChip(
+                                selected = txnMode == mode,
+                                onClick = { txnMode = mode },
+                                label = { Text(mode, fontSize = 12.sp, color = if (txnMode == mode) Primary else TextSecondary) },
+                                modifier = Modifier.weight(1f),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Primary.copy(alpha = 0.12f),
+                                    containerColor = Color.White,
+                                    labelColor = TextSecondary
+                                ),
+                                border = FilterChipDefaults.filterChipBorder(
+                                    borderColor = Color(0xFFE0E0E0),
+                                    selectedBorderColor = Primary.copy(alpha = 0.4f),
+                                    enabled = true,
+                                    selected = txnMode == mode
+                                )
+                            )
                         }
                     }
                 }

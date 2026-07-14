@@ -83,7 +83,22 @@ fun EWayBillScreen(
                         Text("Transport Mode", fontSize = 13.sp, color = TextSecondary)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("Road", "Rail", "Air", "Ship").forEach { mode ->
-                                FilterChip(selected = transportMode == mode, onClick = { transportMode = mode }, label = { Text(mode, fontSize = 12.sp) })
+                                FilterChip(
+                                    selected = transportMode == mode,
+                                    onClick = { transportMode = mode },
+                                    label = { Text(mode, fontSize = 12.sp, color = if (transportMode == mode) Primary else TextSecondary) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = Primary.copy(alpha = 0.12f),
+                                        containerColor = Color.White,
+                                        labelColor = TextSecondary
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        borderColor = Color(0xFFE0E0E0),
+                                        selectedBorderColor = Primary.copy(alpha = 0.4f),
+                                        enabled = true,
+                                        selected = transportMode == mode
+                                    )
+                                )
                             }
                         }
                     }

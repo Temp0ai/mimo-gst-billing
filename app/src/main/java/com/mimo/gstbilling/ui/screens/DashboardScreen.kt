@@ -384,12 +384,17 @@ fun DashboardScreen(
                             label = { Text("Parties", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = RedAccent,
-                                selectedLabelColor = Color.White,
+                                selectedContainerColor = Color(0xFFFFEBEE),
+                                selectedLabelColor = RedAccent,
                                 containerColor = Color.White,
                                 labelColor = TextSecondary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = if (selectedTab == 0) RedAccent else Color(0xFFE0E0E0),
+                                selectedBorderColor = RedAccent,
+                                enabled = true,
+                                selected = selectedTab == 0
+                            )
                         )
                         FilterChip(
                             selected = selectedTab == 1,
@@ -397,12 +402,17 @@ fun DashboardScreen(
                             label = { Text("Transactions", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = RedAccent,
-                                selectedLabelColor = Color.White,
+                                selectedContainerColor = Color(0xFFFFEBEE),
+                                selectedLabelColor = RedAccent,
                                 containerColor = Color.White,
                                 labelColor = TextSecondary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = if (selectedTab == 1) RedAccent else Color(0xFFE0E0E0),
+                                selectedBorderColor = RedAccent,
+                                enabled = true,
+                                selected = selectedTab == 1
+                            )
                         )
                         FilterChip(
                             selected = selectedTab == 2,
@@ -410,12 +420,17 @@ fun DashboardScreen(
                             label = { Text("Items", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = RedAccent,
-                                selectedLabelColor = Color.White,
+                                selectedContainerColor = Color(0xFFFFEBEE),
+                                selectedLabelColor = RedAccent,
                                 containerColor = Color.White,
                                 labelColor = TextSecondary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(borderColor = Color(0xFFE0E0E0), enabled = true, selected = false)
+                            border = FilterChipDefaults.filterChipBorder(
+                                borderColor = if (selectedTab == 2) RedAccent else Color(0xFFE0E0E0),
+                                selectedBorderColor = RedAccent,
+                                enabled = true,
+                                selected = selectedTab == 2
+                            )
                         )
                     }
                 }

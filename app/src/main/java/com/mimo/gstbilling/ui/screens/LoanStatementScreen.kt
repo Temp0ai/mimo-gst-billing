@@ -61,7 +61,23 @@ fun LoanStatementScreen(navController: NavController) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf("given" to "Given (Receivable)", "taken" to "Taken (Payable)").forEach { (type, label) ->
-                                FilterChip(selected = loanType == type, onClick = { loanType = type }, label = { Text(label, fontSize = 12.sp) })
+                                val color = if (type == "given") GreenBalance else RedAccent
+                                FilterChip(
+                                    selected = loanType == type,
+                                    onClick = { loanType = type },
+                                    label = { Text(label, fontSize = 12.sp, color = if (loanType == type) color else TextSecondary) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = color.copy(alpha = 0.12f),
+                                        containerColor = Color.White,
+                                        labelColor = TextSecondary
+                                    ),
+                                    border = FilterChipDefaults.filterChipBorder(
+                                        borderColor = Color(0xFFE0E0E0),
+                                        selectedBorderColor = color.copy(alpha = 0.4f),
+                                        enabled = true,
+                                        selected = loanType == type
+                                    )
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
