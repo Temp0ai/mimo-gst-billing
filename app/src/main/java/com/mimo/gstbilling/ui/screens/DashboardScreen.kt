@@ -572,14 +572,6 @@ fun DashboardScreen(
                 }
 
                 if (selectedTab == 2) {
-                    val allItems = try {
-                        var result = listOf<com.mimo.gstbilling.data.local.entity.ItemEntity>()
-                        kotlinx.coroutines.GlobalScope.launch {
-                            val dao = com.mimo.gstbilling.data.local.dao.ItemDao::class.java
-                        }
-                        emptyList()
-                    } catch (_: Exception) { emptyList() }
-
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),

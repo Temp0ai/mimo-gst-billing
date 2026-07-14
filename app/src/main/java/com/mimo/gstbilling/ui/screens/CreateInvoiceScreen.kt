@@ -330,8 +330,7 @@ fun CreateInvoiceScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
                                     focusedBorderColor = Primary
-                                ),
-                                contentPadding = PaddingValues(0.dp)
+                                )
                             )
                             Text("-", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                             OutlinedTextField(
@@ -344,8 +343,7 @@ fun CreateInvoiceScreen(
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
                                     focusedBorderColor = Primary
-                                ),
-                                contentPadding = PaddingValues(0.dp)
+                                )
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
