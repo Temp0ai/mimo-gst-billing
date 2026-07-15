@@ -369,7 +369,7 @@ fun DashboardScreen(
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
-                                    Icons.Filled.ArrowDownward,
+                                    Icons.Filled.ArrowForward,
                                     contentDescription = null,
                                     tint = GreenBalance,
                                     modifier = Modifier.size(20.dp)

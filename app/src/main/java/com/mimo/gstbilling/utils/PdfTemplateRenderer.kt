@@ -3,6 +3,7 @@ package com.mimo.gstbilling.utils
 import android.content.Context
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
+import com.mimo.gstbilling.R
 import com.mimo.gstbilling.data.local.entity.CompanyEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceItemEntity

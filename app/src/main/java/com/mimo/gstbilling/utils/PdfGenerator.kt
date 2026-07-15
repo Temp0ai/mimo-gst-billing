@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
+import com.mimo.gstbilling.R
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceItemEntity
 import com.mimo.gstbilling.data.local.entity.CompanyEntity
