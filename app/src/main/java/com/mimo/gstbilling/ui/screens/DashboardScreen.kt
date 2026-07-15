@@ -36,6 +36,10 @@ import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -80,6 +84,8 @@ fun DashboardScreen(
     var showTransactionSheet by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
     var partySearchQuery by remember { mutableStateOf("") }
+    var transactionSearchQuery by remember { mutableStateOf("") }
+    var itemSearchQuery by remember { mutableStateOf("") }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -240,22 +246,22 @@ fun DashboardScreen(
                                                 "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
                                                 "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                 "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
-                        "Cash Book" -> navController.navigate(Screen.CashBank.route)
-                        "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
-                                    "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
-                                    "Products" -> navController.navigate(Screen.Items.route)
-                                    "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
-                                    "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
-                                    "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
-                                    "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
-                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                    "Analytics" -> navController.navigate(Screen.Reports.route)
-                                    "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
-                                    "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                                            "Import Data" -> navController.navigate(Screen.ImportData.route)
-                                            "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
-                                    "FAQs" -> navController.navigate(Screen.Settings.route)
-                                    "Contact Support" -> navController.navigate(Screen.Settings.route)
+                                                "Cash Book" -> navController.navigate(Screen.CashBank.route)
+                                                "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
+                                                "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
+                                                "Products" -> navController.navigate(Screen.Items.route)
+                                                "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                                "Analytics" -> navController.navigate(Screen.Reports.route)
+                                                "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                                "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                                "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                                "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
+                                                "FAQs" -> navController.navigate(Screen.Settings.route)
+                                                "Contact Support" -> navController.navigate(Screen.Settings.route)
                                             }
                                         }
                                         .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
@@ -275,16 +281,24 @@ fun DashboardScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(data.companyName, fontWeight = FontWeight.Bold) },
+                    title = { Text(data.companyName, fontWeight = FontWeight.Bold, fontSize = 18.sp) },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
                             Icon(Icons.Filled.Menu, contentDescription = "Menu")
                         }
                     },
                     actions = {
-                        IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) { Icon(Icons.Filled.Notifications, contentDescription = "Notifications") }
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White)
+                        }
+                        IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) {
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+                        }
+                        IconButton(onClick = { }) {
+                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                        }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary, actionIconContentColor = TextSecondary)
                 )
             },
             bottomBar = {
@@ -341,6 +355,7 @@ fun DashboardScreen(
                     .background(Color(0xFFF5F6F6)),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
+                // You'll Get Card
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -350,7 +365,12 @@ fun DashboardScreen(
                     ) {
                         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(18.dp))
+                                Icon(
+                                    Icons.Filled.ArrowDownward,
+                                    contentDescription = null,
+                                    tint = GreenBalance,
+                                    modifier = Modifier.size(20.dp)
+                                )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("You'll Get", fontSize = 14.sp, color = GreenBalance, fontWeight = FontWeight.Medium)
                             }
@@ -373,6 +393,7 @@ fun DashboardScreen(
                     }
                 }
 
+                // Tab Chips
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -435,32 +456,33 @@ fun DashboardScreen(
                     }
                 }
 
+                // Parties Tab
                 if (selectedTab == 0) {
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                OutlinedTextField(
-                                    value = partySearchQuery,
-                                    onValueChange = { partySearchQuery = it },
-                                    modifier = Modifier.weight(1f),
-                                    placeholder = { Text("SEARCH PARTY", fontSize = 13.sp, color = TextSecondary) },
-                                    singleLine = true,
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        unfocusedBorderColor = Color.Transparent,
-                                        focusedBorderColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedContainerColor = Color.Transparent
-                                    )
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedTextField(
+                                value = partySearchQuery,
+                                onValueChange = { partySearchQuery = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("SEARCH PARTY", fontSize = 13.sp, color = TextSecondary) },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent
                                 )
-                            }
+                            )
                             TextButton(onClick = { navController.navigate(Screen.AddParty.route) }) {
                                 Text("+ New Party", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                            IconButton(onClick = { }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
                             }
                         }
                     }
@@ -535,7 +557,34 @@ fun DashboardScreen(
                     }
                 }
 
+                // Transactions Tab
                 if (selectedTab == 1) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedTextField(
+                                value = transactionSearchQuery,
+                                onValueChange = { transactionSearchQuery = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("SEARCH TRANSACTIONS", fontSize = 13.sp, color = TextSecondary) },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent
+                                )
+                            )
+                            IconButton(onClick = { }) {
+                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextSecondary)
+                            }
+                        }
+                    }
+
                     if (data.recentInvoices.isEmpty()) {
                         item {
                             Column(
@@ -558,25 +607,215 @@ fun DashboardScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(invoice.invoiceNumber, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                        Text("Invoice #${invoice.invoiceNumber.takeLast(4)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
-                                            java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)),
+                                            java.text.SimpleDateFormat("dd MMM", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)),
                                             fontSize = 12.sp,
                                             color = TextSecondary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
+                                            "#${invoice.invoiceNumber.takeLast(4)}",
+                                            fontSize = 12.sp,
+                                            color = TextSecondary
+                                        )
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .background(GreenBalance.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("SALE", fontSize = 10.sp, color = GreenBalance, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text("Total", fontSize = 12.sp, color = TextSecondary)
+                                        Text(
                                             String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount),
-                                            fontSize = 15.sp,
+                                            fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = TextPrimary
                                         )
+                                    }
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("Balance", fontSize = 12.sp, color = TextSecondary)
                                         Text(
-                                            invoice.paymentStatus.replaceFirstChar { it.uppercase() },
-                                            fontSize = 12.sp,
-                                            color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent
+                                            String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary
+                                        )
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Filled.Print, contentDescription = "Print", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Filled.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        }
+                                    }
+                                }
+                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                            }
+                        }
+                    }
+                }
+
+                // Items Tab
+                if (selectedTab == 2) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            OutlinedTextField(
+                                value = itemSearchQuery,
+                                onValueChange = { itemSearchQuery = it },
+                                modifier = Modifier.weight(1f),
+                                placeholder = { Text("SEARCH ITEMS", fontSize = 13.sp, color = TextSecondary) },
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    unfocusedBorderColor = Color.Transparent,
+                                    focusedBorderColor = Color.Transparent,
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent
+                                )
+                            )
+                            IconButton(onClick = { }) {
+                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextSecondary)
+                            }
+                            TextButton(onClick = { navController.navigate(Screen.AddItem.route) }) {
+                                Text("+ New Item", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                            IconButton(onClick = { }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
+                            }
+                        }
+                    }
+
+                    // Manufacturing Banner
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Filled.Inventory, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("Introducing Manufacturing", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Text("Manage goods by creating Bill of materials.", fontSize = 12.sp, color = TextSecondary)
+                                }
+                                IconButton(onClick = { }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+                    }
+
+                    // Items List
+                    val filteredItems = if (itemSearchQuery.isEmpty()) {
+                        data.recentItems
+                    } else {
+                        data.recentItems.filter {
+                            it.name.contains(itemSearchQuery, ignoreCase = true) ||
+                            it.hsnCode?.contains(itemSearchQuery, ignoreCase = true) == true
+                        }
+                    }
+
+                    if (filteredItems.isEmpty()) {
+                        item {
+                            Column(
+                                modifier = Modifier.fillMaxWidth().padding(40.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("No items found", fontSize = 14.sp, color = TextSecondary)
+                            }
+                        }
+                    } else {
+                        items(filteredItems) { item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) }
+                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            item.name,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                        Icon(Icons.Filled.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Column {
+                                        Text("Sale Price", fontSize = 12.sp, color = TextSecondary)
+                                        Text(
+                                            String.format(Locale.US, "\u20B9%,.2f", item.salePrice),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text("Purchase Price", fontSize = 12.sp, color = TextSecondary)
+                                        Text(
+                                            String.format(Locale.US, "\u20B9%,.2f", item.purchasePrice),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = TextPrimary
+                                        )
+                                    }
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Text("In Stock", fontSize = 12.sp, color = TextSecondary)
+                                        Text(
+                                            String.format(Locale.US, "%.1f", item.stockQuantity),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (item.stockQuantity < 0) RedAccent else TextPrimary
                                         )
                                     }
                                 }
@@ -586,31 +825,7 @@ fun DashboardScreen(
                     }
                 }
 
-                if (selectedTab == 2) {
-                    item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("All Items", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            TextButton(onClick = { navController.navigate(Screen.Items.route) }) {
-                                Text("See All", color = Primary, fontSize = 13.sp)
-                            }
-                        }
-                    }
-
-                    item {
-                        Column(
-                            modifier = Modifier.fillMaxWidth().padding(40.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Tap 'See All' to view items", fontSize = 13.sp, color = TextSecondary)
-                        }
-                    }
-                }
-
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }

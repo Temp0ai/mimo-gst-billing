@@ -25,7 +25,8 @@ data class DashboardData(
     val totalTax: Double = 0.0,
     val todaySales: Double = 0.0,
     val recentParties: List<PartyBalance> = emptyList(),
-    val recentInvoices: List<InvoiceEntity> = emptyList()
+    val recentInvoices: List<InvoiceEntity> = emptyList(),
+    val recentItems: List<ItemEntity> = emptyList()
 )
 
 @HiltViewModel
@@ -56,8 +57,9 @@ class DashboardViewModel @Inject constructor(
             combine(
                 companyDao.getSelectedCompany(),
                 partyDao.getPartiesByCompany(companyId),
-                invoiceDao.getInvoicesByCompany(companyId)
-            ) { company, parties, invoices ->
+                invoiceDao.getInvoicesByCompany(companyId),
+                itemDao.getItemsByCompany(companyId)
+            ) { company, parties, invoices, items ->
                 val companyName = company?.name ?: "My Business"
                 val totalSales = invoiceDao.getTotalSales(companyId) ?: 0.0
                 val totalPurchases = invoiceDao.getTotalPurchases(companyId) ?: 0.0
@@ -90,6 +92,7 @@ class DashboardViewModel @Inject constructor(
                     .take(5)
 
                 val recentInvoices = invoices.take(5)
+                val recentItems = items.take(10)
 
                 DashboardData(
                     companyName = companyName,
@@ -101,7 +104,8 @@ class DashboardViewModel @Inject constructor(
                     totalTax = totalTax,
                     todaySales = todaySales,
                     recentParties = partyBalances,
-                    recentInvoices = recentInvoices
+                    recentInvoices = recentInvoices,
+                    recentItems = recentItems
                 )
             }.collect { _data.value = it }
         }

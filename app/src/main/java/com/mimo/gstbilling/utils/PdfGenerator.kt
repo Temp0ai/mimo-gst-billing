@@ -176,12 +176,26 @@ object PdfGenerator {
         canvas.drawLine(leftMargin, y, rightMargin, y, paint)
         y += 15f
 
-        // Bank Details Section
+        // Bank Details Section with Bank Logo
         val hasBankDetails = !company?.bankName.isNullOrBlank() || !company?.bankAccountNumber.isNullOrBlank()
         if (hasBankDetails) {
+            val bankLogoSize = if (isThermal) 24f else 32f
+            val bankLogoResId = BankLogoMapper.getBankLogo(company?.bankName)
+            try {
+                val bankLogoDrawable = androidx.core.content.ContextCompat.getDrawable(context, bankLogoResId)
+                if (bankLogoDrawable != null) {
+                    val bitmap = Bitmap.createBitmap(bankLogoSize.toInt(), bankLogoSize.toInt(), Bitmap.Config.ARGB_8888)
+                    val logoCanvas = Canvas(bitmap)
+                    bankLogoDrawable.setBounds(0, 0, bankLogoSize.toInt(), bankLogoSize.toInt())
+                    bankLogoDrawable.draw(logoCanvas)
+                    canvas.drawBitmap(bitmap, leftMargin, y - bankLogoSize + 4f, null)
+                    bitmap.recycle()
+                }
+            } catch (_: Exception) {}
+
             paint.textSize = if (isThermal) 11f else 13f
             boldPaint.textSize = paint.textSize
-            canvas.drawText("Bank Details", leftMargin, y, boldPaint)
+            canvas.drawText("Bank Details", leftMargin + bankLogoSize + 8f, y, boldPaint)
             y += 16f
 
             paint.textSize = if (isThermal) 9f else 10f
@@ -193,7 +207,7 @@ object PdfGenerator {
             y += 8f
         }
 
-        // QR Code for UPI Payment
+        // QR Code for UPI Payment with Payment App Logos
         val upiId = company?.bankUpiId
         if (!upiId.isNullOrBlank() && !isThermal) {
             try {
@@ -206,6 +220,34 @@ object PdfGenerator {
                 paint.textSize = 8f
                 canvas.drawText("Scan to Pay", qrLeft + 30f, y + 130f, paint)
                 paint.textSize = if (isThermal) 9f else 10f
+
+                // Draw payment app logos below QR code
+                val paymentLogos = listOf(
+                    R.drawable.ic_paytm to "Paytm",
+                    R.drawable.ic_phonepe to "PhonePe",
+                    R.drawable.ic_gpay to "GPay",
+                    R.drawable.ic_bhim to "BHIM"
+                )
+                val logoSize = 16f
+                val spacing = 4f
+                val totalWidth = paymentLogos.size * logoSize + (paymentLogos.size - 1) * spacing
+                var logoX = qrLeft + (120f - totalWidth) / 2f
+                val logoY = y + 138f
+
+                paymentLogos.forEach { (resId, name) ->
+                    try {
+                        val drawable = androidx.core.content.ContextCompat.getDrawable(context, resId)
+                        if (drawable != null) {
+                            val bitmap = Bitmap.createBitmap(logoSize.toInt(), logoSize.toInt(), Bitmap.Config.ARGB_8888)
+                            val logoCanvas = Canvas(bitmap)
+                            drawable.setBounds(0, 0, logoSize.toInt(), logoSize.toInt())
+                            drawable.draw(logoCanvas)
+                            canvas.drawBitmap(bitmap, logoX, logoY, null)
+                            bitmap.recycle()
+                        }
+                    } catch (_: Exception) {}
+                    logoX += logoSize + spacing
+                }
             } catch (e: Exception) {
                 // QR generation failed, skip it
             }

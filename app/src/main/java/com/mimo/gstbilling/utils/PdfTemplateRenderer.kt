@@ -127,7 +127,7 @@ object PdfTemplateRenderer {
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.CLASSIC)
         y += 100f
 
-        drawBankDetails(canvas, paint, boldPaint, company, invoice, leftMargin, y, isThermal)
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
         y += 80f
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
@@ -160,6 +160,11 @@ object PdfTemplateRenderer {
         y += (items.size * 18f) + 30f
 
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.MODERN)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawElegant(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -199,6 +204,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.ELEGANT)
         y += (items.size * 18f) + 30f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.ELEGANT)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawProfessional(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -229,6 +239,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.PROFESSIONAL)
         y += (items.size * 18f) + 30f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.PROFESSIONAL)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawBold(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -256,6 +271,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.BOLD)
         y += (items.size * 18f) + 30f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.BOLD)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawCompact(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -275,6 +295,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.COMPACT)
         y += (items.size * 14f) + 20f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.COMPACT)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawMinimal(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -295,6 +320,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.MINIMAL)
         y += (items.size * 16f) + 25f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.MINIMAL)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawDetailed(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
@@ -327,6 +357,11 @@ object PdfTemplateRenderer {
         drawItemsTable(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, InvoiceStyle.DETAILED)
         y += (items.size * 18f) + 30f
         drawTotals(canvas, paint, boldPaint, invoice, leftMargin, rightMargin, y, isThermal, InvoiceStyle.DETAILED)
+        y += 100f
+
+        drawBankDetails(canvas, paint, boldPaint, context, company, invoice, leftMargin, y, isThermal)
+        y += 80f
+        drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
     private fun drawItemsTable(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, style: InvoiceStyle) {
@@ -419,18 +454,66 @@ object PdfTemplateRenderer {
         drawLine("TOTAL:", String.format(Locale.US, "%.2f", invoice.totalAmount), isBold = true)
     }
 
-    private fun drawBankDetails(canvas: Canvas, paint: Paint, boldPaint: Paint, company: CompanyEntity?, invoice: InvoiceEntity, leftMargin: Float, startY: Float, isThermal: Boolean) {
+    private fun drawBankDetails(canvas: Canvas, paint: Paint, boldPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, leftMargin: Float, startY: Float, isThermal: Boolean) {
         val hasBankDetails = !company?.bankName.isNullOrBlank() || !company?.bankAccountNumber.isNullOrBlank()
         if (!hasBankDetails) return
         var y = startY
+
+        // Draw bank logo
+        val bankLogoSize = if (isThermal) 20f else 28f
+        val bankLogoResId = BankLogoMapper.getBankLogo(company?.bankName)
+        try {
+            val bankLogoDrawable = androidx.core.content.ContextCompat.getDrawable(context, bankLogoResId)
+            if (bankLogoDrawable != null) {
+                val bitmap = Bitmap.createBitmap(bankLogoSize.toInt(), bankLogoSize.toInt(), Bitmap.Config.ARGB_8888)
+                val logoCanvas = Canvas(bitmap)
+                bankLogoDrawable.setBounds(0, 0, bankLogoSize.toInt(), bankLogoSize.toInt())
+                bankLogoDrawable.draw(logoCanvas)
+                canvas.drawBitmap(bitmap, leftMargin, y - bankLogoSize + 2f, null)
+                bitmap.recycle()
+            }
+        } catch (_: Exception) {}
+
         paint.textSize = if (isThermal) 10f else 12f; boldPaint.textSize = paint.textSize
-        canvas.drawText("Bank Details", leftMargin, y, boldPaint)
+        canvas.drawText("Bank Details", leftMargin + bankLogoSize + 6f, y, boldPaint)
         y += 16f
         paint.textSize = if (isThermal) 9f else 10f
         company?.bankName?.let { canvas.drawText("Bank: $it", leftMargin, y, paint); y += 14f }
         company?.bankBranch?.let { canvas.drawText("Branch: $it", leftMargin, y, paint); y += 14f }
         company?.bankAccountNumber?.let { canvas.drawText("A/C No: $it", leftMargin, y, paint); y += 14f }
         company?.bankIfsc?.let { canvas.drawText("IFSC: $it", leftMargin, y, paint); y += 14f }
+        company?.bankUpiId?.let { canvas.drawText("UPI: $it", leftMargin, y, paint); y += 14f }
+        y += 6f
+
+        // Draw payment app logos
+        val upiId = company?.bankUpiId
+        if (!upiId.isNullOrBlank() && !isThermal) {
+            val paymentLogos = listOf(
+                R.drawable.ic_paytm to "Paytm",
+                R.drawable.ic_phonepe to "PhonePe",
+                R.drawable.ic_gpay to "GPay",
+                R.drawable.ic_bhim to "BHIM"
+            )
+            val logoSize = 14f
+            val spacing = 4f
+            var logoX = leftMargin
+            val logoY = y
+
+            paymentLogos.forEach { (resId, name) ->
+                try {
+                    val drawable = androidx.core.content.ContextCompat.getDrawable(context, resId)
+                    if (drawable != null) {
+                        val bitmap = Bitmap.createBitmap(logoSize.toInt(), logoSize.toInt(), Bitmap.Config.ARGB_8888)
+                        val logoCanvas = Canvas(bitmap)
+                        drawable.setBounds(0, 0, logoSize.toInt(), logoSize.toInt())
+                        drawable.draw(logoCanvas)
+                        canvas.drawBitmap(bitmap, logoX, logoY, null)
+                        bitmap.recycle()
+                    }
+                } catch (_: Exception) {}
+                logoX += logoSize + spacing
+            }
+        }
     }
 
     private fun drawDeclaration(canvas: Canvas, paint: Paint, boldPaint: Paint, company: CompanyEntity?, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean) {
