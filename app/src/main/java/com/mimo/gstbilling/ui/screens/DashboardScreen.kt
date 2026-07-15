@@ -92,8 +92,9 @@ fun DashboardScreen(
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
-        DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates")),
-        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase")),
+        DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Credit Notes")),
+        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
+        DrawerMenuItem("Delivery Challans", Icons.Filled.LocalShipping),
         DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
         DrawerMenuItem("My Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
@@ -155,7 +156,7 @@ fun DashboardScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
                                 scope.launch { drawerState.close() }
-                                navController.navigate(Screen.BusinessProfile.route)
+                                navController.navigate(Screen.CompanySwitch.route)
                             }) {
                                 Text("Change Company", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -243,9 +244,11 @@ fun DashboardScreen(
                                                 "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
                                                 "All Sales" -> navController.navigate(Screen.Sales.route)
                                                 "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
-                                                "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
-                                                "All Purchases" -> navController.navigate(Screen.Purchases.route)
-                                                "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                                            "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
+                                            "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
+                                            "All Purchases" -> navController.navigate(Screen.Purchases.route)
+                                            "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                                            "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
                                                 "Cash Book" -> navController.navigate(Screen.CashBank.route)
                                                 "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
                                                 "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
