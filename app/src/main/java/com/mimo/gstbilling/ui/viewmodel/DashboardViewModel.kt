@@ -88,8 +88,7 @@ class DashboardViewModel @Inject constructor(
                         balance = balance,
                         isReceivable = balance >= 0
                     )
-                }.sortedByDescending { it.balance }
-                    .take(5)
+                }.sortedByDescending { kotlin.math.abs(it.balance) }
 
                 val recentInvoices = invoices.take(5)
                 val recentItems = items.take(10)
