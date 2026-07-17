@@ -11,6 +11,17 @@ import androidx.core.view.WindowCompat
 
 object ThemeManager {
     var isDarkMode = mutableStateOf(false)
+    private var prefs: android.content.SharedPreferences? = null
+
+    fun init(context: android.content.Context) {
+        prefs = context.getSharedPreferences("mimo_prefs", android.content.Context.MODE_PRIVATE)
+        isDarkMode.value = prefs?.getBoolean("dark_mode", false) ?: false
+    }
+
+    fun toggleDarkMode() {
+        isDarkMode.value = !isDarkMode.value
+        prefs?.edit()?.putBoolean("dark_mode", isDarkMode.value)?.apply()
+    }
 }
 
 private val LightColorScheme = lightColorScheme(

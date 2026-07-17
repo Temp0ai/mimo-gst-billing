@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -75,6 +76,7 @@ fun PartyDetailScreen(
     invoiceViewModel: InvoiceViewModel = hiltViewModel(),
     partyViewModel: PartyViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val party by partyViewModel.currentParty.collectAsState()
     val allInvoices by invoiceViewModel.getInvoices().collectAsState(initial = emptyList())
@@ -100,6 +102,24 @@ fun PartyDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        val unpaidInvoices = partyInvoices.filter { it.paymentStatus != "paid" }
+                        if (unpaidInvoices.isNotEmpty()) {
+                            val message = buildString {
+                                append("Hi ${party?.name ?: "Party"}, here's your account summary:\n\n")
+                                unpaidInvoices.forEach { invoice ->
+                                    val balance = invoice.totalAmount - invoice.amountPaid
+                                    append("${invoice.invoiceNumber}: ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)} (Balance: ₹${String.format(Locale.US, "%,.2f", balance)})\n")
+                                }
+                                append("\nTotal Due: ₹${String.format(Locale.US, "%,.2f", kotlin.math.abs(partyBalance))}\n\nPlease pay at your earliest convenience. Thank you!")
+                            }
+                            val encoded = android.net.Uri.encode(message)
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://wa.me/?text=$encoded"))
+                            context.startActivity(intent)
+                        }
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Share on WhatsApp", tint = Color(0xFF25D366))
+                    }
                     IconButton(onClick = { navController.navigate(Screen.EditParty.createRoute(partyId)) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit")
                     }

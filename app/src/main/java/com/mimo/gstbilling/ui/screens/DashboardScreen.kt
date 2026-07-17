@@ -49,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -77,6 +78,7 @@ fun DashboardScreen(
     navController: NavController,
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
     val data by viewModel.data.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -539,6 +541,24 @@ fun DashboardScreen(
                                         if (dateStr.isNotBlank()) {
                                             Text(dateStr, fontSize = 12.sp, color = TextSecondary)
                                         }
+                                    }
+                                    IconButton(onClick = {
+                                        val unpaidInvoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id && it.paymentStatus != "paid" }
+                                        if (unpaidInvoices.isNotEmpty()) {
+                                            val message = buildString {
+                                                append("Hi ${partyBalance.party.name}, here's your account summary:\n\n")
+                                                unpaidInvoices.forEach { invoice ->
+                                                    val balance = invoice.totalAmount - invoice.amountPaid
+                                                    append("${invoice.invoiceNumber}: ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)} (Balance: ₹${String.format(Locale.US, "%,.2f", balance)})\n")
+                                                }
+                                                append("\nTotal Due: ₹${String.format(Locale.US, "%,.2f", kotlin.math.abs(partyBalance.balance))}\n\nPlease pay at your earliest convenience. Thank you!")
+                                            }
+                                            val encoded = android.net.Uri.encode(message)
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://wa.me/?text=$encoded"))
+                                            context.startActivity(intent)
+                                        }
+                                    }, modifier = Modifier.size(36.dp)) {
+                                        Icon(Icons.Filled.Share, contentDescription = "WhatsApp", tint = Color(0xFF25D366), modifier = Modifier.size(20.dp))
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(

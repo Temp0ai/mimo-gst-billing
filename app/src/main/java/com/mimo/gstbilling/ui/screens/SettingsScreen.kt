@@ -37,7 +37,7 @@ fun SettingsScreen(navController: NavController) {
 
     val settingsItems = listOf(
         VyaparSettingsItem("General", Icons.Filled.Settings, Primary, hasNew = true,
-            subItems = listOf("Business Profile", "Invoice Settings", "Item Settings", "Party Settings")),
+            subItems = listOf("Business Profile", "Invoice Settings", "Item Settings", "Party Settings", "Biometric Lock")),
         VyaparSettingsItem("Transaction", Icons.Filled.CurrencyRupee, Color(0xFF4CAF50), hasNew = true,
             subItems = listOf("Transaction Settings", "Payment Settings")),
         VyaparSettingsItem("Invoice Print", Icons.Filled.Print, Primary,
@@ -77,12 +77,35 @@ fun SettingsScreen(navController: NavController) {
             )
         }
     ) { padding ->
+        val isDarkMode by ThemeManager.isDarkMode
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .background(Color.White)
         ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Filled.DarkMode, contentDescription = null, tint = Color(0xFF6750A4), modifier = Modifier.size(24.dp))
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text("Dark Mode", fontSize = 16.sp, color = TextPrimary, modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = isDarkMode,
+                        onCheckedChange = { ThemeManager.toggleDarkMode() },
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = Primary,
+                            checkedThumbColor = Color.White,
+                            uncheckedTrackColor = Color(0xFFE0E0E0)
+                        )
+                    )
+                }
+                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+            }
             items(settingsItems.size) { index ->
                 val item = settingsItems[index]
                 Column {
@@ -126,6 +149,7 @@ fun SettingsScreen(navController: NavController) {
                                             "Invoice Settings" -> navController.navigate(Screen.InvoiceSettings.route)
                                             "Item Settings" -> navController.navigate(Screen.ItemSettings.route)
                                             "Party Settings" -> navController.navigate(Screen.PartySettings.route)
+                    "Biometric Lock" -> navController.navigate(Screen.BiometricSettings.route)
                                             "Transaction Settings" -> navController.navigate(Screen.TransactionSettings.route)
                     "Payment Settings" -> navController.navigate(Screen.PaymentTerms.route)
                     "Print Format" -> navController.navigate(Screen.PrintFormat.route)

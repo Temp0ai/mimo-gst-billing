@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation(platform("androidx.compose:compose-bom:2024.12.01"))
@@ -72,7 +73,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("com.google.http-client:google-http-client-gson:1.45.3")
     implementation("com.google.api-client:google-api-client-android:2.7.0")
-    // implementation("com.google.apis:google-api-services-drive:v3-rev20240910-2.0.0") // Temporarily disabled: version not found in Maven Central
+    implementation("com.google.apis:google-api-services-drive:v3-rev20241027-2.0.0")
 
     // PDF
     implementation("com.itextpdf:itext7-core:8.0.5")
@@ -99,6 +100,9 @@ dependencies {
 
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
+
+    // Biometric
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

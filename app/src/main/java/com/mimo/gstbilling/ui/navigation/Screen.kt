@@ -117,4 +117,6 @@ sealed class Screen(val route: String) {
     object DebitNote : Screen("debit_note")
     object DeliveryChallan : Screen("delivery_challan")
     object CompanySwitch : Screen("company_switch")
+    object BiometricLock : Screen("biometric_lock")
+    object BiometricSettings : Screen("biometric_settings")
 }

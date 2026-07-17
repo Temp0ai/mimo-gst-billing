@@ -1,7 +1,11 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +31,7 @@ import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.utils.GoogleDriveHelper
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,10 +48,28 @@ fun BackupRestoreScreen(navController: NavController) {
 
     val backupDir = remember { File(context.filesDir, "backups").apply { mkdirs() } }
     val backups = remember(backupListVersion) { backupDir.listFiles()?.filter { it.extension == "db" }?.sortedByDescending { it.lastModified() } ?: emptyList() }
+    var isGoogleSignedIn by remember { mutableStateOf(false) }
+    var isBackingUp by remember { mutableStateOf(false) }
+    var lastCloudBackup by remember { mutableStateOf("") }
+    var showCloudRestoreDialog by remember { mutableStateOf(false) }
+    var cloudBackups by remember { mutableStateOf<List<GoogleDriveHelper.CloudBackupInfo>>(emptyList()) }
+
+    val driveHelper = remember { GoogleDriveHelper(context) }
+
+    val signInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            isGoogleSignedIn = driveHelper.isSignedIn()
+            Toast.makeText(context, "Signed in to Google Drive", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     LaunchedEffect(Unit) {
+        isGoogleSignedIn = driveHelper.isSignedIn()
         val prefs = context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE)
         lastBackup = prefs.getString("last_backup", "No backup yet") ?: "No backup yet"
+        lastCloudBackup = prefs.getString("last_cloud_backup", "No cloud backup yet") ?: "No cloud backup yet"
     }
 
     Scaffold(
@@ -152,6 +175,91 @@ fun BackupRestoreScreen(navController: NavController) {
                     }
                 }
             }
+
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.CloudUpload, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Google Drive Backup", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
+                            Text("Sync backups to Google Drive", fontSize = 12.sp, color = TextSecondary)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    if (!isGoogleSignedIn) {
+                        Button(
+                            onClick = {
+                                signInLauncher.launch(driveHelper.getSignInIntent())
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4))
+                        ) {
+                            Text("Sign in to Google Drive", color = Color.White, fontWeight = FontWeight.Bold)
+                        }
+                    } else {
+                        Text("Last cloud backup: $lastCloudBackup", fontSize = 12.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = {
+                                    isBackingUp = true
+                                    driveHelper.backup(dbFile) { success, error ->
+                                        isBackingUp = false
+                                        if (success) {
+                                            val now = dateFormat.format(Date())
+                                            context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE)
+                                                .edit().putString("last_cloud_backup", now).apply()
+                                            lastCloudBackup = now
+                                            Toast.makeText(context, "Backed up to Google Drive", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            Toast.makeText(context, "Cloud backup failed: $error", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
+                                enabled = !isBackingUp
+                            ) {
+                                Text(if (isBackingUp) "Backing up..." else "Backup to Drive", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                            Button(
+                                onClick = {
+                                    driveHelper.listBackups { success, list ->
+                                        if (success && list != null) {
+                                            cloudBackups = list
+                                            showCloudRestoreDialog = true
+                                        } else {
+                                            Toast.makeText(context, "Failed to list backups", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                            ) {
+                                Text("Restore from Drive", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextButton(
+                            onClick = {
+                                driveHelper.signOut { success ->
+                                    if (success) {
+                                        isGoogleSignedIn = false
+                                        Toast.makeText(context, "Signed out", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Sign out", color = RedAccent, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -173,6 +281,55 @@ fun BackupRestoreScreen(navController: NavController) {
                 }) { Text("Restore", color = RedAccent) }
             },
             dismissButton = { TextButton(onClick = { showRestoreDialog = false }) { Text("Cancel") } }
+        )
+    }
+
+    if (showCloudRestoreDialog) {
+        AlertDialog(
+            onDismissRequest = { showCloudRestoreDialog = false },
+            title = { Text("Restore from Google Drive", fontWeight = FontWeight.Bold) },
+            text = {
+                if (cloudBackups.isEmpty()) {
+                    Text("No cloud backups found")
+                } else {
+                    Column {
+                        Text("Select a backup to restore:", fontSize = 14.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        cloudBackups.take(5).forEach { backup ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+                            ) {
+                                Row(modifier = Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(backup.fileName, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                        Text(backup.createdTime, fontSize = 11.sp, color = TextSecondary)
+                                    }
+                                    IconButton(onClick = {
+                                        try {
+                                            driveHelper.restore(backup.fileId, dbFile) { success, error ->
+                                                if (success) {
+                                                    Toast.makeText(context, "Restore successful! Restart the app.", Toast.LENGTH_LONG).show()
+                                                    showCloudRestoreDialog = false
+                                                } else {
+                                                    Toast.makeText(context, "Restore failed: $error", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Restore failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }) {
+                                        Icon(Icons.Filled.CloudDownload, contentDescription = "Restore", tint = Primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { showCloudRestoreDialog = false }) { Text("Cancel") } }
         )
     }
 }

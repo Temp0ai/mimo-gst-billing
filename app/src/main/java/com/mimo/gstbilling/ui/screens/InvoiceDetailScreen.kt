@@ -51,6 +51,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import android.content.Intent
+import android.net.Uri
 import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.LightBlueBg
@@ -99,6 +101,31 @@ fun InvoiceDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        invoice?.let { inv ->
+                            val message = buildString {
+                                append("Invoice #${inv.invoiceNumber}\n")
+                                append("Date: ${dateFormat.format(Date(inv.invoiceDate))}\n")
+                                append("Status: ${inv.paymentStatus.uppercase()}\n\n")
+                                append("Items:\n")
+                                invoiceItems.forEach { item ->
+                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
+                                }
+                                append("\nSubtotal: ₹${String.format(Locale.US, "%,.2f", inv.subTotal)}\n")
+                                if (inv.discount > 0) append("Discount: -₹${String.format(Locale.US, "%,.2f", inv.discount)}\n")
+                                append("CGST: ₹${String.format(Locale.US, "%,.2f", inv.cgstTotal)}\n")
+                                append("SGST: ₹${String.format(Locale.US, "%,.2f", inv.sgstTotal)}\n")
+                                if (inv.igstTotal > 0) append("IGST: ₹${String.format(Locale.US, "%,.2f", inv.igstTotal)}\n")
+                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount)}\n")
+                                append("Balance: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount - inv.amountPaid)}")
+                            }
+                            val encoded = Uri.encode(message)
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                            context.startActivity(intent)
+                        }
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "Share on WhatsApp", tint = Color(0xFF25D366))
+                    }
                     IconButton(onClick = {
                         invoice?.let { inv ->
                             navController.navigate(Screen.EditInvoice.createRoute(inv.id))
