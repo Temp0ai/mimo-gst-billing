@@ -166,7 +166,7 @@ fun PartyDetailScreen(
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
-                    onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                    onClick = { navController.navigate(Screen.CreateInvoice.createRoute(partyId)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)

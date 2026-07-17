@@ -14,7 +14,13 @@ import java.net.URLDecoder
 fun MimoNavHost(navController: NavHostController, startDestination: String = Screen.Dashboard.route) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Screen.Dashboard.route) { DashboardScreen(navController) }
-        composable(Screen.CreateInvoice.route) { CreateInvoiceScreen(navController) }
+        composable(
+            route = Screen.CreateInvoice.route,
+            arguments = listOf(navArgument("partyId") { type = NavType.LongType; defaultValue = -1L })
+        ) { backStackEntry ->
+            val partyId = backStackEntry.arguments?.getLong("partyId") ?: -1L
+            CreateInvoiceScreen(navController, preselectedPartyId = if (partyId > 0) partyId else null)
+        }
         composable(Screen.Parties.route) { PartiesScreen(navController) }
         composable(route = Screen.PartyDetail.route, arguments = listOf(navArgument("partyId") { type = NavType.LongType })) { backStackEntry ->
             val partyId = backStackEntry.arguments?.getLong("partyId") ?: 0L

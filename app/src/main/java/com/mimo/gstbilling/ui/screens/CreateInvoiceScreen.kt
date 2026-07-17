@@ -86,6 +86,7 @@ data class PhoneContact(val name: String, val phone: String)
 @Composable
 fun CreateInvoiceScreen(
     navController: NavController,
+    preselectedPartyId: Long? = null,
     viewModel: InvoiceViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -117,6 +118,21 @@ fun CreateInvoiceScreen(
 
     var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
     var allPhoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
+
+    if (preselectedPartyId != null) {
+        LaunchedEffect(preselectedPartyId, uiState.allParties) {
+            if (uiState.allParties.isNotEmpty() && !partySelected) {
+                val party = uiState.allParties.find { it.id == preselectedPartyId }
+                if (party != null) {
+                    partyName = party.name
+                    phone = party.phone ?: ""
+                    customerSearchQuery = party.name
+                    partySelected = true
+                    viewModel.setParty(party.id, party.name, party.phone ?: "")
+                }
+            }
+        }
+    }
 
     val contactsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
