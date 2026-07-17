@@ -16,15 +16,15 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,6 +41,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -64,18 +65,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.material3.LocalTextStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.BlueHeader
 import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.LightBlueBg
 import com.mimo.gstbilling.ui.theme.TextSecondary
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import kotlinx.coroutines.launch
@@ -93,7 +93,10 @@ fun CreateInvoiceScreen(
     var partyName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var invoiceNo by remember { mutableStateOf(uiState.invoiceNumber) }
-    var invoiceDate by remember { mutableStateOf("11/07/2026") }
+    var invoiceDate by remember {
+        val cal = java.util.Calendar.getInstance()
+        mutableStateOf(String.format(java.util.Locale.US, "%02d/%02d/%04d", cal.get(java.util.Calendar.DAY_OF_MONTH), cal.get(java.util.Calendar.MONTH) + 1, cal.get(java.util.Calendar.YEAR)))
+    }
     var igstEnabled by remember { mutableStateOf(false) }
     var discount by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
@@ -103,7 +106,6 @@ fun CreateInvoiceScreen(
     var partySelected by remember { mutableStateOf(false) }
     var invoicePrefix by remember { mutableStateOf("INV") }
     var invoiceNumberPart by remember { mutableStateOf("0001") }
-    var showInvoicePrefixEdit by remember { mutableStateOf(false) }
     var customerSearchQuery by remember { mutableStateOf("") }
     var showPhoneContacts by remember { mutableStateOf(false) }
     var showQuickAddItem by remember { mutableStateOf(false) }
@@ -112,6 +114,9 @@ fun CreateInvoiceScreen(
     var quickItemGst by remember { mutableStateOf("18") }
     var quickItemHsn by remember { mutableStateOf("") }
     var quickItemUnit by remember { mutableStateOf("Pcs") }
+    var ewayBillNo by remember { mutableStateOf("") }
+    var showMenu by remember { mutableStateOf(false) }
+    var showInvoicePrefixEdit by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -205,7 +210,7 @@ fun CreateInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Sale", fontWeight = FontWeight.Bold)
+                    Text("Sale", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -213,31 +218,6 @@ fun CreateInvoiceScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        val partyLabel = if (isCashSale) "Cash" else uiState.partyName.ifBlank { "Customer" }
-                        val itemsSummary = uiState.items.joinToString("\n") { item ->
-                            "${item.itemName} x${item.quantity.toInt()} = ${String.format(java.util.Locale.US, "\u20B9%,.2f", item.totalAmount)}"
-                        }
-                        val billText = buildString {
-                            appendLine(" invoice from ${uiState.partyName.ifBlank { "My Business" }}")
-                            appendLine("Invoice: ${uiState.invoiceNumber}")
-                            appendLine("Date: $invoiceDate")
-                            appendLine("Party: $partyLabel")
-                            appendLine("---")
-                            appendLine(itemsSummary)
-                            appendLine("---")
-                            appendLine("Subtotal: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.items.sumOf { it.taxableAmount })}")
-                            appendLine("Tax: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.cgstTotal + uiState.sgstTotal + uiState.igstTotal)}")
-                            appendLine("Total: ${String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.totalAmount)}")
-                            appendLine("Payment: ${if (isCashSale) "Cash" else "Credit"}")
-                            appendLine("Thank you!")
-                        }
-                        val encoded = Uri.encode(billText)
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
-                        context.startActivity(intent)
-                    }) {
-                        Icon(Icons.Filled.Share, contentDescription = "Share on WhatsApp", tint = Color.White)
-                    }
                     Row(
                         modifier = Modifier
                             .padding(end = 4.dp)
@@ -324,7 +304,7 @@ fun CreateInvoiceScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(LightBlueBg)
+                .background(Color(0xFFF5F6F6))
         ) {
             item {
                 Row(
@@ -395,6 +375,22 @@ fun CreateInvoiceScreen(
                         .background(Color.White)
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
+                    if (partySelected && uiState.partyId > 0) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Text("Party Balance: ", fontSize = 13.sp, color = TextSecondary)
+                            Text(
+                                text = String.format(java.util.Locale.US, "\u20B9%,.2f", kotlin.math.abs(uiState.partyBalance)),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = RedAccent
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
                     OutlinedTextField(
                         value = customerSearchQuery,
                         onValueChange = {
@@ -549,50 +545,70 @@ fun CreateInvoiceScreen(
             }
 
             item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color.White)
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = phone,
+                        onValueChange = { phone = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Phone Number") },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color(0xFFE0E0E0)
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = ewayBillNo,
+                        onValueChange = { ewayBillNo = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("E-Way Bill No.") },
+                        shape = RoundedCornerShape(16.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = Color(0xFFE0E0E0)
+                        )
+                    )
+                }
+            }
+
+            item {
                 Spacer(modifier = Modifier.height(8.dp))
             }
 
             item {
-                Row(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(GreenBalance)
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .clickable { showItemPicker = true }
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Edit, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Billed Items", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("+ Add Items", fontWeight = FontWeight.Bold, color = Primary, fontSize = 14.sp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("(Optional)", color = TextSecondary, fontSize = 12.sp)
                     }
-                    Text("Rate exl. tax", color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp)
                 }
             }
 
-            if (uiState.items.isEmpty()) {
-                item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("No items added yet", fontSize = 14.sp, color = TextSecondary)
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text("Select items from your inventory", fontSize = 12.sp, color = TextSecondary)
-                        }
-                    }
-                }
-            } else {
+            if (uiState.items.isNotEmpty()) {
                 itemsIndexed(uiState.items) { index, item ->
                     Card(
                         modifier = Modifier
@@ -667,95 +683,7 @@ fun CreateInvoiceScreen(
             }
 
             item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { showItemPicker = true }
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Icon(Icons.Filled.Add, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("+ Add Items", fontWeight = FontWeight.Bold, color = Primary, fontSize = 14.sp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("(Optional)", color = TextSecondary, fontSize = 12.sp)
-                    }
-                }
-            }
-
-            item {
                 Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(14.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Checkbox(
-                                checked = igstEnabled,
-                                onCheckedChange = { igstEnabled = it },
-                                colors = CheckboxDefaults.colors(checkedColor = Primary)
-                            )
-                            Text(
-                                text = "IGST (Inter-State)",
-                                fontSize = 14.sp,
-                                color = TextPrimary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        OutlinedTextField(
-                            value = discount,
-                            onValueChange = { discount = it; viewModel.updateDiscount(it) },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Discount") },
-                            placeholder = { Text("Enter discount amount") },
-                            shape = RoundedCornerShape(16.dp),
-                            singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
-                            )
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        OutlinedTextField(
-                            value = notes,
-                            onValueChange = { notes = it; viewModel.updateNotes(it) },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Notes") },
-                            placeholder = { Text("Add any notes") },
-                            shape = RoundedCornerShape(16.dp),
-                            minLines = 2,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                unfocusedBorderColor = Color(0xFFE0E0E0)
-                            )
-                        )
-                    }
-                }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
             item {
@@ -784,7 +712,7 @@ fun CreateInvoiceScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("Total:", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            Text(String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.totalAmount), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = BlueHeader)
+                            Text(String.format(java.util.Locale.US, "\u20B9%,.2f", uiState.totalAmount), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Primary)
                         }
                     }
                 }
