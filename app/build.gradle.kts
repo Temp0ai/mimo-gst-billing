@@ -106,6 +106,9 @@ dependencies {
     // Biometric
     implementation("androidx.biometric:biometric:1.2.0-alpha05")
 
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+
     // Testing
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

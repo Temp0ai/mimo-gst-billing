@@ -825,7 +825,9 @@ fun CreateInvoiceScreen(
                                 Card(
                                     modifier = Modifier.fillMaxWidth().clickable {
                                         viewModel.addItem(item)
-                                        showItemPicker = false
+                                        if (!uiState.showVariantPicker) {
+                                            showItemPicker = false
+                                        }
                                     },
                                     shape = RoundedCornerShape(16.dp),
                                     colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -1008,6 +1010,56 @@ fun CreateInvoiceScreen(
                         Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
+            }
+        )
+    }
+    if (uiState.showVariantPicker && uiState.selectedItemForVariant != null) {
+        AlertDialog(
+            onDismissRequest = {
+                viewModel.dismissVariantPicker()
+                showItemPicker = false
+            },
+            title = { Text("Select Variant", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Text(
+                        "Choose a variant for ${uiState.selectedItemForVariant?.name}",
+                        fontSize = 13.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    if (uiState.itemVariantsForSelection.isEmpty()) {
+                        Text("No variants available", fontSize = 13.sp, color = TextSecondary)
+                    } else {
+                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.heightIn(max = 300.dp)) {
+                            items(uiState.itemVariantsForSelection.size) { index ->
+                                val variant = uiState.itemVariantsForSelection[index]
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable {
+                                        viewModel.addVariantToInvoice(variant)
+                                        showItemPicker = false
+                                    },
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                                ) {
+                                    Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                        Column {
+                                            Text(variant.variantName, fontWeight = FontWeight.Medium, color = TextPrimary)
+                                            Text("Stock: ${variant.stockQuantity.toInt()}", fontSize = 12.sp, color = TextSecondary)
+                                        }
+                                        Text(String.format(java.util.Locale.US, "\u20B9%.2f", variant.salePrice), fontWeight = FontWeight.Bold, color = Primary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.dismissVariantPicker()
+                    showItemPicker = false
+                }) { Text("Cancel") }
             }
         )
     }

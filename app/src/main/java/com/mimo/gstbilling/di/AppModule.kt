@@ -37,4 +37,5 @@ object AppModule {
     @Provides fun provideOrderDao(db: AppDatabase) = db.orderDao()
     @Provides fun providePartyGroupDao(db: AppDatabase) = db.partyGroupDao()
     @Provides fun provideItemBatchDao(db: AppDatabase) = db.itemBatchDao()
+    @Provides fun provideItemVariantDao(db: AppDatabase) = db.itemVariantDao()
 }

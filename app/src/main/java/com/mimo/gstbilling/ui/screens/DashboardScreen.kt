@@ -398,6 +398,80 @@ fun DashboardScreen(
                     }
                 }
 
+                // Dormant Party Alert
+                if (data.dormantParties.isNotEmpty()) {
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF3E0)),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Filled.Notifications,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFF9800),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        "${data.dormantParties.size} Inactive ${if (data.dormantParties.size == 1) "Party" else "Parties"}",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 14.sp,
+                                        color = Color(0xFFE65100)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    "These parties haven't ordered in 30+ days. Consider reaching out!",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFFBF360C)
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                data.dormantParties.take(3).forEach { dormant ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                navController.navigate(Screen.PartyDetail.createRoute(dormant.party.id))
+                                            }
+                                            .padding(vertical = 3.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            dormant.party.name,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = TextPrimary,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        Text(
+                                            "${dormant.daysSinceLastOrder}d ago",
+                                            fontSize = 12.sp,
+                                            color = Color(0xFFFF9800),
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                                if (data.dormantParties.size > 3) {
+                                    Text(
+                                        "+${data.dormantParties.size - 3} more",
+                                        fontSize = 12.sp,
+                                        color = Primary,
+                                        modifier = Modifier
+                                            .clickable { navController.navigate(Screen.Parties.route) }
+                                            .padding(top = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // Tab Chips
                 item {
                     Row(

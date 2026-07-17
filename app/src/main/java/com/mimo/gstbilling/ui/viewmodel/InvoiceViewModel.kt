@@ -29,7 +29,10 @@ data class InvoiceUiState(
     val savedInvoiceId: Long? = null,
     val allItems: List<ItemEntity> = emptyList(),
     val allParties: List<PartyEntity> = emptyList(),
-    val selectedTemplate: String = "tax_invoice"
+    val selectedTemplate: String = "tax_invoice",
+    val itemVariantsForSelection: List<ItemVariantEntity> = emptyList(),
+    val showVariantPicker: Boolean = false,
+    val selectedItemForVariant: ItemEntity? = null
 )
 
 data class InvoiceItemModel(
@@ -54,7 +57,8 @@ class InvoiceViewModel @Inject constructor(
     private val invoiceItemDao: InvoiceItemDao,
     private val itemDao: ItemDao,
     private val partyDao: PartyDao,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val itemVariantDao: ItemVariantDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InvoiceUiState())
@@ -88,6 +92,23 @@ class InvoiceViewModel @Inject constructor(
     fun getExpenses(): Flow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)
 
     fun addItem(item: ItemEntity) {
+        viewModelScope.launch {
+            val variants = itemVariantDao.getVariantsByItem(item.id).first()
+            if (variants.isNotEmpty()) {
+                _uiState.update {
+                    it.copy(
+                        showVariantPicker = true,
+                        selectedItemForVariant = item,
+                        itemVariantsForSelection = variants
+                    )
+                }
+            } else {
+                addItemDirect(item)
+            }
+        }
+    }
+
+    fun addItemDirect(item: ItemEntity) {
         val qty = 1.0
         val taxable = item.salePrice * qty
         val cgst = taxable * item.gstRate / 200
@@ -110,6 +131,49 @@ class InvoiceViewModel @Inject constructor(
         _uiState.update { state ->
             val updated = state.items + model
             state.copy(items = updated).recalculate()
+        }
+    }
+
+    fun addVariantToInvoice(variant: ItemVariantEntity) {
+        val state = _uiState.value
+        val item = state.selectedItemForVariant ?: return
+        val qty = 1.0
+        val taxable = variant.salePrice * qty
+        val cgst = taxable * item.gstRate / 200
+        val sgst = taxable * item.gstRate / 200
+        val total = taxable + cgst + sgst
+        val model = InvoiceItemModel(
+            itemId = item.id,
+            itemName = "${item.name} - ${variant.variantName}",
+            hsnCode = item.hsnCode ?: "",
+            quantity = qty,
+            unit = variant.unit,
+            price = variant.salePrice,
+            gstRate = item.gstRate,
+            taxableAmount = taxable,
+            cgstAmount = cgst,
+            sgstAmount = sgst,
+            igstAmount = 0.0,
+            totalAmount = total
+        )
+        _uiState.update { currentState ->
+            val updated = currentState.items + model
+            currentState.copy(
+                items = updated,
+                showVariantPicker = false,
+                selectedItemForVariant = null,
+                itemVariantsForSelection = emptyList()
+            ).recalculate()
+        }
+    }
+
+    fun dismissVariantPicker() {
+        _uiState.update {
+            it.copy(
+                showVariantPicker = false,
+                selectedItemForVariant = null,
+                itemVariantsForSelection = emptyList()
+            )
         }
     }
 

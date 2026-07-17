@@ -31,6 +31,7 @@ import com.mimo.gstbilling.ui.theme.Primary
 import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.utils.AutoBackupScheduler
 import com.mimo.gstbilling.utils.GoogleDriveHelper
 import java.io.File
 import java.text.SimpleDateFormat
@@ -53,6 +54,9 @@ fun BackupRestoreScreen(navController: NavController) {
     var lastCloudBackup by remember { mutableStateOf("") }
     var showCloudRestoreDialog by remember { mutableStateOf(false) }
     var cloudBackups by remember { mutableStateOf<List<GoogleDriveHelper.CloudBackupInfo>>(emptyList()) }
+    var autoBackupFrequency by remember { mutableStateOf("disabled") }
+    var autoBackupNextTime by remember { mutableStateOf("") }
+    var showAutoBackupDropdown by remember { mutableStateOf(false) }
 
     val driveHelper = remember { GoogleDriveHelper(context) }
 
@@ -70,6 +74,8 @@ fun BackupRestoreScreen(navController: NavController) {
         val prefs = context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE)
         lastBackup = prefs.getString("last_backup", "No backup yet") ?: "No backup yet"
         lastCloudBackup = prefs.getString("last_cloud_backup", "No cloud backup yet") ?: "No cloud backup yet"
+        autoBackupFrequency = AutoBackupScheduler.getCurrentFrequency(context)
+        autoBackupNextTime = AutoBackupScheduler.getNextBackupTime(context)
     }
 
     Scaffold(
@@ -170,6 +176,56 @@ fun BackupRestoreScreen(navController: NavController) {
                                 }) {
                                     Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent, modifier = Modifier.size(18.dp))
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Storage, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Automatic Backup", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
+                            Text(autoBackupNextTime, fontSize = 12.sp, color = TextSecondary)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    ExposedDropdownMenuBox(
+                        expanded = showAutoBackupDropdown,
+                        onExpandedChange = { showAutoBackupDropdown = it }
+                    ) {
+                        OutlinedTextField(
+                            value = autoBackupFrequency.replaceFirstChar { it.uppercase() },
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Backup Frequency") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showAutoBackupDropdown) },
+                            modifier = Modifier.fillMaxWidth().menuAnchor(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = showAutoBackupDropdown,
+                            onDismissRequest = { showAutoBackupDropdown = false }
+                        ) {
+                            listOf("disabled", "daily", "weekly", "monthly").forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(option.replaceFirstChar { it.uppercase() }) },
+                                    onClick = {
+                                        autoBackupFrequency = option
+                                        showAutoBackupDropdown = false
+                                        AutoBackupScheduler.scheduleAutoBackup(context, option)
+                                        autoBackupNextTime = AutoBackupScheduler.getNextBackupTime(context)
+                                        Toast.makeText(
+                                            context,
+                                            if (option == "disabled") "Automatic backup disabled" else "Automatic backup set to $option",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                )
                             }
                         }
                     }
