@@ -117,7 +117,7 @@ fun ItemDetailScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(variant.variantName, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = TextPrimary)
                                     Text("\u20B9${variant.salePrice} | Stock: ${variant.stockQuantity.toInt()}", fontSize = 12.sp, color = TextSecondary)
-                                    if (variant.sku.isNotBlank()) {
+                                    if (!variant.sku.isNullOrBlank()) {
                                         Text("SKU: ${variant.sku}", fontSize = 11.sp, color = TextSecondary)
                                     }
                                 }
@@ -230,7 +230,7 @@ fun ItemDetailScreen(
                                         if (variantForm.editingId != null) {
                                             viewModel.updateVariant(
                                                 ItemVariantEntity(
-                                                    id = variantForm.editingId,
+                                                    id = variantForm.editingId ?: 0L,
                                                     itemId = itemId,
                                                     variantName = variantForm.variantName,
                                                     salePrice = variantForm.salePrice.toDoubleOrNull() ?: 0.0,

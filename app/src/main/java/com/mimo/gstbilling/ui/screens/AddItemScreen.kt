@@ -261,8 +261,11 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                     onClick = {
                                         if (variantForm.variantName.isNotBlank() && variantForm.salePrice.isNotBlank()) {
                                             if (variantForm.editingId != null) {
-                                                variants = variants.toMutableList().apply {
-                                                    set(index, variantForm)
+                                                val idx = variants.indexOfFirst { it.editingId == variantForm.editingId }
+                                                if (idx >= 0) {
+                                                    variants = variants.toMutableList().apply {
+                                                        set(idx, variantForm)
+                                                    }
                                                 }
                                             } else {
                                                 variants = variants + variantForm

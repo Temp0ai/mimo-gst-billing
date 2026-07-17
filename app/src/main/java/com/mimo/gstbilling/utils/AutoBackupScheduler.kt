@@ -134,8 +134,8 @@ class AutoBackupWorker(
             ?.sortedByDescending { it.lastModified() }
             ?: return
 
-        if (backups.size > MAX_BACKUPS) {
-            backups.drop(MAX_BACKUPS).forEach { it.delete() }
+        if (backups.size > 10) {
+            backups.drop(10).forEach { it.delete() }
         }
     }
 }
