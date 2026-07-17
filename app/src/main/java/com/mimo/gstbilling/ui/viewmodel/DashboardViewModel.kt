@@ -15,12 +15,6 @@ data class PartyBalance(
     val isReceivable: Boolean
 )
 
-data class DormantParty(
-    val party: PartyEntity,
-    val lastOrderDate: Long,
-    val daysSinceLastOrder: Int
-)
-
 data class DashboardData(
     val companyName: String = "My Business",
     val totalSales: Double = 0.0,
@@ -32,8 +26,7 @@ data class DashboardData(
     val todaySales: Double = 0.0,
     val recentParties: List<PartyBalance> = emptyList(),
     val recentInvoices: List<InvoiceEntity> = emptyList(),
-    val recentItems: List<ItemEntity> = emptyList(),
-    val dormantParties: List<DormantParty> = emptyList()
+    val recentItems: List<ItemEntity> = emptyList()
 )
 
 @HiltViewModel
@@ -100,16 +93,6 @@ class DashboardViewModel @Inject constructor(
                 val recentInvoices = invoices.take(5)
                 val recentItems = items.take(10)
 
-                val now = System.currentTimeMillis()
-                val thirtyDaysMs = 30L * 24 * 60 * 60 * 1000
-                val dormantParties = parties.mapNotNull { party ->
-                    val partyInvoices = invoices.filter { it.partyId == party.id }
-                    if (partyInvoices.isEmpty()) return@mapNotNull null
-                    val lastOrderDate = partyInvoices.maxOfOrNull { it.invoiceDate } ?: return@mapNotNull null
-                    val daysSince = ((now - lastOrderDate) / (24 * 60 * 60 * 1000)).toInt()
-                    if (daysSince >= 30) DormantParty(party, lastOrderDate, daysSince) else null
-                }.sortedByDescending { it.daysSinceLastOrder }
-
                 DashboardData(
                     companyName = companyName,
                     totalSales = totalSales,
@@ -121,8 +104,7 @@ class DashboardViewModel @Inject constructor(
                     todaySales = todaySales,
                     recentParties = partyBalances,
                     recentInvoices = recentInvoices,
-                    recentItems = recentItems,
-                    dormantParties = dormantParties
+                    recentItems = recentItems
                 )
             }.collect { _data.value = it }
         }
