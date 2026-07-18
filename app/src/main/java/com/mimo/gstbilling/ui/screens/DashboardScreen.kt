@@ -8,38 +8,33 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.AccountBalance
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.CloudSync
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Print
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -98,183 +93,128 @@ fun DashboardScreen(
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
         DrawerMenuItem("Delivery Challans", Icons.Filled.LocalShipping),
         DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
-        DrawerMenuItem("Cash & Bank", Icons.Filled.AccountBalance, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
-        DrawerMenuItem("My Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
-        DrawerMenuItem("Other Products", Icons.Filled.LocalOffer),
-        DrawerMenuItem("Sync & Share", Icons.Filled.CloudSync, subtitle = "Tap to sync data"),
-        DrawerMenuItem("Settings", Icons.Filled.Settings, hasNewBadge = true),
-        DrawerMenuItem("Backup/Restore", Icons.Filled.Warning, hasExpand = true, subtitle = "Auto backup not enabled.", subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
-        DrawerMenuItem("Plans & Pricing", Icons.Filled.LocalOffer, subtitle = "Free Plan"),
-        DrawerMenuItem("Grow Your Business", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("Business Dashboard", "Analytics")),
-        DrawerMenuItem("Utilities", Icons.Filled.Build, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
-        DrawerMenuItem("Help & Support", Icons.Filled.Notifications, hasExpand = true, subItems = listOf("FAQs", "Contact Support"))
+        DrawerMenuItem("Cash & Bank", Icons.Filled.Store, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
+        DrawerMenuItem("Settings", Icons.Filled.Settings),
+        DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
+        DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
+        DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
+        DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Contact Support")),
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.width(300.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Primary)
-                        .padding(16.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+            ModalDrawerSheet {
+                Column(modifier = Modifier.statusBarsPadding()) {
+                    Column(modifier = Modifier.padding(16.dp)) {
                         Box(
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(Color.White),
+                            modifier = Modifier.size(48.dp).background(Color(0xFF0075E8), CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = data.companyName.take(1).uppercase(),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Primary
-                            )
+                            Text(data.companyName.take(1).uppercase(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = data.companyName,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "GST Registered Business",
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable {
-                                scope.launch { drawerState.close() }
-                                navController.navigate(Screen.CompanySwitch.route)
-                            }) {
-                                Text("Change Company", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Icon(Icons.Filled.ExpandMore, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                            }
-                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(data.companyName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                        Text("Business Account", fontSize = 12.sp, color = TextSecondary)
                     }
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                menuItems.forEach { item ->
-                    Column {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    if (item.hasExpand) {
-                                        expandedSection = if (expandedSection == item.title) "" else item.title
-                                    } else {
-                                        scope.launch { drawerState.close() }
-                                        when (item.title) {
-                                            "Parties" -> navController.navigate(Screen.Parties.route)
-                                            "Items" -> navController.navigate(Screen.Items.route)
-                                            "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                            "Reports" -> navController.navigate(Screen.Reports.route)
-                                            "Sale" -> navController.navigate(Screen.Sales.route)
-                                            "Purchase" -> navController.navigate(Screen.Purchases.route)
-                                            "Expense" -> navController.navigate(Screen.Expenses.route)
-                                            "Cash & Bank" -> navController.navigate(Screen.CashBank.route)
-                                            "My Online Store" -> navController.navigate(Screen.StoreManagement.route)
-                                            "Other Products" -> navController.navigate(Screen.Items.route)
-                                            "Sync & Share" -> navController.navigate(Screen.ImportData.route)
-                                            "Settings" -> navController.navigate(Screen.Settings.route)
-                                            "Backup/Restore" -> navController.navigate(Screen.BackupRestore.route)
-                                            "Plans & Pricing" -> navController.navigate(Screen.Settings.route)
-                                            "Grow Your Business" -> navController.navigate(Screen.Reports.route)
-                                            "Utilities" -> navController.navigate(Screen.BarcodeScanner.route)
-                                            "Help & Support" -> navController.navigate(Screen.Settings.route)
-                                        }
-                                    }
-                                }
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(item.title, fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
-                                item.subtitle?.let {
-                                    Text(it, fontSize = 11.sp, color = TextSecondary)
-                                }
-                            }
-                            if (item.hasNewBadge) {
-                                Box(
-                                    modifier = Modifier
-                                        .background(RedAccent, RoundedCornerShape(4.dp))
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text("NEW", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                                }
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
-                            if (item.hasAddIcon) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextSecondary, modifier = Modifier.size(20.dp))
-                            } else if (item.hasExpand) {
-                                Icon(
-                                    if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                    contentDescription = null,
-                                    tint = TextSecondary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            } else {
-                                Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
-                            }
-                        }
-                        if (item.hasExpand && expandedSection == item.title) {
-                            item.subItems.forEach { subItem ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
+                    HorizontalDivider()
+                    menuItems.forEach { item ->
+                        Column {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        if (item.hasExpand) {
+                                            expandedSection = if (expandedSection == item.title) "" else item.title
+                                        } else {
                                             scope.launch { drawerState.close() }
-                                            when (subItem) {
-                                                "All Parties" -> navController.navigate(Screen.Parties.route)
-                                                "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
-                                                "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
-                                                "All Sales" -> navController.navigate(Screen.Sales.route)
-                                                "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
-                                            "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
-                                            "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
-                                            "All Purchases" -> navController.navigate(Screen.Purchases.route)
-                                            "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
-                                            "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
-                                                "Cash Book" -> navController.navigate(Screen.CashBank.route)
-                                                "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
-                                                "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
-                                                "Products" -> navController.navigate(Screen.Items.route)
-                                                "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
-                                                "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
-                                                "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
-                                                "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                            when (item.title) {
+                                                "Parties" -> navController.navigate(Screen.Parties.route)
+                                                "Items" -> navController.navigate(Screen.Items.route)
                                                 "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                                "Analytics" -> navController.navigate(Screen.Reports.route)
-                                                "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
-                                                "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                                                "Import Data" -> navController.navigate(Screen.ImportData.route)
-                                                "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
-                                                "FAQs" -> navController.navigate(Screen.Settings.route)
-                                                "Contact Support" -> navController.navigate(Screen.Settings.route)
+                                                "Reports" -> navController.navigate(Screen.Reports.route)
+                                                "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
+                                                "Settings" -> navController.navigate(Screen.Settings.route)
                                             }
                                         }
-                                        .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(5.dp))
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Text(subItem, fontSize = 14.sp, color = TextSecondary)
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(item.title, fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
+                                    item.subtitle?.let {
+                                        Text(it, fontSize = 11.sp, color = TextSecondary)
+                                    }
+                                }
+                                if (item.hasNewBadge) {
+                                    Box(
+                                        modifier = Modifier
+                                            .background(RedAccent, RoundedCornerShape(4.dp))
+                                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                                    ) {
+                                        Text("NEW", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                }
+                                if (item.hasAddIcon) {
+                                    Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                } else if (item.hasExpand) {
+                                    Icon(
+                                        if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                        contentDescription = null,
+                                        tint = TextSecondary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                } else {
+                                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                }
+                            }
+                            if (item.hasExpand && expandedSection == item.title) {
+                                item.subItems.forEach { subItem ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                scope.launch { drawerState.close() }
+                                                when (subItem) {
+                                                    "All Parties" -> navController.navigate(Screen.Parties.route)
+                                                    "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                                    "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
+                                                    "All Sales" -> navController.navigate(Screen.Sales.route)
+                                                    "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
+                                                    "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
+                                                    "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
+                                                    "All Purchases" -> navController.navigate(Screen.Purchases.route)
+                                                    "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                                                    "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
+                                                    "Cash Book" -> navController.navigate(Screen.CashBank.route)
+                                                    "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
+                                                    "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
+                                                    "Products" -> navController.navigate(Screen.Items.route)
+                                                    "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                    "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
+                                                    "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
+                                                    "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                                    "Analytics" -> navController.navigate(Screen.Reports.route)
+                                                    "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                                    "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                                    "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                                    "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
+                                                    "FAQs" -> navController.navigate(Screen.Settings.route)
+                                                    "Contact Support" -> navController.navigate(Screen.Settings.route)
+                                                }
+                                            }
+                                            .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(5.dp))
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(subItem, fontSize = 14.sp, color = TextSecondary)
+                                    }
                                 }
                             }
                         }
@@ -286,68 +226,82 @@ fun DashboardScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text(data.companyName, fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                    title = {
+                        Text(
+                            data.companyName,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 22.sp,
+                            color = Color(0xFF1A1A1A)
+                        )
+                    },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu")
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xFF1A1A1A), modifier = Modifier.size(26.dp))
                         }
                     },
                     actions = {
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White)
-                        }
                         IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) {
-                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications")
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color(0xFF1A1A1A), modifier = Modifier.size(24.dp))
                         }
                         IconButton(onClick = { }) {
-                            Icon(Icons.Filled.Share, contentDescription = "Share")
+                            Icon(Icons.Filled.Share, contentDescription = "Share", tint = RedAccent, modifier = Modifier.size(24.dp))
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary, actionIconContentColor = TextSecondary)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
             },
             bottomBar = {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shadowElevation = 8.dp,
+                    shadowElevation = 12.dp,
                     color = Color.White
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .navigationBarsPadding()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         OutlinedButton(
                             onClick = { navController.navigate(Screen.CashBank.route) },
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(25.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Primary),
+                            shape = RoundedCornerShape(28.dp),
+                            border = androidx.compose.foundation.BorderStroke(2.dp, Primary),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
-                            contentPadding = PaddingValues(vertical = 12.dp)
+                            contentPadding = PaddingValues(vertical = 14.dp)
                         ) {
-                            Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Take Payment", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
-                        Button(
-                            onClick = { showTransactionSheet = true },
-                            modifier = Modifier.size(52.dp),
-                            shape = CircleShape,
-                            colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                            contentPadding = PaddingValues(0.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .clickable { showTransactionSheet = true },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White, modifier = Modifier.size(26.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(52.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White)
+                                    .background(Color(0xFFE3F2FD)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add", tint = Primary, modifier = Modifier.size(28.dp))
+                            }
                         }
                         Button(
                             onClick = { showTransactionSheet = true },
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(25.dp),
+                            shape = RoundedCornerShape(28.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
-                            contentPadding = PaddingValues(vertical = 12.dp)
+                            contentPadding = PaddingValues(vertical = 14.dp),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                         ) {
-                            Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                            Text("Add Sale", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -360,38 +314,78 @@ fun DashboardScreen(
                     .background(Color(0xFFF5F6F6)),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
-                // You'll Get Card
+                // Two Summary Cards
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    Icons.Filled.ArrowForward,
-                                    contentDescription = null,
-                                    tint = GreenBalance,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("You'll Get", fontSize = 14.sp, color = GreenBalance, fontWeight = FontWeight.Medium)
+                        // You'll Get Card
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Filled.ArrowForward,
+                                        contentDescription = null,
+                                        tint = GreenBalance,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text("You'll Get", fontSize = 13.sp, color = TextSecondary, fontWeight = FontWeight.Medium)
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Row(verticalAlignment = Alignment.Bottom) {
+                                    Text(
+                                        text = "\u20B9${String.format(Locale.US, "%,d", data.pendingReceivables.toLong())}",
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextPrimary
+                                    )
+                                    Text(
+                                        text = ".${String.format(Locale.US, "%02d", ((data.pendingReceivables % 1) * 100).toInt())}",
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextSecondary
+                                    )
+                                }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row(verticalAlignment = Alignment.Bottom) {
+                        }
+                        // Sale (Month) Card
+                        Card(
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Filled.Category,
+                                        contentDescription = null,
+                                        tint = Color(0xFFFF9800),
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Text(
+                                        "Sale (${java.text.SimpleDateFormat("MMM", java.util.Locale.US).format(java.util.Date())})",
+                                        fontSize = 13.sp,
+                                        color = TextSecondary,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = "\u20B9${String.format(Locale.US, "%,d", data.pendingReceivables.toLong())}",
-                                    fontSize = 28.sp,
+                                    text = "\u20B9${String.format(Locale.US, "%,d", data.totalSales.toLong())}",
+                                    fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = TextPrimary
-                                )
-                                Text(
-                                    text = ".${String.format(Locale.US, "%02d", ((data.pendingReceivables % 1) * 100).toInt())}",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = TextSecondary
                                 )
                             }
                         }
@@ -407,7 +401,7 @@ fun DashboardScreen(
                         FilterChip(
                             selected = selectedTab == 0,
                             onClick = { selectedTab = 0 },
-                            label = { Text("Parties", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium) },
+                            label = { Text("Parties", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFFFFEBEE),
@@ -425,7 +419,7 @@ fun DashboardScreen(
                         FilterChip(
                             selected = selectedTab == 1,
                             onClick = { selectedTab = 1 },
-                            label = { Text("Transactions", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium) },
+                            label = { Text("Transactions", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFFFFEBEE),
@@ -443,7 +437,7 @@ fun DashboardScreen(
                         FilterChip(
                             selected = selectedTab == 2,
                             onClick = { selectedTab = 2 },
-                            label = { Text("Items", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium) },
+                            label = { Text("Items", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Color(0xFFFFEBEE),
@@ -465,16 +459,18 @@ fun DashboardScreen(
                 if (selectedTab == 0) {
                     item {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = partySearchQuery,
                                 onValueChange = { partySearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH PARTY", fontSize = 13.sp, color = TextSecondary) },
+                                placeholder = { Text("SEARCH PARTY", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -483,9 +479,15 @@ fun DashboardScreen(
                                     focusedContainerColor = Color.Transparent
                                 )
                             )
-                            TextButton(onClick = { navController.navigate(Screen.AddParty.route) }) {
-                                Text("+ New Party", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            }
+                            Text(
+                                "+ New Party",
+                                color = Primary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                modifier = Modifier
+                                    .clickable { navController.navigate(Screen.AddParty.route) }
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
                             IconButton(onClick = { }) {
                                 Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
                             }
@@ -516,57 +518,41 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { navController.navigate(Screen.PartyDetail.createRoute(partyBalance.party.id)) }
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .padding(horizontal = 16.dp, vertical = 0.dp)
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             partyBalance.party.name,
-                                            fontSize = 16.sp,
+                                            fontSize = 17.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary,
+                                            color = Color(0xFF1A1A1A),
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Spacer(modifier = Modifier.height(3.dp))
                                         val dateStr = try {
                                             val invoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id }
                                             if (invoices.isNotEmpty()) {
-                                                java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoices.maxByOrNull { it.invoiceDate }?.invoiceDate ?: System.currentTimeMillis()))
+                                                val sdf = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US)
+                                                sdf.format(java.util.Date(invoices.maxByOrNull { it.invoiceDate }?.invoiceDate ?: System.currentTimeMillis()))
                                             } else ""
                                         } catch (_: Exception) { "" }
                                         if (dateStr.isNotBlank()) {
-                                            Text(dateStr, fontSize = 12.sp, color = TextSecondary)
+                                            Text(dateStr, fontSize = 13.sp, color = Color(0xFF999999))
                                         }
-                                    }
-                                    IconButton(onClick = {
-                                        val unpaidInvoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id && it.paymentStatus != "paid" }
-                                        if (unpaidInvoices.isNotEmpty()) {
-                                            val message = buildString {
-                                                append("Hi ${partyBalance.party.name}, here's your account summary:\n\n")
-                                                unpaidInvoices.forEach { invoice ->
-                                                    val balance = invoice.totalAmount - invoice.amountPaid
-                                                    append("${invoice.invoiceNumber}: ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)} (Balance: ₹${String.format(Locale.US, "%,.2f", balance)})\n")
-                                                }
-                                                append("\nTotal Due: ₹${String.format(Locale.US, "%,.2f", kotlin.math.abs(partyBalance.balance))}\n\nPlease pay at your earliest convenience. Thank you!")
-                                            }
-                                            val encoded = android.net.Uri.encode(message)
-                                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://wa.me/?text=$encoded"))
-                                            context.startActivity(intent)
-                                        }
-                                    }, modifier = Modifier.size(36.dp)) {
-                                        Icon(Icons.Filled.Share, contentDescription = "WhatsApp", tint = Color(0xFF25D366), modifier = Modifier.size(20.dp))
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
                                             String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance.balance)),
-                                            fontSize = 16.sp,
+                                            fontSize = 17.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = if (partyBalance.isReceivable) GreenBalance else RedAccent
                                         )
+                                        Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             if (partyBalance.isReceivable) "You'll Get" else "You'll Give",
                                             fontSize = 12.sp,
@@ -587,13 +573,13 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = transactionSearchQuery,
                                 onValueChange = { transactionSearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH TRANSACTIONS", fontSize = 13.sp, color = TextSecondary) },
+                                placeholder = { Text("SEARCH TRANSACTIONS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -623,10 +609,10 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .padding(horizontal = 16.dp, vertical = 0.dp)
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
@@ -707,13 +693,13 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = itemSearchQuery,
                                 onValueChange = { itemSearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH ITEMS", fontSize = 13.sp, color = TextSecondary) },
+                                placeholder = { Text("SEARCH ITEMS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -790,10 +776,10 @@ fun DashboardScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) }
-                                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                                    .padding(horizontal = 16.dp, vertical = 0.dp)
                             ) {
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
