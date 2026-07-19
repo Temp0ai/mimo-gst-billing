@@ -7,13 +7,13 @@ import androidx.room.PrimaryKey
 data class StockTransferEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val companyId: Long,
-    val fromStoreId: Long,
-    val toStoreId: Long,
+    val fromWarehouseId: Long,
+    val toWarehouseId: Long,
+    val itemId: Long,
     val itemName: String,
     val quantity: Double,
-    val unit: String,
-    val date: Long,
-    val status: String = "completed",
+    val transferDate: Long,
     val notes: String? = null,
+    val status: String = "completed", // pending, completed, cancelled
     val createdAt: Long = System.currentTimeMillis()
 )

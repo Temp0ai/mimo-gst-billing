@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface StockTransferDao {
-    @Query("SELECT * FROM stock_transfers WHERE companyId = :companyId ORDER BY date DESC")
+    @Query("SELECT * FROM stock_transfers WHERE companyId = :companyId ORDER BY transferDate DESC")
     fun getTransfersByCompany(companyId: Long): Flow<List<StockTransferEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

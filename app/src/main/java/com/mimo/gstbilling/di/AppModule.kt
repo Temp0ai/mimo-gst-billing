@@ -40,4 +40,5 @@ object AppModule {
     @Provides fun provideItemBatchDao(db: AppDatabase) = db.itemBatchDao()
     @Provides fun provideItemVariantDao(db: AppDatabase) = db.itemVariantDao()
     @Provides fun provideStaffDao(db: AppDatabase) = db.staffDao()
+    @Provides fun provideWarehouseDao(db: AppDatabase) = db.warehouseDao()
 }
