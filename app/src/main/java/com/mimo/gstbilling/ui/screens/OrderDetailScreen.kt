@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ fun OrderDetailScreen(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showConvertDialog by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(orderId) {
         viewModel.getOrderById(orderId).collect { order = it }
@@ -76,9 +78,11 @@ fun OrderDetailScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showConvertDialog = false
-                    viewModel.convertOrderToInvoice(orderId).collect { invoiceId ->
-                        navController.popBackStack()
-                        navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.InvoiceDetail.createRoute(invoiceId))
+                    scope.launch {
+                        viewModel.convertOrderToInvoice(orderId).collect { invoiceId ->
+                            navController.popBackStack()
+                            navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.InvoiceDetail.createRoute(invoiceId))
+                        }
                     }
                 }) { Text("Convert") }
             },

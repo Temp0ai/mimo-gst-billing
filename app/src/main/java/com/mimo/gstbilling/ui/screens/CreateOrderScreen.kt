@@ -41,6 +41,7 @@ data class OrderItemModel(
     val taxableAmount: Double = 0.0,
     val cgstAmount: Double = 0.0,
     val sgstAmount: Double = 0.0,
+    val igstAmount: Double = 0.0,
     val totalAmount: Double = 0.0
 )
 
