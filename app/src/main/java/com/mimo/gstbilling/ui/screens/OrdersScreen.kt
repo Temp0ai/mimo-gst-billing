@@ -9,9 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,77 +30,135 @@ import java.util.*
 @Composable
 fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltViewModel()) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Estimate", "Quotation", "Order")
-    val orders by viewModel.getOrders(tabs[selectedTab].lowercase()).collectAsState(initial = emptyList())
-    var showAddDialog by remember { mutableStateOf(false) }
+    val tabs = listOf("Sales Orders", "Purchase Orders")
+    val orderTypes = listOf("sales_order", "purchase_order")
+    val orders by viewModel.getOrders(orderTypes[selectedTab]).collectAsState(initial = emptyList())
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var orderToDelete by remember { mutableStateOf<Long?>(null) }
 
-    if (showAddDialog) {
-        var partyName by remember { mutableStateOf("") }
-        var amount by remember { mutableStateOf("") }
-        var notes by remember { mutableStateOf("") }
+    if (showDeleteDialog && orderToDelete != null) {
         AlertDialog(
-            onDismissRequest = { showAddDialog = false },
-            title = { Text("Create ${tabs[selectedTab]}", fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = partyName, onValueChange = { partyName = it }, label = { Text("Party Name *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = notes, onValueChange = { notes = it }, label = { Text("Notes") }, modifier = Modifier.fillMaxWidth())
-                }
-            },
+            onDismissRequest = { showDeleteDialog = false; orderToDelete = null },
+            title = { Text("Delete Order", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete this order?") },
             confirmButton = {
                 TextButton(onClick = {
-                    if (partyName.isNotBlank() && (amount.toDoubleOrNull() ?: 0.0) > 0) {
-                        viewModel.addOrder(1L, "${tabs[selectedTab].uppercase()}-${System.currentTimeMillis() % 10000}", tabs[selectedTab].lowercase(), amount.toDoubleOrNull() ?: 0.0, 0.0, 0.0, notes.ifBlank { null })
-                        showAddDialog = false
-                    }
-                }) { Text("Create") }
+                    viewModel.deleteOrder(orderToDelete!!)
+                    showDeleteDialog = false
+                    orderToDelete = null
+                }) { Text("Delete", color = RedAccent) }
             },
-            dismissButton = { TextButton(onClick = { showAddDialog = false }) { Text("Cancel") } }
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false; orderToDelete = null }) { Text("Cancel") }
+            }
         )
     }
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Orders", fontWeight = FontWeight.Bold) },
-                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+            TopAppBar(
+                title = { Text("Orders", fontWeight = FontWeight.Bold) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+            )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = GreenBalance, contentColor = Color.White) {
-                Icon(Icons.Filled.Add, contentDescription = "Create")
+            FloatingActionButton(
+                onClick = { navController.navigate("create_order?orderType=${orderTypes[selectedTab]}") },
+                containerColor = GreenBalance,
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Create Order")
             }
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
                 tabs.forEachIndexed { index, title ->
                     val isSelected = selectedTab == index
-                    Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)).background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).clickable { selectedTab = index }.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                        Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+                            .background(if (isSelected) Color(0xFFFFEBEE) else Color.White)
+                            .clickable { selectedTab = index }
+                            .padding(vertical = 12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            title,
+                            fontSize = 13.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) RedAccent else TextSecondary
+                        )
                     }
                 }
             }
+
             if (orders.isEmpty()) {
-                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                    Text("No ${tabs[selectedTab].lowercase()}s yet", fontSize = 16.sp, color = TextSecondary)
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("No orders yet", fontSize = 16.sp, color = TextSecondary)
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize().padding(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     items(orders) { order ->
-                        Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        var partyName by remember { mutableStateOf("Loading...") }
+                        LaunchedEffect(order.partyId) {
+                            partyName = viewModel.getPartyName(order.partyId)
+                        }
+                        val statusColor = when (order.status) {
+                            "pending" -> Warning
+                            "confirmed" -> Primary
+                            "completed" -> GreenBalance
+                            "cancelled" -> RedAccent
+                            else -> TextSecondary
+                        }
+                        Card(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            modifier = Modifier.clickable {
+                                navController.navigate(com.mimo.gstbilling.ui.navigation.Screen.OrderDetail.createRoute(order.id))
+                            }
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(14.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(order.orderNumber, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                    Text(partyName, fontSize = 12.sp, color = TextSecondary)
                                     Text(dateFormat.format(Date(order.orderDate)), fontSize = 12.sp, color = TextSecondary)
                                 }
                                 Column(horizontalAlignment = Alignment.End) {
-                                    Text(String.format(Locale.US, "\u20B9%,.2f", order.totalAmount), fontWeight = FontWeight.Bold, color = Primary)
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(if (order.status == "completed") Icons.Filled.CheckCircle else Icons.Filled.Pending, contentDescription = null, tint = if (order.status == "completed") GreenBalance else RedAccent, modifier = Modifier.size(14.dp))
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(order.status.replaceFirstChar { it.uppercase() }, fontSize = 12.sp, color = if (order.status == "completed") GreenBalance else RedAccent)
+                                    Text(
+                                        String.format(Locale.US, "\u20B9%,.2f", order.totalAmount),
+                                        fontWeight = FontWeight.Bold,
+                                        color = Primary
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = statusColor.copy(alpha = 0.12f)
+                                    ) {
+                                        Text(
+                                            order.status.replaceFirstChar { it.uppercase() },
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = statusColor,
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                        )
                                     }
                                 }
                             }

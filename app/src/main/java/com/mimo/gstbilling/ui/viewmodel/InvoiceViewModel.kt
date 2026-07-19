@@ -335,6 +335,10 @@ class InvoiceViewModel @Inject constructor(
         return partyDao.getPartiesByCompany(_uiState.value.companyId)
     }
 
+    fun getInvoicesByParty(partyId: Long): Flow<List<InvoiceEntity>> {
+        return invoiceDao.getInvoicesByPartyOrdered(companyId, partyId)
+    }
+
     fun getInvoiceById(id: Long): Flow<InvoiceEntity?> {
         return flow { emit(invoiceDao.getInvoiceById(id)) }
     }

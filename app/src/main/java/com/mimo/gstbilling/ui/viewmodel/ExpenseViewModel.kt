@@ -7,13 +7,13 @@ import com.mimo.gstbilling.data.local.entity.ExpenseEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class ExpenseViewModel @Inject constructor(
     private val expenseDao: ExpenseDao
 ) : ViewModel() {
-
     private val companyId = 1L
 
     val expenses: StateFlow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)
@@ -22,33 +22,22 @@ class ExpenseViewModel @Inject constructor(
     private val _totalExpenses = MutableStateFlow(0.0)
     val totalExpenses: StateFlow<Double> = _totalExpenses.asStateFlow()
 
-    init {
-        loadTotal()
-    }
+    init { loadTotal() }
 
     private fun loadTotal() {
+        viewModelScope.launch { _totalExpenses.value = expenseDao.getTotalExpenses(companyId) ?: 0.0 }
+    }
+
+    fun addExpense(category: String, amount: Double, date: Long, description: String?, paymentMode: String) {
         viewModelScope.launch {
-            _totalExpenses.value = expenseDao.getTotalExpenses(companyId) ?: 0.0
+            expenseDao.insertExpense(ExpenseEntity(companyId = companyId, category = category, amount = amount, date = date, description = description, paymentMode = paymentMode))
+            loadTotal()
         }
     }
 
-    fun addExpense(
-        category: String,
-        amount: Double,
-        date: Long,
-        description: String?,
-        paymentMode: String
-    ) {
+    fun editExpense(expense: ExpenseEntity) {
         viewModelScope.launch {
-            val expense = ExpenseEntity(
-                companyId = companyId,
-                category = category,
-                amount = amount,
-                date = date,
-                description = description,
-                paymentMode = paymentMode
-            )
-            expenseDao.insertExpense(expense)
+            expenseDao.updateExpense(expense)
             loadTotal()
         }
     }
@@ -58,5 +47,17 @@ class ExpenseViewModel @Inject constructor(
             expenseDao.deleteExpense(expense)
             loadTotal()
         }
+    }
+
+    fun getExpensesByCategory(category: String): Flow<List<ExpenseEntity>> =
+        expenseDao.getExpensesByCategoryFlow(companyId, category)
+
+    fun getMonthlyTotal(month: Int, year: Int): Flow<Double> = flow {
+        val cal = Calendar.getInstance()
+        cal.set(year, month, 1, 0, 0, 0)
+        val start = cal.timeInMillis
+        cal.add(Calendar.MONTH, 1)
+        val end = cal.timeInMillis
+        emit(expenseDao.getMonthlyTotal(companyId, start, end) ?: 0.0)
     }
 }

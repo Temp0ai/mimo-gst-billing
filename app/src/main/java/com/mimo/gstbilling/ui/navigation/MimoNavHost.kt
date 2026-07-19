@@ -53,6 +53,20 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.BarcodeScanner.route) { BarcodeScannerScreen(navController) }
         composable(Screen.StockTransfer.route) { StockTransferScreen(navController) }
         composable(Screen.Orders.route) { OrdersScreen(navController) }
+        composable(
+            route = "create_order?orderType={orderType}",
+            arguments = listOf(navArgument("orderType") { type = NavType.StringType; defaultValue = "sales_order" })
+        ) { backStackEntry ->
+            val orderType = backStackEntry.arguments?.getString("orderType") ?: "sales_order"
+            CreateOrderScreen(navController, orderType = orderType)
+        }
+        composable(
+            route = Screen.OrderDetail.route,
+            arguments = listOf(navArgument("orderId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val orderId = backStackEntry.arguments?.getLong("orderId") ?: 0L
+            OrderDetailScreen(navController, orderId)
+        }
         composable(Screen.PartyGroups.route) { PartyGroupsScreen(navController) }
         composable(route = Screen.PartyStatement.route, arguments = listOf(navArgument("partyId") { type = NavType.LongType })) { backStackEntry ->
             val partyId = backStackEntry.arguments?.getLong("partyId") ?: 0L

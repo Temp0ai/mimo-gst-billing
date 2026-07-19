@@ -33,6 +33,9 @@ sealed class Screen(val route: String) {
     object BarcodeScanner : Screen("barcode_scanner")
     object StockTransfer : Screen("stock_transfer")
     object Orders : Screen("orders")
+    object OrderDetail : Screen("order_detail/{orderId}") {
+        fun createRoute(orderId: Long) = "order_detail/$orderId"
+    }
     object PartyGroups : Screen("party_groups")
     object PartyStatement : Screen("party_statement/{partyId}") {
         fun createRoute(partyId: Long) = "party_statement/$partyId"

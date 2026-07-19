@@ -80,4 +80,7 @@ interface InvoiceDao {
 
     @Query("SELECT * FROM invoices WHERE partyId = :partyId ORDER BY invoiceDate DESC")
     fun getInvoicesByParty(partyId: Long): Flow<List<InvoiceEntity>>
+
+    @Query("SELECT * FROM invoices WHERE companyId = :companyId AND partyId = :partyId ORDER BY invoiceDate ASC")
+    fun getInvoicesByPartyOrdered(companyId: Long, partyId: Long): Flow<List<InvoiceEntity>>
 }
