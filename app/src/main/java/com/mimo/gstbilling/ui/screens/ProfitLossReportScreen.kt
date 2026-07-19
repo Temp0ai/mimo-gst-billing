@@ -102,7 +102,7 @@ fun PLRow(label: String, amount: Double, color: Color) {
 
 @Composable
 fun PLSubRow(label: String, amount: Double) {
-    Row(modifier = Modifier.fillMaxWidth().padding(start = 16.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+    Row(modifier = Modifier.fillMaxWidth().padding(start = 16.dp).padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, fontSize = 13.sp, color = TextSecondary)
         Text(String.format(Locale.US, "\u20B9%,.2f", amount), fontSize = 13.sp, color = RedAccent)
     }
