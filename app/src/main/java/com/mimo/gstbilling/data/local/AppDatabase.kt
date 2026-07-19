@@ -23,9 +23,13 @@ import com.mimo.gstbilling.data.local.entity.*
         ItemBatchEntity::class,
         ItemVariantEntity::class,
         StaffEntity::class,
-        WarehouseEntity::class
+        WarehouseEntity::class,
+        BillOfMaterialsEntity::class,
+        BomItemEntity::class,
+        RecurringInvoiceEntity::class,
+        DiscountConfigEntity::class
     ],
-    version = 10,
+    version = 14,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,4 +50,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun itemVariantDao(): ItemVariantDao
     abstract fun staffDao(): StaffDao
     abstract fun warehouseDao(): WarehouseDao
+    abstract fun bomDao(): BomDao
+    abstract fun recurringInvoiceDao(): RecurringInvoiceDao
+    abstract fun discountConfigDao(): DiscountConfigDao
 }

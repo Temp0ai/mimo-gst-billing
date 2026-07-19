@@ -10,11 +10,9 @@ data class ItemBatchEntity(
     val itemId: Long,
     val itemName: String,
     val batchNumber: String,
-    val serialNumber: String?,
-    val expiryDate: Long?,
     val quantity: Double,
-    val purchasePrice: Double,
-    val salePrice: Double,
-    val manufacturingDate: Long?,
+    val manufacturingDate: Long? = null,
+    val expiryDate: Long? = null,
+    val purchasePrice: Double = 0.0,
     val createdAt: Long = System.currentTimeMillis()
 )

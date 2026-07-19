@@ -161,5 +161,7 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.BiometricLock.route) { BiometricLockScreen(navController) }
         composable(Screen.BiometricSettings.route) { BiometricSettingsScreen(navController) }
         composable(Screen.StaffManagement.route) { StaffManagementScreen(navController) }
+        composable(Screen.RecurringInvoices.route) { RecurringInvoicesScreen(navController) }
+        composable(Screen.DiscountConfig.route) { DiscountConfigScreen(navController) }
     }
 }

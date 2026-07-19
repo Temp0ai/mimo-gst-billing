@@ -41,4 +41,7 @@ object AppModule {
     @Provides fun provideItemVariantDao(db: AppDatabase) = db.itemVariantDao()
     @Provides fun provideStaffDao(db: AppDatabase) = db.staffDao()
     @Provides fun provideWarehouseDao(db: AppDatabase) = db.warehouseDao()
+    @Provides fun provideBomDao(db: AppDatabase) = db.bomDao()
+    @Provides fun provideRecurringInvoiceDao(db: AppDatabase) = db.recurringInvoiceDao()
+    @Provides fun provideDiscountConfigDao(db: AppDatabase) = db.discountConfigDao()
 }

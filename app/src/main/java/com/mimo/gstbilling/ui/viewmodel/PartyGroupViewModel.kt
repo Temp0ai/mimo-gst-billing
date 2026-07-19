@@ -25,6 +25,10 @@ class PartyGroupViewModel @Inject constructor(
         }
     }
 
+    fun editGroup(group: PartyGroupEntity) {
+        viewModelScope.launch { partyGroupDao.updateGroup(group) }
+    }
+
     fun deleteGroup(group: PartyGroupEntity) {
         viewModelScope.launch { partyGroupDao.deleteGroup(group) }
     }

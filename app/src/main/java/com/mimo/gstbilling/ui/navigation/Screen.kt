@@ -127,4 +127,6 @@ sealed class Screen(val route: String) {
     object BiometricLock : Screen("biometric_lock")
     object BiometricSettings : Screen("biometric_settings")
     object StaffManagement : Screen("staff_management")
+    object RecurringInvoices : Screen("recurring_invoices")
+    object DiscountConfig : Screen("discount_config")
 }
