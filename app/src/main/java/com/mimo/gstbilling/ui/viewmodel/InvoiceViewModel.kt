@@ -33,7 +33,8 @@ data class InvoiceUiState(
     val itemVariantsForSelection: List<ItemVariantEntity> = emptyList(),
     val showVariantPicker: Boolean = false,
     val selectedItemForVariant: ItemEntity? = null,
-    val partyBalance: Double = 0.0
+    val partyBalance: Double = 0.0,
+    val invoiceType: String = "sales"
 )
 
 data class InvoiceItemModel(
@@ -91,6 +92,14 @@ class InvoiceViewModel @Inject constructor(
         viewModelScope.launch {
             val party = partyDao.getPartyById(partyId)
             _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone, partyBalance = party?.balance ?: 0.0) }
+        }
+    }
+
+    fun setInvoiceType(type: String) {
+        val prefix = if (type == "purchase") "PUR" else "INV"
+        viewModelScope.launch {
+            val count = if (type == "purchase") invoiceDao.getPurchaseInvoiceCount(companyId) else invoiceDao.getSalesInvoiceCount(companyId)
+            _uiState.update { it.copy(invoiceType = type, invoiceNumber = "$prefix-${String.format("%04d", count + 1)}") }
         }
     }
 
@@ -268,7 +277,8 @@ class InvoiceViewModel @Inject constructor(
                 sgstTotal = state.sgstTotal,
                 igstTotal = state.igstTotal,
                 totalAmount = state.totalAmount,
-                notes = state.notes.ifBlank { null }
+                notes = state.notes.ifBlank { null },
+                invoiceType = state.invoiceType
             )
             val invoiceId = invoiceDao.insertInvoice(invoice)
             val invoiceItems = state.items.map { item ->

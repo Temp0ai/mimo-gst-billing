@@ -89,6 +89,7 @@ data class PhoneContact(val name: String, val phone: String)
 fun CreateInvoiceScreen(
     navController: NavController,
     preselectedPartyId: Long? = null,
+    invoiceType: String = "sales",
     viewModel: InvoiceViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -111,6 +112,12 @@ fun CreateInvoiceScreen(
     var customerSearchQuery by remember { mutableStateOf("") }
     var showPhoneContacts by remember { mutableStateOf(false) }
     var showQuickAddItem by remember { mutableStateOf(false) }
+
+    LaunchedEffect(invoiceType) {
+        viewModel.setInvoiceType(invoiceType)
+    }
+
+    val isPurchase = invoiceType == "purchase"
     var quickItemName by remember { mutableStateOf("") }
     var quickItemPrice by remember { mutableStateOf("") }
     var quickItemGst by remember { mutableStateOf("18") }
@@ -287,7 +294,7 @@ fun CreateInvoiceScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Sale", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Text(if (isPurchase) "Purchase" else "Sale", fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -879,7 +886,7 @@ fun CreateInvoiceScreen(
 
         AlertDialog(
             onDismissRequest = { showQuickAddItem = false; showItemPicker = false },
-            title = { Text("Add Items to Sale", fontWeight = FontWeight.Bold) },
+            title = { Text("Add Items to ${if (isPurchase) "Purchase" else "Sale"}", fontWeight = FontWeight.Bold) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(

@@ -818,12 +818,12 @@ fun DashboardScreen(
             onSelect = { transactionType ->
                 when (transactionType) {
                     "sale_invoice", "sale_order", "estimate", "mobile_pos" -> {
-                        navController.navigate(Screen.CreateInvoice.route)
+                        navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
                     }
                     "credit_note" -> navController.navigate(Screen.CreditNote.route)
                     "delivery_challan" -> navController.navigate(Screen.DeliveryChallan.route)
                     "payment_in" -> navController.navigate(Screen.CashBank.route)
-                    "purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                    "purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
                     "debit_note" -> navController.navigate(Screen.DebitNote.route)
                     "purchase_order" -> navController.navigate(Screen.Orders.route)
                     "payment_out" -> navController.navigate(Screen.CashBank.route)

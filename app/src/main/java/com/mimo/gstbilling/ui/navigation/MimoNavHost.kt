@@ -16,10 +16,14 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.Dashboard.route) { DashboardScreen(navController) }
         composable(
             route = Screen.CreateInvoice.route,
-            arguments = listOf(navArgument("partyId") { type = NavType.LongType; defaultValue = -1L })
+            arguments = listOf(
+                navArgument("partyId") { type = NavType.LongType; defaultValue = -1L },
+                navArgument("invoiceType") { type = NavType.StringType; defaultValue = "sales" }
+            )
         ) { backStackEntry ->
             val partyId = backStackEntry.arguments?.getLong("partyId") ?: -1L
-            CreateInvoiceScreen(navController, preselectedPartyId = if (partyId > 0) partyId else null)
+            val invoiceType = backStackEntry.arguments?.getString("invoiceType") ?: "sales"
+            CreateInvoiceScreen(navController, preselectedPartyId = if (partyId > 0) partyId else null, invoiceType = invoiceType)
         }
         composable(Screen.Parties.route) { PartiesScreen(navController) }
         composable(route = Screen.PartyDetail.route, arguments = listOf(navArgument("partyId") { type = NavType.LongType })) { backStackEntry ->

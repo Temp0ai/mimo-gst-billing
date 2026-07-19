@@ -63,8 +63,8 @@ fun PartiesScreen(
             onSelect = { type ->
                 showTransactionSheet = false
                 when (type) {
-                    "sale" -> navController.navigate(Screen.CreateInvoice.route)
-                    "purchase" -> navController.navigate(Screen.Purchases.route)
+                    "sale" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
+                    "purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
                     "expense" -> navController.navigate(Screen.Expenses.route)
                     "credit_note" -> navController.navigate(Screen.CreditNote.route)
                     "debit_note" -> navController.navigate(Screen.DebitNote.route)

@@ -3,8 +3,10 @@ package com.mimo.gstbilling.ui.navigation
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Dashboard : Screen("dashboard")
-    object CreateInvoice : Screen("create_invoice?partyId={partyId}") {
-        fun createRoute(partyId: Long = -1L) = if (partyId > 0) "create_invoice?partyId=$partyId" else "create_invoice"
+    object CreateInvoice : Screen("create_invoice?partyId={partyId}&invoiceType={invoiceType}") {
+        fun createRoute(partyId: Long = -1L, invoiceType: String = "sales") = 
+            if (partyId > 0) "create_invoice?partyId=$partyId&invoiceType=$invoiceType" 
+            else "create_invoice?invoiceType=$invoiceType"
     }
     object Parties : Screen("parties")
     object PartyDetail : Screen("party_detail/{partyId}") {
