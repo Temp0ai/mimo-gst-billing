@@ -3,7 +3,8 @@ package com.mimo.gstbilling.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.StockTransferDao
-import com.mimo.gstbilling.data.local.dao.StoreDao
+import com.mimo.gstbilling.data.local.dao.WarehouseDao
+import com.mimo.gstbilling.data.local.dao.ItemDao
 import com.mimo.gstbilling.data.local.entity.StockTransferEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -13,7 +14,8 @@ import javax.inject.Inject
 @HiltViewModel
 class StockTransferViewModel @Inject constructor(
     private val stockTransferDao: StockTransferDao,
-    private val storeDao: StoreDao
+    private val warehouseDao: WarehouseDao,
+    private val itemDao: ItemDao
 ) : ViewModel() {
 
     private val companyId = 1L
@@ -21,15 +23,24 @@ class StockTransferViewModel @Inject constructor(
     val transfers: StateFlow<List<StockTransferEntity>> = stockTransferDao.getTransfersByCompany(companyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val stores = storeDao.getStoresByCompany(companyId)
+    val warehouses = warehouseDao.getWarehousesByCompany(companyId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun addTransfer(fromStoreId: Long, toStoreId: Long, itemName: String, qty: Double, unit: String, notes: String?) {
+    val items = itemDao.getItemsByCompany(companyId)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    fun addTransfer(fromWarehouseId: Long, toWarehouseId: Long, itemId: Long, itemName: String, qty: Double, notes: String?) {
         viewModelScope.launch {
             stockTransferDao.insertTransfer(
                 StockTransferEntity(
-                    companyId = companyId, fromStoreId = fromStoreId, toStoreId = toStoreId,
-                    itemName = itemName, quantity = qty, unit = unit, date = System.currentTimeMillis(), notes = notes
+                    companyId = companyId,
+                    fromWarehouseId = fromWarehouseId,
+                    toWarehouseId = toWarehouseId,
+                    itemId = itemId,
+                    itemName = itemName,
+                    quantity = qty,
+                    transferDate = System.currentTimeMillis(),
+                    notes = notes
                 )
             )
         }
