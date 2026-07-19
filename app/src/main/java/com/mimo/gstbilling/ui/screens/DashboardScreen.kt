@@ -844,13 +844,15 @@ fun DashboardScreen(
             onDismiss = { showTransactionSheet = false },
             onSelect = { transactionType ->
                 when (transactionType) {
-                    "sale_invoice", "credit_note", "sale_order", "estimate", "delivery_challan", "mobile_pos" -> {
+                    "sale_invoice", "sale_order", "estimate", "mobile_pos" -> {
                         navController.navigate(Screen.CreateInvoice.route)
                     }
+                    "credit_note" -> navController.navigate(Screen.CreditNote.route)
+                    "delivery_challan" -> navController.navigate(Screen.DeliveryChallan.route)
                     "payment_in" -> navController.navigate(Screen.CashBank.route)
-                    "purchase", "debit_note", "purchase_order" -> {
-                        navController.navigate(Screen.Purchases.route)
-                    }
+                    "purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                    "debit_note" -> navController.navigate(Screen.DebitNote.route)
+                    "purchase_order" -> navController.navigate(Screen.Orders.route)
                     "payment_out" -> navController.navigate(Screen.CashBank.route)
                     "expense" -> navController.navigate(Screen.Expenses.route)
                     "party_transfer" -> navController.navigate(Screen.CashBank.route)

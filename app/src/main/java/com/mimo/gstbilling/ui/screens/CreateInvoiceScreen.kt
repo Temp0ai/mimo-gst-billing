@@ -292,7 +292,7 @@ fun CreateInvoiceScreen(
                     Row(
                         modifier = Modifier
                             .padding(end = 4.dp)
-                            .background(Color.White.copy(alpha = 0.15f), RoundedCornerShape(20.dp))
+                            .background(Color(0xFFF0F0F0), RoundedCornerShape(20.dp))
                     ) {
                         FilterChip(
                             selected = !isCashSale,
@@ -302,7 +302,7 @@ fun CreateInvoiceScreen(
                                 selectedContainerColor = GreenBalance,
                                 selectedLabelColor = Color.White,
                                 containerColor = Color.Transparent,
-                                labelColor = Color.White.copy(alpha = 0.7f)
+                                labelColor = TextSecondary
                             )
                         )
                         FilterChip(
@@ -313,19 +313,19 @@ fun CreateInvoiceScreen(
                                 selectedContainerColor = Color.White,
                                 selectedLabelColor = Primary,
                                 containerColor = Color.Transparent,
-                                labelColor = Color.White.copy(alpha = 0.7f)
+                                labelColor = TextSecondary
                             )
                         )
                     }
                     IconButton(onClick = { navController.navigate(Screen.Settings.route) }) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Color.White)
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = Color(0xFF1A1A1A))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = Color(0xFF1A1A1A),
+                    navigationIconContentColor = Color(0xFF1A1A1A),
+                    actionIconContentColor = Color(0xFF1A1A1A)
                 )
             )
         },
@@ -339,13 +339,27 @@ fun CreateInvoiceScreen(
                     .padding(horizontal = 16.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Button(
-                    onClick = { navController.popBackStack() },
+                OutlinedButton(
+                    onClick = {
+                        val canSave = (isCashSale || uiState.partyId > 0L) && uiState.items.isNotEmpty()
+                        if (canSave) {
+                            viewModel.saveInvoice()
+                        } else {
+                            scope.launch {
+                                val msg = if (!isCashSale && uiState.partyId <= 0L) "Select a customer first"
+                                else if (uiState.items.isEmpty()) "Add at least one item"
+                                else "Please fill all required fields"
+                                snackbarHostState.showSnackbar(msg)
+                            }
+                        }
+                    },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+                    contentPadding = PaddingValues(vertical = 14.dp)
                 ) {
-                    Text("Cancel", color = TextPrimary, fontWeight = FontWeight.SemiBold)
+                    Text("Save & New", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
                 Button(
                     onClick = {
@@ -363,10 +377,11 @@ fun CreateInvoiceScreen(
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenBalance),
-                    enabled = !uiState.isSaving
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    enabled = !uiState.isSaving,
+                    contentPadding = PaddingValues(vertical = 14.dp)
                 ) {
-                    Text(if (uiState.isSaving) "Saving..." else "Save & Print", fontWeight = FontWeight.SemiBold)
+                    Text(if (uiState.isSaving) "Saving..." else "Save", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
         }
