@@ -228,14 +228,16 @@ fun CreateInvoiceScreen(
                         Button(
                             onClick = {
                                 showPostSaveDialog = false
-                                val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
-                                if (inv != null) {
-                                    val items = viewModel.getItemsForInvoice(inv.id)
-                                    val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
-                                    PdfGenerator.sharePdf(context, file)
+                                scope.launch {
+                                    val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
+                                    if (inv != null) {
+                                        val items = viewModel.getItemsForInvoice(inv.id)
+                                        val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
+                                        PdfGenerator.sharePdf(context, file)
+                                    }
+                                    viewModel.resetState()
+                                    navController.popBackStack()
                                 }
-                                viewModel.resetState()
-                                navController.popBackStack()
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
@@ -246,14 +248,16 @@ fun CreateInvoiceScreen(
                         Button(
                             onClick = {
                                 showPostSaveDialog = false
-                                val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
-                                if (inv != null) {
-                                    val items = viewModel.getItemsForInvoice(inv.id)
-                                    val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
-                                    PdfGenerator.printPdf(context, file)
+                                scope.launch {
+                                    val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
+                                    if (inv != null) {
+                                        val items = viewModel.getItemsForInvoice(inv.id)
+                                        val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
+                                        PdfGenerator.printPdf(context, file)
+                                    }
+                                    viewModel.resetState()
+                                    navController.popBackStack()
                                 }
-                                viewModel.resetState()
-                                navController.popBackStack()
                             },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
