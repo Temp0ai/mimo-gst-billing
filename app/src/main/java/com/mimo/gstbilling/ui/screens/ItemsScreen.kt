@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.navigation.VyaparBottomBar
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 import kotlinx.coroutines.launch
@@ -59,33 +60,53 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = Color(0xFF1A1A1A),
+                    actionIconContentColor = Color(0xFF1A1A1A)
                 )
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                Button(
-                    onClick = { navController.navigate(Screen.AddItem.route) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add Product", fontWeight = FontWeight.Bold)
-                }
+            var showTransactionSheet by remember { mutableStateOf(false) }
+            if (showTransactionSheet) {
+                TransactionTypeSheet(
+                    onDismiss = { showTransactionSheet = false },
+                    onSelect = { type ->
+                        showTransactionSheet = false
+                        when (type) {
+                            "sale" -> navController.navigate(Screen.CreateInvoice.route)
+                            "purchase" -> navController.navigate(Screen.Purchases.route)
+                            "expense" -> navController.navigate(Screen.Expenses.route)
+                        }
+                    }
+                )
             }
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            val selectedTab = when (currentRoute) {
+                Screen.Dashboard.route -> 0
+                Screen.Parties.route -> 1
+                Screen.Items.route -> 3
+                Screen.Settings.route -> 4
+                else -> 3
+            }
+            VyaparBottomBar(
+                selectedTab = selectedTab,
+                onTabSelected = { tab ->
+                    val targetRoute = when (tab) {
+                        0 -> Screen.Dashboard.route
+                        1 -> Screen.Parties.route
+                        3 -> Screen.Items.route
+                        4 -> Screen.Settings.route
+                        else -> Screen.Dashboard.route
+                    }
+                    navController.navigate(targetRoute) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onAddClick = { showTransactionSheet = true }
+            )
         }
     ) { padding ->
         LazyColumn(

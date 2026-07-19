@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.navigation.VyaparBottomBar
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import java.text.SimpleDateFormat
@@ -54,58 +55,58 @@ fun PartiesScreen(
 
     val totalReceivable = parties.filter { it.balance > 0 }.sumOf { it.balance }
     val filteredParties = parties.filter { it.name.contains(searchText, ignoreCase = true) || (it.phone ?: "").contains(searchText) }
+    var showTransactionSheet by remember { mutableStateOf(false) }
+
+    if (showTransactionSheet) {
+        TransactionTypeSheet(
+            onDismiss = { showTransactionSheet = false },
+            onSelect = { type ->
+                showTransactionSheet = false
+                when (type) {
+                    "sale" -> navController.navigate(Screen.CreateInvoice.route)
+                    "purchase" -> navController.navigate(Screen.Purchases.route)
+                    "expense" -> navController.navigate(Screen.Expenses.route)
+                    "credit_note" -> navController.navigate(Screen.CreditNote.route)
+                    "debit_note" -> navController.navigate(Screen.DebitNote.route)
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("All Parties", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A))
             )
         },
         bottomBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.White)
-                    .navigationBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedButton(
-                    onClick = { navController.navigate(Screen.CashBank.route) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
-                    border = BorderStroke(1.dp, Primary),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
-                ) {
-                    Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Button(
-                    onClick = { navController.navigate(Screen.AddParty.route) },
-                    modifier = Modifier.size(50.dp),
-                    shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
-                    contentPadding = PaddingValues(0.dp)
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Button(
-                    onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(25.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
-                ) {
-                    Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                }
+            val currentRoute = navController.currentBackStackEntry?.destination?.route
+            val selectedTab = when (currentRoute) {
+                Screen.Dashboard.route -> 0
+                Screen.Parties.route -> 1
+                Screen.Items.route -> 3
+                Screen.Settings.route -> 4
+                else -> 1
             }
+            VyaparBottomBar(
+                selectedTab = selectedTab,
+                onTabSelected = { tab ->
+                    val targetRoute = when (tab) {
+                        0 -> Screen.Dashboard.route
+                        1 -> Screen.Parties.route
+                        3 -> Screen.Items.route
+                        4 -> Screen.Settings.route
+                        else -> Screen.Dashboard.route
+                    }
+                    navController.navigate(targetRoute) {
+                        popUpTo(Screen.Dashboard.route) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onAddClick = { showTransactionSheet = true }
+            )
         }
     ) { paddingValues ->
         LazyColumn(

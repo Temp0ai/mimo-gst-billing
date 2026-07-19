@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
+import com.mimo.gstbilling.ui.navigation.VyaparBottomBar
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.DashboardViewModel
 import kotlinx.coroutines.launch
@@ -251,60 +252,32 @@ fun DashboardScreen(
                 )
             },
             bottomBar = {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shadowElevation = 12.dp,
-                    color = Color.White
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .navigationBarsPadding()
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedButton(
-                            onClick = { navController.navigate(Screen.CashBank.route) },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(28.dp),
-                            border = androidx.compose.foundation.BorderStroke(2.dp, Primary),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
-                            contentPadding = PaddingValues(vertical = 14.dp)
-                        ) {
-                            Text("Take Payment", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .size(56.dp)
-                                .clip(CircleShape)
-                                .background(Color.White)
-                                .clickable { showTransactionSheet = true },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(52.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                                    .background(Color(0xFFE3F2FD)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add", tint = Primary, modifier = Modifier.size(28.dp))
-                            }
-                        }
-                        Button(
-                            onClick = { showTransactionSheet = true },
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(28.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
-                            contentPadding = PaddingValues(vertical = 14.dp),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                        ) {
-                            Text("Add Sale", fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        }
-                    }
+                val currentRoute = navController.currentBackStackEntry?.destination?.route
+                val selectedTab = when (currentRoute) {
+                    Screen.Dashboard.route -> 0
+                    Screen.Parties.route -> 1
+                    Screen.Items.route -> 3
+                    Screen.Settings.route -> 4
+                    else -> 0
                 }
+                VyaparBottomBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = { tab ->
+                        val targetRoute = when (tab) {
+                            0 -> Screen.Dashboard.route
+                            1 -> Screen.Parties.route
+                            3 -> Screen.Items.route
+                            4 -> Screen.Settings.route
+                            else -> Screen.Dashboard.route
+                        }
+                        navController.navigate(targetRoute) {
+                            popUpTo(Screen.Dashboard.route) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    onAddClick = { showTransactionSheet = true }
+                )
             }
         ) { paddingValues ->
             LazyColumn(
