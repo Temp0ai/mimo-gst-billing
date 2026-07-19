@@ -82,12 +82,18 @@ fun InvoiceDetailScreen(
 
     var invoice by remember { mutableStateOf<com.mimo.gstbilling.data.local.entity.InvoiceEntity?>(null) }
     var invoiceItems by remember { mutableStateOf<List<com.mimo.gstbilling.data.local.entity.InvoiceItemEntity>>(emptyList()) }
+    var partyName by remember { mutableStateOf("") }
+    var companyName by remember { mutableStateOf("My Business") }
 
     LaunchedEffect(invoiceId) {
         val inv = viewModel.getInvoiceByIdDirect(invoiceId)
         invoice = inv
         inv?.let {
             invoiceItems = viewModel.getItemsForInvoice(it.id)
+            val party = viewModel.getPartyById(it.partyId)
+            partyName = party?.name ?: "Unknown Party"
+            val company = viewModel.getCompanyById(it.companyId)
+            companyName = company?.businessName ?: company?.name ?: "My Business"
         }
     }
 
@@ -103,28 +109,11 @@ fun InvoiceDetailScreen(
                 actions = {
                     IconButton(onClick = {
                         invoice?.let { inv ->
-                            val message = buildString {
-                                append("Invoice #${inv.invoiceNumber}\n")
-                                append("Date: ${dateFormat.format(Date(inv.invoiceDate))}\n")
-                                append("Status: ${inv.paymentStatus.uppercase()}\n\n")
-                                append("Items:\n")
-                                invoiceItems.forEach { item ->
-                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
-                                }
-                                append("\nSubtotal: ₹${String.format(Locale.US, "%,.2f", inv.subTotal)}\n")
-                                if (inv.discount > 0) append("Discount: -₹${String.format(Locale.US, "%,.2f", inv.discount)}\n")
-                                append("CGST: ₹${String.format(Locale.US, "%,.2f", inv.cgstTotal)}\n")
-                                append("SGST: ₹${String.format(Locale.US, "%,.2f", inv.sgstTotal)}\n")
-                                if (inv.igstTotal > 0) append("IGST: ₹${String.format(Locale.US, "%,.2f", inv.igstTotal)}\n")
-                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount)}\n")
-                                append("Balance: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount - inv.amountPaid)}")
-                            }
-                            val encoded = Uri.encode(message)
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
-                            context.startActivity(intent)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            PdfGenerator.sharePdf(context, file)
                         }
                     }) {
-                        Icon(Icons.Filled.Share, contentDescription = "Share on WhatsApp", tint = Color(0xFF25D366))
+                        Icon(Icons.Filled.Share, contentDescription = "Share PDF", tint = Color(0xFF25D366))
                     }
                     IconButton(onClick = {
                         invoice?.let { inv ->
@@ -132,15 +121,6 @@ fun InvoiceDetailScreen(
                         }
                     }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Invoice")
-                    }
-                    IconButton(onClick = {
-                        invoice?.let { inv ->
-                            val templateStyle = navController.currentBackStackEntry?.savedStateHandle?.get<String>("template_style")
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false, templateStyle = templateStyle)
-                            PdfGenerator.sharePdf(context, file)
-                        }
-                    }) {
-                        Icon(Icons.Filled.Share, contentDescription = "Share PDF")
                     }
                     IconButton(onClick = {
                         invoice?.let { inv ->
@@ -167,39 +147,67 @@ fun InvoiceDetailScreen(
                     .background(Color.White)
                     .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
                     onClick = {
                         invoice?.let { inv ->
-                            viewModel.deleteInvoice(inv)
-                            navController.popBackStack()
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/pdf"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                setPackage("com.whatsapp")
+                            }
+                            context.startActivity(intent)
                         }
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
                 ) {
-                    Icon(Icons.Filled.Delete, contentDescription = null, tint = RedAccent, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Delete", color = RedAccent, fontWeight = FontWeight.SemiBold)
+                    Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
-                Spacer(modifier = Modifier.width(12.dp))
                 Button(
                     onClick = {
                         invoice?.let { inv ->
-                            val templateStyle = navController.currentBackStackEntry?.savedStateHandle?.get<String>("template_style")
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false, templateStyle = templateStyle)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
                             PdfGenerator.printPdf(context, file)
                         }
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = BlueHeader)
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
                     Icon(Icons.Filled.Print, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Print Invoice", color = Color.White, fontWeight = FontWeight.SemiBold)
+                    Text("Print", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+                Button(
+                    onClick = {
+                        invoice?.let { inv ->
+                            val message = buildString {
+                                append("Hi ${partyName},\n")
+                                append("Invoice #${inv.invoiceNumber}\n")
+                                append("Date: ${dateFormat.format(Date(inv.invoiceDate))}\n\n")
+                                invoiceItems.forEach { item ->
+                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
+                                }
+                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount)}\n")
+                                append("Balance: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount - inv.amountPaid)}\n\n")
+                                append("Please make payment at your earliest. Thank you!")
+                            }
+                            val encoded = Uri.encode(message)
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                            context.startActivity(intent)
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF08BD7C))
+                ) {
+                    Text("Reminder", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
             }
         }
@@ -249,7 +257,7 @@ fun InvoiceDetailScreen(
                         .background(Color.White)
                         .padding(16.dp)
                 ) {
-                    Text("Party ID: ${inv.partyId}", fontSize = 14.sp, color = TextPrimary)
+                    Text(partyName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         "Status: ${inv.paymentStatus.uppercase()}",
@@ -257,6 +265,15 @@ fun InvoiceDetailScreen(
                         fontWeight = FontWeight.Bold,
                         color = if (inv.paymentStatus == "paid") GreenBalance else RedAccent
                     )
+                    if (inv.totalAmount - inv.amountPaid > 0) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            "Balance Due: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount - inv.amountPaid)}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = RedAccent
+                        )
+                    }
                 }
             }
 

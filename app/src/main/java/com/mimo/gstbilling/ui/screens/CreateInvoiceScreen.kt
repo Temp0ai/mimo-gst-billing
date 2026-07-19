@@ -196,14 +196,85 @@ fun CreateInvoiceScreen(
         }
     }
 
+    var savedInvoiceId by remember { mutableStateOf<Long?>(null) }
+    var showPostSaveDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(uiState.savedInvoiceId) {
         if (uiState.savedInvoiceId != null) {
-            scope.launch {
-                snackbarHostState.showSnackbar("Invoice saved!")
-            }
-            viewModel.resetState()
-            navController.popBackStack()
+            savedInvoiceId = uiState.savedInvoiceId
+            showPostSaveDialog = true
+            viewModel.clearSavedInvoiceId()
         }
+    }
+
+    if (showPostSaveDialog && savedInvoiceId != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showPostSaveDialog = false
+                viewModel.resetState()
+                navController.popBackStack()
+            },
+            title = { Text("Invoice Saved!", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+            text = {
+                Column {
+                    Text("What would you like to do?", fontSize = 14.sp, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                showPostSaveDialog = false
+                                val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
+                                if (inv != null) {
+                                    val items = viewModel.getItemsForInvoice(inv.id)
+                                    val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
+                                    PdfGenerator.sharePdf(context, file)
+                                }
+                                viewModel.resetState()
+                                navController.popBackStack()
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
+                        ) {
+                            Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                        Button(
+                            onClick = {
+                                showPostSaveDialog = false
+                                val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
+                                if (inv != null) {
+                                    val items = viewModel.getItemsForInvoice(inv.id)
+                                    val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false)
+                                    PdfGenerator.printPdf(context, file)
+                                }
+                                viewModel.resetState()
+                                navController.popBackStack()
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                        ) {
+                            Text("View PDF", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = {
+                            showPostSaveDialog = false
+                            viewModel.resetState()
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Skip", color = TextSecondary)
+                    }
+                }
+            },
+            confirmButton = {}
+        )
     }
 
     Scaffold(

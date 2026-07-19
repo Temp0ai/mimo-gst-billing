@@ -26,4 +26,7 @@ interface CompanyDao {
 
     @Query("UPDATE companies SET isSelected = 1 WHERE id = :companyId")
     suspend fun setSelectedCompany(companyId: Long)
+
+    @Query("SELECT * FROM companies WHERE id = :companyId LIMIT 1")
+    suspend fun getCompanyById(companyId: Long): CompanyEntity?
 }

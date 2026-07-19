@@ -300,6 +300,10 @@ class InvoiceViewModel @Inject constructor(
         }
     }
 
+    fun clearSavedInvoiceId() {
+        _uiState.update { it.copy(savedInvoiceId = null) }
+    }
+
     fun getInvoices(type: String): Flow<List<InvoiceEntity>> {
         return invoiceDao.getInvoicesByType(companyId, type)
     }
@@ -362,6 +366,10 @@ class InvoiceViewModel @Inject constructor(
 
     suspend fun getPartyById(partyId: Long): PartyEntity? {
         return partyDao.getPartyById(partyId)
+    }
+
+    suspend fun getCompanyById(companyId: Long): com.mimo.gstbilling.data.local.entity.CompanyEntity? {
+        return companyDao.getCompanyById(companyId)
     }
 
     suspend fun getAllParties(): List<PartyEntity> {
