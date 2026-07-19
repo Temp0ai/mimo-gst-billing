@@ -32,7 +32,8 @@ data class InvoiceUiState(
     val selectedTemplate: String = "tax_invoice",
     val itemVariantsForSelection: List<ItemVariantEntity> = emptyList(),
     val showVariantPicker: Boolean = false,
-    val selectedItemForVariant: ItemEntity? = null
+    val selectedItemForVariant: ItemEntity? = null,
+    val partyBalance: Double = 0.0
 )
 
 data class InvoiceItemModel(
@@ -58,7 +59,8 @@ class InvoiceViewModel @Inject constructor(
     private val itemDao: ItemDao,
     private val partyDao: PartyDao,
     private val expenseDao: ExpenseDao,
-    private val itemVariantDao: ItemVariantDao
+    private val itemVariantDao: ItemVariantDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InvoiceUiState())
@@ -86,7 +88,10 @@ class InvoiceViewModel @Inject constructor(
     }
 
     fun setParty(partyId: Long, name: String, phone: String) {
-        _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone) }
+        viewModelScope.launch {
+            val party = partyDao.getPartyById(partyId)
+            _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone, partyBalance = party?.balance ?: 0.0) }
+        }
     }
 
     fun getExpenses(): Flow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)

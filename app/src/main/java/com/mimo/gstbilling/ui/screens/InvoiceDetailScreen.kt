@@ -93,7 +93,7 @@ fun InvoiceDetailScreen(
             val party = viewModel.getPartyById(it.partyId)
             partyName = party?.name ?: "Unknown Party"
             val company = viewModel.getCompanyById(it.companyId)
-            companyName = company?.businessName ?: company?.name ?: "My Business"
+            companyName = company?.name ?: "My Business"
         }
     }
 
