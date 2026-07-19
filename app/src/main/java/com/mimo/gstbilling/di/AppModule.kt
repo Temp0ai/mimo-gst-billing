@@ -39,4 +39,5 @@ object AppModule {
     @Provides fun providePartyGroupDao(db: AppDatabase) = db.partyGroupDao()
     @Provides fun provideItemBatchDao(db: AppDatabase) = db.itemBatchDao()
     @Provides fun provideItemVariantDao(db: AppDatabase) = db.itemVariantDao()
+    @Provides fun provideStaffDao(db: AppDatabase) = db.staffDao()
 }

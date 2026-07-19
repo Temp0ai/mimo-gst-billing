@@ -21,5 +21,6 @@ data class ItemEntity(
     val unit: String, // Pcs, Kg, Ltr, etc.
     val stockQuantity: Double = 0.0,
     val isService: Boolean = false,
+    val imageUri: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

@@ -1,9 +1,14 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -15,14 +20,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 import com.mimo.gstbilling.data.local.entity.ItemVariantEntity
+import java.io.File
 
 data class VariantFormState(
     val variantName: String = "",
@@ -58,6 +68,22 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
     var showDeleteVariantDialog by remember { mutableStateOf<VariantFormState?>(null) }
     var savedItemId by remember { mutableStateOf<Long?>(null) }
 
+    var itemImageUri by remember { mutableStateOf<Uri?>(null) }
+    var showImageOptions by remember { mutableStateOf(false) }
+    var itemImageFile by remember { mutableStateOf<File?>(null) }
+    val context = LocalContext.current
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && itemImageFile != null) {
+            itemImageUri = Uri.fromFile(itemImageFile)
+        }
+    }
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            itemImageUri = uri
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Add New Item", fontWeight = FontWeight.Bold) },
@@ -82,10 +108,11 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                 unit = unit,
                                 stockQuantity = stockQty.toDoubleOrNull() ?: 0.0,
                                 isService = isService,
-                                variants = variants.map { Triple(it.variantName, it.salePrice.toDouble(), it.stockQuantity.toDoubleOrNull() ?: 0.0) }
+                                variants = variants.map { Triple(it.variantName, it.salePrice.toDouble(), it.stockQuantity.toDoubleOrNull() ?: 0.0) },
+                                imageUri = itemImageUri?.toString()
                             )
                         } else {
-                            viewModel.addItem(itemName, hsnCode.ifBlank { null }, null, salePrice.toDouble(), purchasePrice.toDoubleOrNull() ?: 0.0, gstRate.toDouble(), unit, stockQty.toDoubleOrNull() ?: 0.0, isService)
+                            viewModel.addItem(itemName, hsnCode.ifBlank { null }, null, salePrice.toDouble(), purchasePrice.toDoubleOrNull() ?: 0.0, gstRate.toDouble(), unit, stockQty.toDoubleOrNull() ?: 0.0, isService, imageUri = itemImageUri?.toString())
                         }
                         navController.popBackStack()
                     }
@@ -96,6 +123,39 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).verticalScroll(rememberScrollState())) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(150.dp).clickable { showImageOptions = true },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (itemImageUri != null) {
+                        Image(
+                            painter = rememberAsyncImagePainter(model = itemImageUri),
+                            contentDescription = "Item Image",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                        Icon(
+                            Icons.Filled.Edit,
+                            contentDescription = "Change Image",
+                            tint = Color.White,
+                            modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
+                                .background(Primary, CircleShape).padding(6.dp).size(18.dp)
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(36.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Add Item Image", fontSize = 12.sp, color = TextSecondary)
+                        }
+                    }
+                }
+            }
+
             Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(value = itemName, onValueChange = { itemName = it }, label = { Text("Item Name *", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Inventory, contentDescription = null, tint = Primary) })
@@ -302,6 +362,40 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
             dismissButton = {
                 TextButton(onClick = { showDeleteVariantDialog = null }) { Text("Cancel", color = Primary) }
             }
+        )
+    }
+
+    if (showImageOptions) {
+        AlertDialog(
+            onDismissRequest = { showImageOptions = false },
+            title = { Text("Add Image", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth().clickable {
+                        showImageOptions = false
+                        val imageDir = File(context.cacheDir, "item_images")
+                        imageDir.mkdirs()
+                        val imageFile = File(imageDir, "item_${System.currentTimeMillis()}.jpg")
+                        itemImageFile = imageFile
+                        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imageFile)
+                        cameraLauncher.launch(uri)
+                    }.padding(12.dp)) {
+                        Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = Primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Take Photo", fontSize = 16.sp)
+                    }
+                    Row(modifier = Modifier.fillMaxWidth().clickable {
+                        showImageOptions = false
+                        galleryLauncher.launch("image/*")
+                    }.padding(12.dp)) {
+                        Icon(Icons.Filled.PhotoLibrary, contentDescription = null, tint = Primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text("Choose from Gallery", fontSize = 16.sp)
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = { TextButton(onClick = { showImageOptions = false }) { Text("Cancel") } }
         )
     }
 }

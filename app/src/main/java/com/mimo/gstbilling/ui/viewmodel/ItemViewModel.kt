@@ -61,7 +61,8 @@ class ItemViewModel @Inject constructor(
         gstRate: Double,
         unit: String,
         stockQuantity: Double,
-        isService: Boolean
+        isService: Boolean,
+        imageUri: String? = null
     ) {
         viewModelScope.launch {
             val item = ItemEntity(
@@ -74,7 +75,8 @@ class ItemViewModel @Inject constructor(
                 gstRate = gstRate,
                 unit = unit,
                 stockQuantity = stockQuantity,
-                isService = isService
+                isService = isService,
+                imageUri = imageUri
             )
             itemDao.insertItem(item)
             loadCounts()
@@ -91,7 +93,8 @@ class ItemViewModel @Inject constructor(
         unit: String,
         stockQuantity: Double,
         isService: Boolean,
-        variants: List<Triple<String, Double, Double>>
+        variants: List<Triple<String, Double, Double>>,
+        imageUri: String? = null
     ) {
         viewModelScope.launch {
             val item = ItemEntity(
@@ -104,7 +107,8 @@ class ItemViewModel @Inject constructor(
                 gstRate = gstRate,
                 unit = unit,
                 stockQuantity = stockQuantity,
-                isService = isService
+                isService = isService,
+                imageUri = imageUri
             )
             val itemId = itemDao.insertItem(item)
             variants.forEach { (variantName, variantSalePrice, variantStockQty) ->

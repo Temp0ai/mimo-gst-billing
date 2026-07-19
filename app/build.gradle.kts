@@ -102,6 +102,9 @@ dependencies {
         exclude(group = "stax", module = "stax-api")
     }
 
+    // Coil
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
 
