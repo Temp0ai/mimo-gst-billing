@@ -128,10 +128,10 @@ fun PartyDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White,
-                    actionIconContentColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = TextPrimary,
+                    navigationIconContentColor = TextPrimary,
+                    actionIconContentColor = TextPrimary
                 )
             )
         },
