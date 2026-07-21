@@ -490,30 +490,30 @@ fun CreateInvoiceScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    OutlinedTextField(
-                        value = customerSearchQuery,
-                        onValueChange = {
-                            customerSearchQuery = it
-                            partyName = it
-                            partySelected = false
-                            if (it.isEmpty()) {
-                                viewModel.setParty(0L, "", "")
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Customer *") },
-                        placeholder = { Text("Type name or phone number") },
-                        shape = RoundedCornerShape(16.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = Color(0xFFE0E0E0)
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
                     if (!partySelected) {
+                        OutlinedTextField(
+                            value = customerSearchQuery,
+                            onValueChange = {
+                                customerSearchQuery = it
+                                partyName = it
+                                partySelected = false
+                                if (it.isEmpty()) {
+                                    viewModel.setParty(0L, "", "")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text("Customer *") },
+                            placeholder = { Text("Type name or phone number") },
+                            shape = RoundedCornerShape(16.dp),
+                            singleLine = true,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Primary,
+                                unfocusedBorderColor = Color(0xFFE0E0E0)
+                            )
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,

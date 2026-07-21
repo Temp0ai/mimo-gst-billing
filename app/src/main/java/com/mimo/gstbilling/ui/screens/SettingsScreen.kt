@@ -60,7 +60,7 @@ fun SettingsScreen(navController: NavController) {
         VyaparSettingsItem("Data", Icons.Filled.Storage, Color(0xFF455A64),
             subItems = listOf("Import Database", "Export Database", "Backup & Restore")),
         VyaparSettingsItem("Account & Plans", Icons.Filled.Person, Color(0xFF00897B),
-            subItems = listOf("User Profile", "Role Management", "Subscription")),
+            subItems = listOf("User Profile", "Role Management")),
         VyaparSettingsItem("Operations", Icons.Filled.Work, Color(0xFF5C6BC0), hasNew = true,
             subItems = listOf("Staff Management", "Delivery Tracking", "Expense Approval", "Recurring Invoices", "Discount Configuration")),
         VyaparSettingsItem("Business Tools", Icons.Filled.Build, Color(0xFFEF6C00), hasNew = true,
@@ -205,7 +205,6 @@ fun SettingsScreen(navController: NavController) {
                                             "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)
                                             "User Profile" -> navController.navigate(Screen.UserProfile.route)
                                             "Role Management" -> navController.navigate(Screen.RoleManagement.route)
-                                            "Subscription" -> navController.navigate(Screen.Subscription.route)
                                             "Staff Management" -> navController.navigate(Screen.StaffManagement.route)
                                             "Delivery Tracking" -> navController.navigate(Screen.DeliveryTracking.route)
                                             "Expense Approval" -> navController.navigate(Screen.ExpenseApproval.route)
