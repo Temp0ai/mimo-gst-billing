@@ -57,7 +57,8 @@ fun PaymentReceivedScreen(navController: NavController, viewModel: InvoiceViewMo
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             item { Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) { Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) { Text("Outstanding Receivables", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary); Spacer(modifier = Modifier.height(4.dp)); Text(String.format(java.util.Locale.US, "\u20B9%,.2f", unpaidInvoices.sumOf { it.totalAmount - it.amountPaid }), fontWeight = FontWeight.Bold, fontSize = 24.sp, color = GreenBalance) } } }
-            items(unpaidInvoices) { invoice ->
+            items(count = unpaidInvoices.size) { index ->
+                val invoice = unpaidInvoices[index]
                 Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable { selectedInvoice = invoice; showRecordDialog = true }, shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, fontSize = 14.sp); Text("Balance: ${String.format(java.util.Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid)}", fontSize = 12.sp, color = RedAccent) }
