@@ -163,5 +163,36 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.StaffManagement.route) { StaffManagementScreen(navController) }
         composable(Screen.RecurringInvoices.route) { RecurringInvoicesScreen(navController) }
         composable(Screen.DiscountConfig.route) { DiscountConfigScreen(navController) }
+        composable(Screen.ProformaInvoice.route, arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })) { backStackEntry ->
+            val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
+            ProformaInvoiceScreen(navController, invoiceId)
+        }
+        composable(Screen.Quotation.route, arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })) { backStackEntry ->
+            val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
+            QuotationScreen(navController, invoiceId)
+        }
+        composable(Screen.DeliveryNote.route, arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })) { backStackEntry ->
+            val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
+            DeliveryNoteScreen(navController, invoiceId)
+        }
+        composable(Screen.PaymentReceived.route) { PaymentReceivedScreen(navController) }
+        composable(Screen.PaymentMade.route) { PaymentMadeScreen(navController) }
+        composable(Screen.GoodsReceiptNote.route) { GoodsReceiptNoteScreen(navController) }
+        composable(Screen.TdsTcsPayment.route) { TdsTcsPaymentScreen(navController) }
+        composable(Screen.AdvancePayment.route) { AdvancePaymentScreen(navController) }
+        composable(Screen.NotificationSettings.route) { NotificationSettingsScreen(navController) }
+        composable(Screen.AppLockSettings.route) { AppLockSettingsScreen(navController) }
+        composable(Screen.PrintSettings.route) { PrintSettingsScreen(navController) }
+        composable(Screen.EmailSettings.route) { EmailSettingsScreen(navController) }
+        composable(Screen.BankReconciliation.route) { BankReconciliationScreen(navController) }
+        composable(Screen.TdsReceivableDetail.route) { TdsReceivableDetailScreen(navController) }
+        composable(Screen.Gstr9.route) { Gstr9Screen(navController) }
+        composable(Screen.UserProfile.route) { UserProfileScreen(navController) }
+        composable(Screen.RoleManagement.route) { RoleManagementScreen(navController) }
+        composable(Screen.DeliveryTracking.route) { DeliveryTrackingScreen(navController) }
+        composable(Screen.ExpenseApproval.route) { ExpenseApprovalScreen(navController) }
+        composable(Screen.Subscription.route) { SubscriptionScreen(navController) }
+        composable(Screen.AnalyticsDashboard.route) { AnalyticsDashboardScreen(navController) }
+        composable(Screen.ItemPriceList.route) { ItemPriceListScreen(navController) }
     }
 }

@@ -39,7 +39,7 @@ fun CashBankScreen(navController: NavController, viewModel: CashBankViewModel = 
         topBar = {
             TopAppBar(title = { Text("Cash & Bank", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         },
         floatingActionButton = {
             FloatingActionButton(

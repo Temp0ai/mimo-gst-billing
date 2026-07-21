@@ -28,7 +28,7 @@ fun StockSummaryReportScreen(navController: NavController, viewModel: InvoiceVie
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Stock Summary Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val goods = items.filter { !it.isService }
@@ -76,7 +76,7 @@ fun LowStockReportScreen(navController: NavController, viewModel: InvoiceViewMod
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Low Stock Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val lowStockItems = items.filter { !it.isService && it.stockQuantity <= 10 }
@@ -124,7 +124,7 @@ fun CategoryStockReportScreen(navController: NavController, viewModel: InvoiceVi
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Stock by Category", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val goods = items.filter { !it.isService }
@@ -171,7 +171,7 @@ fun CategorySalePurchaseScreen(navController: NavController, viewModel: InvoiceV
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Sale/Purchase by Category", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val salesInvoices = invoices.filter { it.invoiceType == "sales" }
@@ -228,7 +228,7 @@ fun SerialReportScreen(navController: NavController, viewModel: InvoiceViewModel
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Item Serial Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val itemsWithStock = items.filter { !it.isService && it.stockQuantity > 0 }
@@ -276,7 +276,7 @@ fun BankStatementReportScreen(navController: NavController, viewModel: InvoiceVi
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Bank Statement", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val bankInvoices = invoices.filter { it.invoiceType == "sales" }
@@ -318,7 +318,7 @@ fun GstrSummaryScreen(navController: NavController, viewModel: InvoiceViewModel 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("GST Summary", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val totalSales = invoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
@@ -357,7 +357,7 @@ fun Form27EqScreen(navController: NavController, viewModel: InvoiceViewModel = h
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Form 27EQ", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val tcsInvoices = invoices.filter { it.tcsAmount > 0 }
@@ -403,7 +403,7 @@ fun TcsReceivableScreen(navController: NavController, viewModel: InvoiceViewMode
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TCS Receivable", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val tcsInvoices = invoices.filter { it.tcsAmount > 0 }
@@ -441,7 +441,7 @@ fun TdsPayableScreen(navController: NavController, viewModel: InvoiceViewModel =
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TDS Payable", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val tdsInvoices = invoices.filter { it.tdsAmount > 0 }
@@ -479,7 +479,7 @@ fun TdsReceivableScreen(navController: NavController, viewModel: InvoiceViewMode
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TDS Receivable", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val tdsInvoices = invoices.filter { it.tdsAmount > 0 }
@@ -525,7 +525,7 @@ fun SacReportScreen(navController: NavController, viewModel: InvoiceViewModel = 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("SAC Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val serviceInvoices = invoices.filter { it.invoiceType == "sales" }
@@ -556,7 +556,7 @@ fun AllTransactionsReportScreen(navController: NavController, viewModel: Invoice
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("All Transactions", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val totalSales = invoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
@@ -605,7 +605,7 @@ fun ExpenseTransactionReportScreen(navController: NavController, viewModel: Invo
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Expense Transaction Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val totalExpenses = expenses.sumOf { it.amount }
@@ -648,7 +648,7 @@ fun AllPartiesReportScreen(navController: NavController, viewModel: InvoiceViewM
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("All Parties Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {

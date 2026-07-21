@@ -52,7 +52,7 @@ fun CompanySwitchScreen(
                         Icon(Icons.Filled.Add, contentDescription = "Add Company")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary, actionIconContentColor = TextPrimary)
             )
         }
     ) { padding ->

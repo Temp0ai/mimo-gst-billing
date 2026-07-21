@@ -35,7 +35,7 @@ private fun GenericReportScreen(
         topBar = {
             TopAppBar(title = { Text(title, fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
@@ -161,7 +161,7 @@ fun StockDetailReportScreen(navController: NavController, viewModel: com.mimo.gs
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Stock Detail Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val goods = items.filter { !it.isService }
@@ -290,7 +290,7 @@ fun ExpenseItemReportScreen(navController: NavController, viewModel: com.mimo.gs
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Expense Item Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
         }
     ) { padding ->
         val grouped = expenses.groupBy { it.category }

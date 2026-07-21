@@ -58,7 +58,13 @@ fun SettingsScreen(navController: NavController) {
         VyaparSettingsItem("Multi-Currency", Icons.Filled.AttachMoney, Color(0xFF795548), isPremium = true,
             subItems = listOf("Currency Settings")),
         VyaparSettingsItem("Data", Icons.Filled.Storage, Color(0xFF455A64),
-            subItems = listOf("Import Database", "Export Database", "Backup & Restore"))
+            subItems = listOf("Import Database", "Export Database", "Backup & Restore")),
+        VyaparSettingsItem("Account & Plans", Icons.Filled.Person, Color(0xFF00897B),
+            subItems = listOf("User Profile", "Role Management", "Subscription")),
+        VyaparSettingsItem("Operations", Icons.Filled.Work, Color(0xFF5C6BC0), hasNew = true,
+            subItems = listOf("Staff Management", "Delivery Tracking", "Expense Approval", "Recurring Invoices", "Discount Configuration")),
+        VyaparSettingsItem("Business Tools", Icons.Filled.Build, Color(0xFFEF6C00), hasNew = true,
+            subItems = listOf("Analytics Dashboard", "Item Price List", "Manufacturing", "Orders", "Bank Reconciliation", "TDS Receivable Detail", "GSTR-9 Return"))
     )
 
     Scaffold(
@@ -197,6 +203,21 @@ fun SettingsScreen(navController: NavController) {
                                             "Import Database" -> navController.navigate(Screen.ImportData.route)
                                             "Export Database" -> navController.navigate(Screen.ExportData.route)
                                             "Backup & Restore" -> navController.navigate(Screen.BackupRestore.route)
+                                            "User Profile" -> navController.navigate(Screen.UserProfile.route)
+                                            "Role Management" -> navController.navigate(Screen.RoleManagement.route)
+                                            "Subscription" -> navController.navigate(Screen.Subscription.route)
+                                            "Staff Management" -> navController.navigate(Screen.StaffManagement.route)
+                                            "Delivery Tracking" -> navController.navigate(Screen.DeliveryTracking.route)
+                                            "Expense Approval" -> navController.navigate(Screen.ExpenseApproval.route)
+                                            "Recurring Invoices" -> navController.navigate(Screen.RecurringInvoices.route)
+                                            "Discount Configuration" -> navController.navigate(Screen.DiscountConfig.route)
+                                            "Analytics Dashboard" -> navController.navigate(Screen.AnalyticsDashboard.route)
+                                            "Item Price List" -> navController.navigate(Screen.ItemPriceList.route)
+                                            "Manufacturing" -> navController.navigate(Screen.Manufacturing.route)
+                                            "Orders" -> navController.navigate(Screen.Orders.route)
+                                            "Bank Reconciliation" -> navController.navigate(Screen.BankReconciliation.route)
+                                            "TDS Receivable Detail" -> navController.navigate(Screen.TdsReceivableDetail.route)
+                                            "GSTR-9 Return" -> navController.navigate(Screen.Gstr9.route)
                                         }
                                     }
                                     .background(Color(0xFFF8F9FA))

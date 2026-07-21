@@ -129,4 +129,32 @@ sealed class Screen(val route: String) {
     object StaffManagement : Screen("staff_management")
     object RecurringInvoices : Screen("recurring_invoices")
     object DiscountConfig : Screen("discount_config")
+    object ProformaInvoice : Screen("proforma_invoice/{invoiceId}") {
+        fun createRoute(invoiceId: Long) = "proforma_invoice/$invoiceId"
+    }
+    object Quotation : Screen("quotation/{invoiceId}") {
+        fun createRoute(invoiceId: Long) = "quotation/$invoiceId"
+    }
+    object DeliveryNote : Screen("delivery_note/{invoiceId}") {
+        fun createRoute(invoiceId: Long) = "delivery_note/$invoiceId"
+    }
+    object NotificationSettings : Screen("notification_settings")
+    object AppLockSettings : Screen("app_lock_settings")
+    object PrintSettings : Screen("print_settings")
+    object EmailSettings : Screen("email_settings")
+    object BankReconciliation : Screen("bank_reconciliation")
+    object TdsReceivableDetail : Screen("tds_receivable_detail")
+    object Gstr9 : Screen("gstr9")
+    object PaymentReceived : Screen("payment_received")
+    object PaymentMade : Screen("payment_made")
+    object GoodsReceiptNote : Screen("goods_receipt_note")
+    object TdsTcsPayment : Screen("tds_tcs_payment")
+    object AdvancePayment : Screen("advance_payment")
+    object UserProfile : Screen("user_profile")
+    object RoleManagement : Screen("role_management")
+    object DeliveryTracking : Screen("delivery_tracking")
+    object ExpenseApproval : Screen("expense_approval")
+    object Subscription : Screen("subscription")
+    object AnalyticsDashboard : Screen("analytics_dashboard")
+    object ItemPriceList : Screen("item_price_list")
 }

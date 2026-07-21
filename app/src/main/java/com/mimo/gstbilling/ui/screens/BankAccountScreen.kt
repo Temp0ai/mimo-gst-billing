@@ -62,7 +62,7 @@ fun BankAccountScreen(navController: NavController) {
                         Icon(Icons.Filled.Add, contentDescription = "Add Account", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary)
             )
         },
         floatingActionButton = {

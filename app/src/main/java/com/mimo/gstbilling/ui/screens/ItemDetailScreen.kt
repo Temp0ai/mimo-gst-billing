@@ -68,7 +68,7 @@ fun ItemDetailScreen(
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Primary, titleContentColor = Color.White, navigationIconContentColor = Color.White, actionIconContentColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary, actionIconContentColor = TextPrimary)
             )
         }
     ) { padding ->
