@@ -17,9 +17,74 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mimo.gstbilling.ui.theme.GreenBalance
 import com.mimo.gstbilling.ui.theme.Primary
+import com.mimo.gstbilling.ui.theme.RedAccent
 import com.mimo.gstbilling.ui.theme.TextPrimary
 import com.mimo.gstbilling.ui.theme.TextSecondary
+
+@Composable
+fun VyaparDashboardBottomBar(
+    onTakePayment: () -> Unit,
+    onAddClick: () -> Unit,
+    onAddSale: () -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shadowElevation = 12.dp,
+        color = Color.White
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedButton(
+                onClick = onTakePayment,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(1.5.dp, Primary),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
+                contentPadding = PaddingValues(vertical = 12.dp)
+            ) {
+                Icon(Icons.Filled.AccountBalanceWallet, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Take Payment", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+            }
+
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(Primary)
+                    .clickable { onAddClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Add",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
+
+            Button(
+                onClick = onAddSale,
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
+                contentPadding = PaddingValues(vertical = 12.dp)
+            ) {
+                Icon(Icons.Filled.Receipt, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("Add Sale", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White)
+            }
+        }
+    }
+}
 
 data class BottomNavItem(
     val title: String,
@@ -48,7 +113,6 @@ fun VyaparBottomBar(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Home tab
             BottomTabItem(
                 icon = Icons.Filled.Home,
                 label = "Home",
@@ -56,7 +120,6 @@ fun VyaparBottomBar(
                 onClick = { onTabSelected(0) },
                 modifier = Modifier.weight(1f)
             )
-            // Parties tab
             BottomTabItem(
                 icon = Icons.Filled.Group,
                 label = "Parties",
@@ -64,7 +127,6 @@ fun VyaparBottomBar(
                 onClick = { onTabSelected(1) },
                 modifier = Modifier.weight(1f)
             )
-            // Center FAB
             Box(
                 modifier = Modifier
                     .size(56.dp)
@@ -80,7 +142,6 @@ fun VyaparBottomBar(
                     modifier = Modifier.size(28.dp)
                 )
             }
-            // Items tab
             BottomTabItem(
                 icon = Icons.Filled.Inventory,
                 label = "Items",
@@ -88,7 +149,6 @@ fun VyaparBottomBar(
                 onClick = { onTabSelected(3) },
                 modifier = Modifier.weight(1f)
             )
-            // More tab
             BottomTabItem(
                 icon = Icons.Filled.MoreHoriz,
                 label = "More",
