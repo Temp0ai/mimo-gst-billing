@@ -24,7 +24,7 @@ fun Gstr9Screen(navController: NavController) {
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             item { Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) { Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) { Text("GSTR-9 Annual Return", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary); Spacer(modifier = Modifier.height(8.dp)); Text("Annual GST return filing for the financial year.", fontSize = 13.sp, color = TextSecondary) } } }
             item { Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) { Column(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { GstrRow("Total Outward Supplies", 0.0); GstrRow("Total Inward Supplies (ITC)", 0.0); GstrRow("Tax Paid", 0.0); GstrRow("Late Fees", 0.0) } } }
-            item { Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) { Text("Generate GSTR-9 JSON", fontWeight = FontWeight.Bold) } }
+            item { Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) { Text("Generate GSTR-9 JSON", fontWeight = FontWeight.Bold) } }
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }

@@ -68,7 +68,7 @@ fun BankAccountScreen(navController: NavController) {
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = Primary
+                containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
             }
@@ -166,7 +166,7 @@ fun BankAccountScreen(navController: NavController) {
                         bankName = ""; accountNumber = ""; ifscCode = ""; branch = ""
                         showAddDialog = false
                     }
-                }, colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)) {
+                }, colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                     Text("Save", fontWeight = FontWeight.Bold)
                 }
             },

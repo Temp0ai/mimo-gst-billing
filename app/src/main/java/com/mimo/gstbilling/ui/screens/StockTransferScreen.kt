@@ -78,7 +78,7 @@ fun StockTransferScreen(navController: NavController, viewModel: StockTransferVi
                         viewModel.addTransfer(fromWarehouseId, toWarehouseId, selectedItemId, selectedItemName, q, notes.ifBlank { null })
                         showAddDialog = false
                     }
-                }) { Text("Transfer") }
+                }) { Text("Transfer", color = RedAccent, fontWeight = FontWeight.Bold) }
             },
             dismissButton = { TextButton(onClick = { showAddDialog = false }) { Text("Cancel") } }
         )
@@ -91,17 +91,18 @@ fun StockTransferScreen(navController: NavController, viewModel: StockTransferVi
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A)))
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = GreenBalance, contentColor = Color.White) {
+            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = RedAccent, contentColor = Color.White) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Transfer")
             }
         }
     ) { padding ->
         if (transfers.isEmpty()) {
             Column(modifier = Modifier.fillMaxSize().padding(padding), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
-                Icon(Icons.Filled.SwapHoriz, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(64.dp))
+                Icon(Icons.Filled.SwapHoriz, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("No transfers yet", fontSize = 16.sp, color = TextSecondary)
-                Text("Tap + to transfer stock between warehouses", fontSize = 12.sp, color = TextSecondary)
+                Text("No transfers yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("Tap + to transfer stock between warehouses", fontSize = 13.sp, color = TextSecondary)
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background).padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

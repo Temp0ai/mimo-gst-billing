@@ -77,7 +77,7 @@ fun RecurringInvoicesScreen(navController: NavController, viewModel: RecurringIn
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Recurring Invoices", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) },
-        floatingActionButton = { FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Primary, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Recurring") } }
+        floatingActionButton = { FloatingActionButton(onClick = { showAddDialog = true }, containerColor = RedAccent, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Recurring") } }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             items(recurring, key = { it.id }) { rec ->

@@ -51,7 +51,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                 Icon(Icons.Filled.Business, contentDescription = null, tint = Primary, modifier = Modifier.size(64.dp))
                 Spacer(modifier = Modifier.height(12.dp))
                 Text("Mimo GST Billing", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Primary)
-                Text("Sign in to continue", fontSize = 13.sp, color = TextSecondary)
+                Text("Log in to continue", fontSize = 13.sp, color = TextSecondary)
                 Spacer(modifier = Modifier.height(24.dp))
 
                 OutlinedTextField(
@@ -101,9 +101,10 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
-                    Text("Sign In", fontWeight = FontWeight.Bold)
+                    Text("Log In", fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))

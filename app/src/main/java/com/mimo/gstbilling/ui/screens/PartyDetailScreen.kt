@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Receipt
@@ -243,7 +244,7 @@ fun PartyDetailScreen(
 
             if (selectedTab == 0) {
                 if (partyInvoices.isEmpty()) {
-                    item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No transactions yet", fontSize = 14.sp, color = TextSecondary) } }
+                    item { Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add a transaction", fontSize = 13.sp, color = TextSecondary) } }
                 } else {
                     items(partyInvoices) { invoice ->
                         Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
@@ -278,7 +279,7 @@ fun PartyDetailScreen(
                     }
                 }
             } else {
-                item { Column(modifier = Modifier.fillMaxWidth().padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) { Text("No items for this party", fontSize = 14.sp, color = TextSecondary) } }
+                item { Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Inventory, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No items for this party", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add an item", fontSize = 13.sp, color = TextSecondary) } }
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Note
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -462,7 +463,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("No parties found", fontSize = 14.sp, color = TextSecondary)
+                                Icon(Icons.Filled.Group, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text("No parties yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Tap + to add a party", fontSize = 13.sp, color = TextSecondary)
                             }
                         }
                     } else {
@@ -553,7 +558,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("No transactions yet", fontSize = 14.sp, color = TextSecondary)
+                                Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Tap + to create a transaction", fontSize = 13.sp, color = TextSecondary)
                             }
                         }
                     } else {
@@ -720,7 +729,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text("No items found", fontSize = 14.sp, color = TextSecondary)
+                                Icon(Icons.Filled.FormatListBulleted, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text("No items yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("Tap + to add an item", fontSize = 13.sp, color = TextSecondary)
                             }
                         }
                     } else {

@@ -51,7 +51,7 @@ fun DeliveryChallanScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                containerColor = Primary
+                containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Delivery Challan", tint = Color.White)
             }

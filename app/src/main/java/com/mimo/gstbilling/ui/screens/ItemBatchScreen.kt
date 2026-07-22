@@ -84,7 +84,7 @@ fun ItemBatchScreen(navController: NavController, viewModel: ItemBatchViewModel 
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Batch Tracking", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) },
-        floatingActionButton = { FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Primary, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Batch") } }
+        floatingActionButton = { FloatingActionButton(onClick = { showAddDialog = true }, containerColor = RedAccent, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Batch") } }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             items(batches, key = { it.id }) { batch ->

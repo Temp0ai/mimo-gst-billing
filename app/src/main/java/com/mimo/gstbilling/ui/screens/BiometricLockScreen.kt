@@ -135,7 +135,7 @@ fun BiometricLockScreen(navController: NavController) {
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Primary),
+            colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
             enabled = !isAuthenticating
         ) {
             Icon(

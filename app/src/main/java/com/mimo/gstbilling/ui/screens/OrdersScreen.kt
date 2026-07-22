@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -70,7 +71,7 @@ fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltV
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate("create_order?orderType=${orderTypes[selectedTab]}") },
-                containerColor = GreenBalance,
+                containerColor = RedAccent,
                 contentColor = Color.White
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Create Order")
@@ -106,7 +107,11 @@ fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltV
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("No orders yet", fontSize = 16.sp, color = TextSecondary)
+                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text("No orders yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("Tap + to create an order", fontSize = 13.sp, color = TextSecondary)
                 }
             } else {
                 LazyColumn(

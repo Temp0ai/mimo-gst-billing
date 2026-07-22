@@ -50,7 +50,7 @@ fun StaffManagementScreen(navController: NavController, viewModel: StaffViewMode
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Staff Management", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) },
-        floatingActionButton = { FloatingActionButton(onClick = { editingStaff = null; showAddEditDialog = true }, containerColor = Primary, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Staff") } }
+        floatingActionButton = { FloatingActionButton(onClick = { editingStaff = null; showAddEditDialog = true }, containerColor = RedAccent, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Staff") } }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             item { Text("Staff Members (${staffList.size})", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary, modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) }

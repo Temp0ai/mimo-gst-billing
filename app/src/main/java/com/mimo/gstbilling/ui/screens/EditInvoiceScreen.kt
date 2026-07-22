@@ -118,7 +118,7 @@ fun EditInvoiceScreen(
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
                     Text("Save Changes", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }

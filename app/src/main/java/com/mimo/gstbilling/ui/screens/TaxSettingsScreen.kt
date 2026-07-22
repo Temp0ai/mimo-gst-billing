@@ -50,7 +50,7 @@ fun TaxSettingsScreen(navController: NavController) {
                 },
                 actions = {
                     IconButton(onClick = { }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color.White)
+                        Icon(Icons.Filled.Search, contentDescription = "Search", tint = TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary)

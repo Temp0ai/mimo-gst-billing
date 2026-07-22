@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +45,7 @@ fun TdsTcsPaymentScreen(navController: NavController) {
                     }
                 }
             }
-            item { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Text("No ${if (selectedTab == 0) "TDS" else "TCS"} records yet", color = TextSecondary) } }
+            item { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No ${if (selectedTab == 0) "TDS" else "TCS"} records yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add a record", fontSize = 13.sp, color = TextSecondary) } } }
         }
     }
 }

@@ -46,7 +46,7 @@ fun GoodsReceiptNoteScreen(navController: NavController) {
                     }
                 }
             }
-            item { Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)) { Icon(Icons.Filled.CheckCircle, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Confirm Receipt", fontWeight = FontWeight.Bold, fontSize = 16.sp) } }
+            item { Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) { Icon(Icons.Filled.CheckCircle, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Save", fontWeight = FontWeight.Bold, fontSize = 16.sp) } }
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }

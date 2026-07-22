@@ -171,7 +171,7 @@ fun CashBankScreen(navController: NavController, viewModel: CashBankViewModel = 
                         amount = ""
                         description = ""
                     }
-                }) { Text("Save") }
+                }) { Text("Save", color = RedAccent, fontWeight = FontWeight.Bold) }
             },
             dismissButton = { TextButton(onClick = { showAddDialog = false }) { Text("Cancel") } }
         )

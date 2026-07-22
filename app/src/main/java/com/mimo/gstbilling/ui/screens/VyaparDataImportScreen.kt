@@ -246,7 +246,7 @@ fun VyaparDataImportScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                         enabled = !isImporting
                     ) {
                         if (isImporting) {

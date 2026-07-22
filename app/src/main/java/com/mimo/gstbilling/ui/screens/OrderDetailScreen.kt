@@ -232,7 +232,7 @@ fun OrderDetailScreen(
                             onClick = { showConvertDialog = true },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                            colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                         ) {
                             Text("Convert to Invoice", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }

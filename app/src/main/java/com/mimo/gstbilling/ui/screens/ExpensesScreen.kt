@@ -81,7 +81,7 @@ fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = h
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { editingExpense = null; showAddEditDialog = true }, containerColor = GreenBalance, contentColor = Color.White) {
+            FloatingActionButton(onClick = { editingExpense = null; showAddEditDialog = true }, containerColor = RedAccent, contentColor = Color.White) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Expense")
             }
         }
@@ -133,7 +133,7 @@ fun ExpensesScreen(navController: NavController, viewModel: ExpenseViewModel = h
                     }
                 }
             }
-            item { if (filteredExpenses.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.4f), modifier = Modifier.size(48.dp)); Spacer(modifier = Modifier.height(8.dp)); Text("No expenses yet", fontSize = 14.sp, color = TextSecondary) } } } }
+            item { if (filteredExpenses.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No expenses yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add an expense", fontSize = 13.sp, color = TextSecondary) } } } }
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }

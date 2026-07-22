@@ -77,7 +77,7 @@ fun PurchasesScreen(navController: NavController, viewModel: InvoiceViewModel = 
                     }
                 }
             }
-            item { if (filteredInvoices.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No purchase invoices", fontSize = 14.sp, color = TextSecondary) } } }
+            item { if (filteredInvoices.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No purchases yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to create a purchase", fontSize = 13.sp, color = TextSecondary) } } } }
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }

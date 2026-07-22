@@ -148,7 +148,7 @@ fun CompanySwitchScreen(
                             showAddDialog = false
                         }
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
                     Text("Add", color = Color.White)
                 }

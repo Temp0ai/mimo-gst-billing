@@ -86,14 +86,14 @@ fun ItemSettingsScreen(navController: NavController) {
                         Icon(
                             Icons.Filled.Search,
                             contentDescription = "Search",
-                            tint = Color.White
+                            tint = TextPrimary
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = TextPrimary,
+                    navigationIconContentColor = TextPrimary
                 )
             )
         }

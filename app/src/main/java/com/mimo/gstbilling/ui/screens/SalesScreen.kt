@@ -86,7 +86,7 @@ fun SalesScreen(navController: NavController, viewModel: InvoiceViewModel = hilt
                     }
                 }
             }
-            item { if (filteredInvoices.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No invoices found", fontSize = 14.sp, color = TextSecondary) } } }
+            item { if (filteredInvoices.isEmpty()) { Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No sales yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to create a sale", fontSize = 13.sp, color = TextSecondary) } } } }
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }

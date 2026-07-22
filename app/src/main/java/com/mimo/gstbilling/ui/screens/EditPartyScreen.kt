@@ -71,9 +71,9 @@ fun EditPartyScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Primary,
-                    titleContentColor = Color.White,
-                    navigationIconContentColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = Color(0xFF1A1A1A),
+                    navigationIconContentColor = Color(0xFF1A1A1A)
                 )
             )
         },
@@ -89,7 +89,7 @@ fun EditPartyScreen(
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
                     border = ButtonDefaults.outlinedButtonBorder
                 ) {
@@ -114,11 +114,11 @@ fun EditPartyScreen(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                     enabled = partyName.isNotBlank()
                 ) {
-                    Text("Update", fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }

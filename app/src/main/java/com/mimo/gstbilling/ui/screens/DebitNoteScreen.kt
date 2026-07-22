@@ -51,7 +51,7 @@ fun DebitNoteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                containerColor = Primary
+                containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Debit Note", tint = Color.White)
             }

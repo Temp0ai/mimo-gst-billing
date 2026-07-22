@@ -373,7 +373,7 @@ fun CreateOrderScreen(
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                     enabled = selectedPartyId > 0 && items.isNotEmpty() && !isSaving
                 ) {
                     Text("Save", fontWeight = FontWeight.Bold, fontSize = 16.sp)

@@ -41,7 +41,7 @@ fun EmailSettingsScreen(navController: NavController) {
                     OutlinedTextField(value = senderPassword, onValueChange = { senderPassword = it; save("password", it) }, label = { Text("Password") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 }
             }
-            Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) { Text("Save Settings", fontWeight = FontWeight.Bold) }
+            Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) { Text("Save Settings", fontWeight = FontWeight.Bold) }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

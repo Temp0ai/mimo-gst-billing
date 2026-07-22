@@ -50,7 +50,7 @@ fun StoreManagementScreen(navController: NavController, viewModel: WarehouseView
     Scaffold(
         topBar = { TopAppBar(title = { Text("Stores & Warehouses", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { editingWarehouse = null; showAddDialog = true }, containerColor = Primary, contentColor = Color.White) {
+            FloatingActionButton(onClick = { editingWarehouse = null; showAddDialog = true }, containerColor = RedAccent, contentColor = Color.White) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Warehouse")
             }
         }

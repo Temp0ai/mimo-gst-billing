@@ -104,25 +104,18 @@ fun CreateInvoiceScreen(
     var discount by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
     var partyMenuExpanded by remember { mutableStateOf(false) }
-    var showItemPicker by remember { mutableStateOf(false) }
     var isCashSale by remember { mutableStateOf(false) }
     var partySelected by remember { mutableStateOf(false) }
     var invoicePrefix by remember { mutableStateOf("INV") }
     var invoiceNumberPart by remember { mutableStateOf("0001") }
     var customerSearchQuery by remember { mutableStateOf("") }
     var showPhoneContacts by remember { mutableStateOf(false) }
-    var showQuickAddItem by remember { mutableStateOf(false) }
 
     LaunchedEffect(invoiceType) {
         viewModel.setInvoiceType(invoiceType)
     }
 
     val isPurchase = invoiceType == "purchase"
-    var quickItemName by remember { mutableStateOf("") }
-    var quickItemPrice by remember { mutableStateOf("") }
-    var quickItemGst by remember { mutableStateOf("18") }
-    var quickItemHsn by remember { mutableStateOf("") }
-    var quickItemUnit by remember { mutableStateOf("Pcs") }
     var ewayBillNo by remember { mutableStateOf("") }
     var showMenu by remember { mutableStateOf(false) }
     var showInvoicePrefixEdit by remember { mutableStateOf(false) }
@@ -367,7 +360,7 @@ fun CreateInvoiceScreen(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(12.dp),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
                     contentPadding = PaddingValues(vertical = 14.dp)
@@ -389,8 +382,8 @@ fun CreateInvoiceScreen(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                     enabled = !uiState.isSaving,
                     contentPadding = PaddingValues(vertical = 14.dp)
                 ) {
@@ -687,7 +680,7 @@ fun CreateInvoiceScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showItemPicker = true }
+                        .clickable { navController.navigate(Screen.AddItemToSale.createRoute(invoiceType)) }
                         .padding(horizontal = 16.dp, vertical = 4.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -823,228 +816,10 @@ fun CreateInvoiceScreen(
         }
     }
 
-    if (showItemPicker && !showQuickAddItem) {
-        AlertDialog(
-            onDismissRequest = { showItemPicker = false },
-            title = { Text("Select Item", fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    Card(
-                        modifier = Modifier.fillMaxWidth().clickable {
-                            showQuickAddItem = true
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = GreenBalance.copy(alpha = 0.1f))
-                    ) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.Add, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(22.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Add New Item", fontWeight = FontWeight.Bold, color = GreenBalance, fontSize = 15.sp)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    if (uiState.allItems.isEmpty()) {
-                        Text("No items found. Create one using the button above.", fontSize = 13.sp, color = TextSecondary)
-                    } else {
-                        LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.heightIn(max = 400.dp)) {
-                            items(uiState.allItems.size) { index ->
-                                val item = uiState.allItems[index]
-                                Card(
-                                    modifier = Modifier.fillMaxWidth().clickable {
-                                        viewModel.addItem(item)
-                                        if (!uiState.showVariantPicker) {
-                                            showItemPicker = false
-                                        }
-                                    },
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                                ) {
-                                    Row(modifier = Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Column {
-                                            Text(item.name, fontWeight = FontWeight.Medium, color = TextPrimary)
-                                            Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}%", fontSize = 12.sp, color = TextSecondary)
-                                        }
-                                        Text(String.format(java.util.Locale.US, "\u20B9%.2f", item.salePrice), fontWeight = FontWeight.Bold, color = Primary)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showItemPicker = false }) { Text("Cancel") }
-            }
-        )
-    }
-
-    if (showQuickAddItem) {
-        var quickItemQty by remember { mutableStateOf("1") }
-        var quickItemTaxIncluded by remember { mutableStateOf(false) }
-        var quickItemUnitExpanded by remember { mutableStateOf(false) }
-        val units = listOf("Pcs", "Kg", "Gm", "Ltr", "Mtr", "Sqm", "Box", "Pair", "Set", "Doz", "Btl", "Bag", "Roll", "Bundle", "Pack", "Nos")
-
-        AlertDialog(
-            onDismissRequest = { showQuickAddItem = false; showItemPicker = false },
-            title = { Text("Add Items to ${if (isPurchase) "Purchase" else "Sale"}", fontWeight = FontWeight.Bold) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
-                        value = quickItemName,
-                        onValueChange = { quickItemName = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Item Name") },
-                        placeholder = { Text("e.g. Chocolate Cake") },
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        OutlinedTextField(
-                            value = quickItemQty,
-                            onValueChange = { quickItemQty = it },
-                            modifier = Modifier.weight(1f),
-                            label = { Text("Quantity") },
-                            placeholder = { Text("1") },
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                        )
-
-                        ExposedDropdownMenuBox(
-                            expanded = quickItemUnitExpanded,
-                            onExpandedChange = { quickItemUnitExpanded = it }
-                        ) {
-                            OutlinedTextField(
-                                value = quickItemUnit,
-                                onValueChange = {},
-                                modifier = Modifier.weight(1f).menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                                label = { Text("Unit") },
-                                shape = RoundedCornerShape(12.dp),
-                                readOnly = true,
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = quickItemUnitExpanded) },
-                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                            )
-                            ExposedDropdownMenu(
-                                expanded = quickItemUnitExpanded,
-                                onDismissRequest = { quickItemUnitExpanded = false }
-                            ) {
-                                units.forEach { unit ->
-                                    DropdownMenuItem(
-                                        text = { Text(unit) },
-                                        onClick = { quickItemUnit = unit; quickItemUnitExpanded = false }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        OutlinedTextField(
-                            value = quickItemPrice,
-                            onValueChange = { quickItemPrice = it },
-                            modifier = Modifier.weight(1f),
-                            label = { Text("Rate (Price/Unit)") },
-                            placeholder = { Text("0.00") },
-                            shape = RoundedCornerShape(12.dp),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
-                        )
-
-                        Column {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row {
-                                FilterChip(
-                                    selected = !quickItemTaxIncluded,
-                                    onClick = { quickItemTaxIncluded = false },
-                                    label = { Text("Without Tax", fontSize = 12.sp, color = if (!quickItemTaxIncluded) Primary else TextSecondary) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Primary.copy(alpha = 0.12f),
-                                        containerColor = Color.White,
-                                        labelColor = TextSecondary
-                                    ),
-                                    border = FilterChipDefaults.filterChipBorder(
-                                        borderColor = Color(0xFFE0E0E0),
-                                        selectedBorderColor = Primary.copy(alpha = 0.4f),
-                                        enabled = true,
-                                        selected = !quickItemTaxIncluded
-                                    )
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                FilterChip(
-                                    selected = quickItemTaxIncluded,
-                                    onClick = { quickItemTaxIncluded = true },
-                                    label = { Text("With Tax", fontSize = 12.sp, color = if (quickItemTaxIncluded) Primary else TextSecondary) },
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = FilterChipDefaults.filterChipColors(
-                                        selectedContainerColor = Primary.copy(alpha = 0.12f),
-                                        containerColor = Color.White,
-                                        labelColor = TextSecondary
-                                    ),
-                                    border = FilterChipDefaults.filterChipBorder(
-                                        borderColor = Color(0xFFE0E0E0),
-                                        selectedBorderColor = Primary.copy(alpha = 0.4f),
-                                        enabled = true,
-                                        selected = quickItemTaxIncluded
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextButton(
-                        onClick = { showQuickAddItem = false; showItemPicker = false },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.textButtonColors(containerColor = Color(0xFFF5F5F5))
-                    ) {
-                        Text("Save & New", color = TextPrimary, fontWeight = FontWeight.Bold)
-                    }
-                    Button(
-                        onClick = {
-                            val name = quickItemName.trim()
-                            val price = quickItemPrice.toDoubleOrNull() ?: 0.0
-                            val gst = quickItemGst.toDoubleOrNull() ?: 18.0
-                            if (name.isNotBlank() && price > 0) {
-                                scope.launch {
-                                    val newItem = viewModel.createQuickItem(name, price, gst, quickItemHsn.trim(), quickItemUnit)
-                                    viewModel.addItem(newItem)
-                                    quickItemName = ""
-                                    quickItemPrice = ""
-                                    quickItemQty = "1"
-                                    quickItemGst = "18"
-                                    quickItemHsn = ""
-                                    showQuickAddItem = false
-                                    showItemPicker = false
-                                }
-                            }
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
-                        enabled = quickItemName.isNotBlank() && (quickItemPrice.toDoubleOrNull() ?: 0.0) > 0
-                    ) {
-                        Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
-                    }
-                }
-            }
-        )
-    }
     if (uiState.showVariantPicker && uiState.selectedItemForVariant != null) {
         AlertDialog(
             onDismissRequest = {
                 viewModel.dismissVariantPicker()
-                showItemPicker = false
             },
             title = { Text("Select Variant", fontWeight = FontWeight.Bold) },
             text = {
@@ -1064,7 +839,6 @@ fun CreateInvoiceScreen(
                                 Card(
                                     modifier = Modifier.fillMaxWidth().clickable {
                                         viewModel.addVariantToInvoice(variant)
-                                        showItemPicker = false
                                     },
                                     shape = RoundedCornerShape(16.dp),
                                     colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -1085,7 +859,6 @@ fun CreateInvoiceScreen(
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.dismissVariantPicker()
-                    showItemPicker = false
                 }) { Text("Cancel") }
             }
         )

@@ -51,7 +51,7 @@ fun CreditNoteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(Screen.CreateInvoice.route) },
-                containerColor = Primary
+                containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Credit Note", tint = Color.White)
             }

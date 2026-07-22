@@ -43,7 +43,7 @@ fun LoanStatementScreen(navController: NavController) {
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = Primary) {
+            FloatingActionButton(onClick = { showAddDialog = true }, containerColor = RedAccent) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Loan", tint = Color.White)
             }
         }

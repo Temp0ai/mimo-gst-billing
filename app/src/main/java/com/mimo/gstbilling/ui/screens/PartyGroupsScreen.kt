@@ -62,7 +62,7 @@ fun PartyGroupsScreen(navController: NavController, viewModel: PartyGroupViewMod
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Party Groups", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) },
-        floatingActionButton = { FloatingActionButton(onClick = { editingGroup = null; showAddEditDialog = true }, containerColor = Primary, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Group") } }
+        floatingActionButton = { FloatingActionButton(onClick = { editingGroup = null; showAddEditDialog = true }, containerColor = RedAccent, contentColor = Color.White) { Icon(Icons.Filled.Add, contentDescription = "Add Group") } }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             items(groups, key = { it.id }) { group ->

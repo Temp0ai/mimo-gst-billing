@@ -417,6 +417,27 @@ class InvoiceViewModel @Inject constructor(
         return newId
     }
 
+    fun addItemDirectWithDetails(name: String, price: Double, gstRate: Double, hsnCode: String, unit: String, qty: Double) {
+        viewModelScope.launch {
+            val item = ItemEntity(
+                companyId = companyId,
+                name = name,
+                hsnCode = hsnCode.ifBlank { null },
+                description = null,
+                salePrice = price,
+                purchasePrice = price,
+                gstRate = gstRate,
+                unit = unit,
+                stockQuantity = 0.0,
+                isService = false
+            )
+            val itemId = itemDao.insertItem(item)
+            val savedItem = item.copy(id = itemId)
+            loadReferenceData()
+            addItemDirect(savedItem)
+        }
+    }
+
     suspend fun createQuickItem(name: String, price: Double, gstRate: Double, hsnCode: String, unit: String): ItemEntity {
         val item = ItemEntity(
             companyId = companyId,

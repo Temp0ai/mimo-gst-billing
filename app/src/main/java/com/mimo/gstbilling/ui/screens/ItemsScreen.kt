@@ -273,14 +273,30 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(32.dp),
+                            .padding(48.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            "No items found",
-                            fontSize = 14.sp,
-                            color = TextSecondary
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                Icons.Filled.Store,
+                                contentDescription = null,
+                                tint = TextSecondary.copy(alpha = 0.5f),
+                                modifier = Modifier.size(64.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                "No items yet",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = TextSecondary
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                "Tap + to add an item",
+                                fontSize = 13.sp,
+                                color = TextSecondary
+                            )
+                        }
                     }
                 }
             }
