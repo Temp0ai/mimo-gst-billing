@@ -36,6 +36,13 @@ fun AddItemToSaleScreen(
     var unitExpanded by remember { mutableStateOf(false) }
     var selectedUnit by remember { mutableStateOf("Pcs") }
     val units = listOf("Pcs", "Kg", "Gm", "Ltr", "Mtr", "Sqm", "Box", "Pair", "Set", "Doz", "Btl", "Bag", "Roll", "Bundle", "Pack", "Nos")
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = Primary,
+        unfocusedBorderColor = Color(0xFFD0D0D0),
+        focusedLabelColor = Primary,
+        unfocusedLabelColor = TextSecondary,
+        cursorColor = Primary
+    )
 
     Scaffold(
         topBar = {
@@ -87,7 +94,7 @@ fun AddItemToSaleScreen(
                         },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD0D0D0)),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
                         enabled = itemName.isNotBlank() && (rate.toDoubleOrNull() ?: 0.0) > 0
                     ) {
@@ -118,8 +125,8 @@ fun AddItemToSaleScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .background(Color(0xFFF5F6F6))
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             OutlinedTextField(
                 value = itemName,
@@ -129,47 +136,36 @@ fun AddItemToSaleScreen(
                 placeholder = { Text("e.g. Chocolate Cake") },
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Primary,
-                    unfocusedBorderColor = Color(0xFFE0E0E0),
-                    focusedLabelColor = Primary
-                )
+                colors = fieldColors
             )
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = { quantity = it },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("Quantity") },
+                    modifier = Modifier.weight(0.4f),
+                    label = { Text("Quantity", maxLines = 1) },
                     placeholder = { Text("1") },
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                        focusedLabelColor = Primary
-                    )
+                    colors = fieldColors
                 )
 
                 ExposedDropdownMenuBox(
                     expanded = unitExpanded,
-                    onExpandedChange = { unitExpanded = it }
+                    onExpandedChange = { unitExpanded = it },
+                    modifier = Modifier.weight(0.6f)
                 ) {
                     OutlinedTextField(
                         value = selectedUnit,
                         onValueChange = {},
-                        modifier = Modifier.weight(1f).menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
                         label = { Text("Unit") },
                         shape = RoundedCornerShape(12.dp),
                         readOnly = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Primary,
-                            unfocusedBorderColor = Color(0xFFE0E0E0),
-                            focusedLabelColor = Primary
-                        )
+                        colors = fieldColors
                     )
                     ExposedDropdownMenu(
                         expanded = unitExpanded,
@@ -189,52 +185,52 @@ fun AddItemToSaleScreen(
                 OutlinedTextField(
                     value = rate,
                     onValueChange = { rate = it },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("Rate (Price/Unit)") },
+                    modifier = Modifier.weight(0.55f),
+                    label = { Text("Rate (Price/Unit)", maxLines = 1) },
                     placeholder = { Text("0.00") },
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Primary,
-                        unfocusedBorderColor = Color(0xFFE0E0E0),
-                        focusedLabelColor = Primary
-                    )
+                    colors = fieldColors
                 )
 
-                Column(modifier = Modifier.weight(1f)) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                Column(
+                    modifier = Modifier.weight(0.45f),
+                    verticalArrangement = Arrangement.Center
+                ) {
                     Row {
                         FilterChip(
                             selected = !taxIncluded,
                             onClick = { taxIncluded = false },
-                            label = { Text("Without Tax", fontSize = 12.sp, color = if (!taxIncluded) Primary else TextSecondary) },
-                            shape = RoundedCornerShape(12.dp),
+                            label = { Text("Without Tax", fontSize = 11.sp, maxLines = 1) },
+                            shape = RoundedCornerShape(8.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Primary.copy(alpha = 0.12f),
                                 containerColor = Color.White,
+                                selectedLabelColor = Primary,
                                 labelColor = TextSecondary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = Color(0xFFE0E0E0),
+                                borderColor = Color(0xFFD0D0D0),
                                 selectedBorderColor = Primary.copy(alpha = 0.4f),
                                 enabled = true,
                                 selected = !taxIncluded
                             )
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
                         FilterChip(
                             selected = taxIncluded,
                             onClick = { taxIncluded = true },
-                            label = { Text("With Tax", fontSize = 12.sp, color = if (taxIncluded) Primary else TextSecondary) },
-                            shape = RoundedCornerShape(12.dp),
+                            label = { Text("With Tax", fontSize = 11.sp, maxLines = 1) },
+                            shape = RoundedCornerShape(8.dp),
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = Primary.copy(alpha = 0.12f),
                                 containerColor = Color.White,
+                                selectedLabelColor = Primary,
                                 labelColor = TextSecondary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = Color(0xFFE0E0E0),
+                                borderColor = Color(0xFFD0D0D0),
                                 selectedBorderColor = Primary.copy(alpha = 0.4f),
                                 enabled = true,
                                 selected = taxIncluded

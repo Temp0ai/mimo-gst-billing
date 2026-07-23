@@ -13,6 +13,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -439,6 +441,10 @@ fun BusinessProfileEditScreen(
     var pincode by remember { mutableStateOf("") }
     var businessDescription by remember { mutableStateOf("") }
     var signatureUri by remember { mutableStateOf(company?.signatureUri) }
+    var logoUri by remember { mutableStateOf(company?.logoUri) }
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { logoUri = it.toString() }
+    }
 
     var state by remember { mutableStateOf(company?.state ?: "") }
     var businessType by remember { mutableStateOf(company?.businessType ?: "") }
@@ -503,7 +509,7 @@ fun BusinessProfileEditScreen(
                                     businessType = businessType.trim().ifBlank { null },
                                     state = state.trim().ifBlank { null },
                                     stateCode = null,
-                                    logoUri = company?.logoUri,
+                                    logoUri = logoUri,
                                     signatureUri = signatureUri,
                                     bankName = company?.bankName,
                                     bankAccountNumber = company?.bankAccountNumber,
@@ -591,6 +597,7 @@ fun BusinessProfileEditScreen(
                         pincode = pincode, onPincodeChange = { pincode = it },
                         businessDescription = businessDescription, onBusinessDescriptionChange = { businessDescription = it },
                         signatureUri = signatureUri, onSignatureChange = { signatureUri = it },
+                        logoUri = logoUri, onLogoChange = { logoUri = it },
                         gstinVerified = company?.gstin?.isNotBlank() == true
                     )
                 } else {
@@ -624,9 +631,55 @@ fun BasicDetailsTab(
     pincode: String, onPincodeChange: (String) -> Unit,
     businessDescription: String, onBusinessDescriptionChange: (String) -> Unit,
     signatureUri: String?, onSignatureChange: (String?) -> Unit,
+    logoUri: String?, onLogoChange: (String?) -> Unit,
     gstinVerified: Boolean
 ) {
     val context = LocalContext.current
+    val logoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { onLogoChange(it.toString()) }
+    }
+
+    Text("Business Logo", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable { logoLauncher.launch("image/*") },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0))
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val logoBitmap = remember(logoUri) {
+                logoUri?.let { uriStr ->
+                    try {
+                        val uri = Uri.parse(uriStr)
+                        val inputStream = context.contentResolver.openInputStream(uri)
+                        val bmp = BitmapFactory.decodeStream(inputStream)
+                        inputStream?.close()
+                        bmp
+                    } catch (_: Exception) { null }
+                }
+            }
+            Box(
+                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp)).background(Primary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (logoBitmap != null) {
+                    Image(bitmap = logoBitmap.asImageBitmap(), contentDescription = "Logo", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+                } else {
+                    Icon(Icons.Filled.AddAPhoto, contentDescription = null, tint = Primary, modifier = Modifier.size(24.dp))
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text("Upload Logo", fontWeight = FontWeight.Medium, color = TextPrimary, fontSize = 14.sp)
+                Text("Tap to select from gallery", fontSize = 12.sp, color = TextSecondary)
+            }
+        }
+    }
+
+    Spacer(modifier = Modifier.height(4.dp))
     Text("Business Name", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
     OutlinedTextField(
         value = name,

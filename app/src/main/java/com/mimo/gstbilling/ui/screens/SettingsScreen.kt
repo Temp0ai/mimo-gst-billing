@@ -38,7 +38,7 @@ fun SettingsScreen(navController: NavController) {
 
     val settingsItems = listOf(
         VyaparSettingsItem("General", Icons.Filled.Settings, Primary, hasNew = true,
-            subItems = listOf("Business Profile", "Invoice Settings", "Item Settings", "Party Settings", "Biometric Lock")),
+            subItems = listOf("Business Profile", "Switch Company", "Invoice Settings", "Item Settings", "Party Settings", "Biometric Lock")),
         VyaparSettingsItem("Transaction", Icons.Filled.CurrencyRupee, Color(0xFF4CAF50), hasNew = true,
             subItems = listOf("Transaction Settings", "Payment Settings")),
         VyaparSettingsItem("Invoice Print", Icons.Filled.Print, Primary,
@@ -181,6 +181,7 @@ fun SettingsScreen(navController: NavController) {
                                     .clickable {
                                         when (subItem) {
                                             "Business Profile" -> navController.navigate(Screen.BusinessProfile.route)
+                                            "Switch Company" -> navController.navigate(Screen.CompanySwitch.route)
                                             "Invoice Settings" -> navController.navigate(Screen.InvoiceSettings.route)
                                             "Item Settings" -> navController.navigate(Screen.ItemSettings.route)
                                             "Party Settings" -> navController.navigate(Screen.PartySettings.route)
