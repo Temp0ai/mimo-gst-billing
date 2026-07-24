@@ -153,7 +153,7 @@ fun Gstr2FilingScreen(
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     enabled = purchaseInvoices.isNotEmpty()
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
@@ -259,7 +259,7 @@ fun Gstr4FilingScreen(
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(50)
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -336,7 +336,7 @@ fun Gstr9aFilingScreen(
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(50)
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))

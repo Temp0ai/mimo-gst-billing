@@ -203,7 +203,7 @@ fun OrderDetailScreen(
                             Button(
                                 onClick = { viewModel.updateOrderStatus(orderId, "confirmed") },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(50),
                                 colors = ButtonDefaults.buttonColors(containerColor = Primary)
                             ) { Text("Confirm") }
                         }
@@ -211,7 +211,7 @@ fun OrderDetailScreen(
                             Button(
                                 onClick = { viewModel.updateOrderStatus(orderId, "completed") },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp),
+                                shape = RoundedCornerShape(50),
                                 colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
                             ) { Text("Complete") }
                         }
@@ -219,7 +219,7 @@ fun OrderDetailScreen(
                             OutlinedButton(
                                 onClick = { viewModel.updateOrderStatus(orderId, "cancelled") },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(50)
                             ) { Text("Cancel", color = RedAccent) }
                         }
                     }
@@ -231,7 +231,7 @@ fun OrderDetailScreen(
                         Button(
                             onClick = { showConvertDialog = true },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                         ) {
                             Text("Convert to Invoice", fontWeight = FontWeight.Bold, fontSize = 16.sp)

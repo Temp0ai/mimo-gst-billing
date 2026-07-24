@@ -166,7 +166,7 @@ fun VyaparDataImportScreen(
                     Button(
                         onClick = { showGoogleSheetsDialog = true },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
                         enabled = !isImporting
                     ) {
@@ -245,7 +245,7 @@ fun VyaparDataImportScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                         enabled = !isImporting
                     ) {

@@ -251,7 +251,7 @@ fun Gstr1FilingScreen(
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     enabled = filteredInvoices.isNotEmpty()
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
@@ -496,7 +496,7 @@ fun Gstr3bFilingScreen(
                         PdfGenerator.sharePdf(context, file)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)

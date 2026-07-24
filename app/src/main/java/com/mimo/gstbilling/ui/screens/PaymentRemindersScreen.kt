@@ -137,7 +137,7 @@ fun PaymentRemindersScreen(navController: NavController, viewModel: InvoiceViewM
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(12.dp).height(52.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
                     Icon(Icons.Filled.Send, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))

@@ -74,7 +74,7 @@ fun EWayBillScreen(navController: NavController) {
                     OutlinedTextField(value = toState, onValueChange = { toState = it }, label = { Text("To State *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                 }
             }
-            Button(onClick = { showGenerated = true }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent), enabled = invoiceNumber.isNotBlank() && fromState.isNotBlank() && toState.isNotBlank()) {
+            Button(onClick = { showGenerated = true }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = RedAccent), enabled = invoiceNumber.isNotBlank() && fromState.isNotBlank() && toState.isNotBlank()) {
                 Icon(Icons.Filled.CheckCircle, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Generate E-Way Bill", fontWeight = FontWeight.Bold, fontSize = 16.sp)

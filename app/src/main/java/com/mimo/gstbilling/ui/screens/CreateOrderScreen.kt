@@ -372,7 +372,7 @@ fun CreateOrderScreen(
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                     enabled = selectedPartyId > 0 && items.isNotEmpty() && !isSaving
                 ) {

@@ -192,7 +192,7 @@ fun CreateInvoiceScreen(
                                 if (inv != null) { val items = viewModel.getItemsForInvoice(inv.id); val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false); PdfGenerator.sharePdf(context, file) }
                                 viewModel.resetState(); navController.popBackStack()
                             }
-                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))) {
+                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))) {
                             Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                         Button(onClick = {
@@ -201,7 +201,7 @@ fun CreateInvoiceScreen(
                                 if (inv != null) { val items = viewModel.getItemsForInvoice(inv.id); val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false); PdfGenerator.printPdf(context, file) }
                                 viewModel.resetState(); navController.popBackStack()
                             }
-                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
                             Text("View PDF", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
                     }
@@ -243,7 +243,7 @@ fun CreateInvoiceScreen(
                             val canSave = (isCashSale || uiState.partyId > 0L) && uiState.items.isNotEmpty()
                             if (canSave) viewModel.saveInvoice()
                             else scope.launch { snackbarHostState.showSnackbar(if (!isCashSale && uiState.partyId <= 0L) "Select a customer first" else if (uiState.items.isEmpty()) "Add at least one item" else "Please fill all required fields") }
-                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
+                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary), contentPadding = PaddingValues(vertical = 14.dp)) {
                             Text("Save & New", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
@@ -251,7 +251,7 @@ fun CreateInvoiceScreen(
                             val canSave = (isCashSale || uiState.partyId > 0L) && uiState.items.isNotEmpty()
                             if (canSave) viewModel.saveInvoice()
                             else scope.launch { snackbarHostState.showSnackbar(if (!isCashSale && uiState.partyId <= 0L) "Select a customer first" else if (uiState.items.isEmpty()) "Add at least one item" else "Please fill all required fields") }
-                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
+                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                             enabled = !uiState.isSaving, contentPadding = PaddingValues(vertical = 14.dp)) {
                             Text(if (uiState.isSaving) "Saving..." else "Save", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }

@@ -598,7 +598,7 @@ fun ImportDataScreen(
                     Text("Parties from Vyapar", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                     Text("Columns auto-detected: Party Name, Phone, GSTIN, Email, Address, State, Type, Balance", fontSize = 11.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Button(onClick = { importType = "vyapar_parties"; xlsLauncher.launch(arrayOf("application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
+                    Button(onClick = { importType = "vyapar_parties"; xlsLauncher.launch(arrayOf("application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20))) {
                         Text("Import Vyapar Parties (.xls)")
                     }
 
@@ -609,7 +609,7 @@ fun ImportDataScreen(
                     Text("Items from Vyapar", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary)
                     Text("Columns auto-detected: Item Name, Code, Sale Price, Purchase Price, HSN, Tax Rate, Stock, Unit", fontSize = 11.sp, color = TextSecondary)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Button(onClick = { importType = "vyapar_items"; xlsLauncher.launch(arrayOf("application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B))) {
+                    Button(onClick = { importType = "vyapar_items"; xlsLauncher.launch(arrayOf("application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00897B))) {
                         Text("Import Vyapar Items (.xls)")
                     }
                 }
@@ -629,11 +629,11 @@ fun ImportDataScreen(
                     }
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Button(onClick = { importType = "parties"; csvLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                    Button(onClick = { importType = "parties"; csvLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(50)) {
                         Icon(Icons.Filled.People, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Parties CSV")
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { importType = "items"; csvLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BCD4))) {
+                    Button(onClick = { importType = "items"; csvLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "application/vnd.ms-excel", "*/*")) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BCD4))) {
                         Icon(Icons.Filled.Inventory, contentDescription = null); Spacer(modifier = Modifier.width(8.dp)); Text("Import Items CSV")
                     }
                 }

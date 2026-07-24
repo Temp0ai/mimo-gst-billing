@@ -205,7 +205,7 @@ fun StaffSettingsScreen(navController: NavController) {
                         }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
-                    Button(onClick = { staffCount++; prefs.edit().putInt("staff_count", staffCount).apply() }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
+                    Button(onClick = { staffCount++; prefs.edit().putInt("staff_count", staffCount).apply() }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(50)) {
                         Icon(Icons.Filled.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Add Staff Member")
@@ -409,7 +409,7 @@ fun UnitsCategoriesScreen(navController: NavController) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         OutlinedTextField(value = newUnit, onValueChange = { newUnit = it }, modifier = Modifier.weight(1f), label = { Text("Add new unit") }, shape = RoundedCornerShape(16.dp), singleLine = true, colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = { if (newUnit.isNotBlank()) { units.add(newUnit.trim()); newUnit = ""; prefs.edit().putStringSet("units", units.toSet()).apply() } }, shape = RoundedCornerShape(12.dp)) { Text("Add") }
+                        Button(onClick = { if (newUnit.isNotBlank()) { units.add(newUnit.trim()); newUnit = ""; prefs.edit().putStringSet("units", units.toSet()).apply() } }, shape = RoundedCornerShape(50)) { Text("Add") }
                     }
                     Spacer(modifier = Modifier.height(12.dp))
                     units.forEach { unit ->

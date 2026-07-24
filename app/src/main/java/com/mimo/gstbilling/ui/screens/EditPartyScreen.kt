@@ -89,7 +89,7 @@ fun EditPartyScreen(
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary),
                     border = ButtonDefaults.outlinedButtonBorder
                 ) {
@@ -114,7 +114,7 @@ fun EditPartyScreen(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                     enabled = partyName.isNotBlank()
                 ) {

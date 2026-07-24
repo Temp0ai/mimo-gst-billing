@@ -43,7 +43,7 @@ fun UserProfileScreen(navController: NavController) {
                 }
             }
             if (isEditing) {
-                Button(onClick = { prefs.edit().putString("name", userName).putString("email", userEmail).putString("phone", userPhone).apply(); isEditing = false }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) { Text("Save Profile", fontWeight = FontWeight.Bold) }
+                Button(onClick = { prefs.edit().putString("name", userName).putString("email", userEmail).putString("phone", userPhone).apply(); isEditing = false }, modifier = Modifier.fillMaxWidth().padding(16.dp).height(52.dp), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) { Text("Save Profile", fontWeight = FontWeight.Bold) }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {

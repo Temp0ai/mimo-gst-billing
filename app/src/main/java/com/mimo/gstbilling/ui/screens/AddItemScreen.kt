@@ -92,7 +92,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
         },
         bottomBar = {
             Row(modifier = Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary), border = ButtonDefaults.outlinedButtonBorder) {
+                OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary), border = ButtonDefaults.outlinedButtonBorder) {
                     Text("Cancel", fontWeight = FontWeight.Bold)
                 }
                 Button(onClick = {
@@ -116,7 +116,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                         }
                         navController.popBackStack()
                     }
-                }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+                }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                     Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
@@ -315,7 +315,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                 OutlinedButton(
                                     onClick = { showVariantForm = false },
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(50)
                                 ) { Text("Cancel", fontWeight = FontWeight.Bold) }
                                 Button(
                                     onClick = {
@@ -335,7 +335,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                         }
                                     },
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp),
+                                    shape = RoundedCornerShape(50),
                                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                                 ) {
                                     Text("Save Variant", fontWeight = FontWeight.Bold, color = Color.White)

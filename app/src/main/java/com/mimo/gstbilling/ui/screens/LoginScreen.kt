@@ -101,7 +101,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
                 ) {
                     Text("Log In", fontWeight = FontWeight.Bold, color = Color.White)

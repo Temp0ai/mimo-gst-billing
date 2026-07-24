@@ -152,7 +152,7 @@ fun ExportDataScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(50)
                     ) { Text("Export Parties CSV") }
                 }
             }
@@ -178,7 +178,7 @@ fun ExportDataScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00BCD4))
                     ) { Text("Export Items CSV") }
                 }

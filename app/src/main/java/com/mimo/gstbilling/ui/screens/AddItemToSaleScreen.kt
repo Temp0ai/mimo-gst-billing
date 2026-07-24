@@ -93,7 +93,7 @@ fun AddItemToSaleScreen(
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(50),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD0D0D0)),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
                         enabled = itemName.isNotBlank() && (rate.toDoubleOrNull() ?: 0.0) > 0
@@ -110,7 +110,7 @@ fun AddItemToSaleScreen(
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                         enabled = itemName.isNotBlank() && (rate.toDoubleOrNull() ?: 0.0) > 0
                     ) {
