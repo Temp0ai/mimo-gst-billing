@@ -88,11 +88,11 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
         topBar = {
             TopAppBar(title = { Text("Add New Item", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = VyaparTextPrimary, navigationIconContentColor = VyaparTextPrimary))
         },
         bottomBar = {
             Row(modifier = Modifier.fillMaxWidth().background(Color.White).navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary), border = ButtonDefaults.outlinedButtonBorder) {
+                OutlinedButton(onClick = { navController.popBackStack() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.outlinedButtonColors(contentColor = VyaparBlue), border = ButtonDefaults.outlinedButtonBorder) {
                     Text("Cancel", fontWeight = FontWeight.Bold)
                 }
                 Button(onClick = {
@@ -116,17 +116,17 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                         }
                         navController.popBackStack()
                     }
-                }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+                }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = VyaparRed)) {
                     Text("Save", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier.fillMaxSize().padding(padding).background(VyaparBackground).verticalScroll(rememberScrollState())) {
             Card(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+                colors = CardDefaults.cardColors(containerColor = VyaparInputBackground)
             ) {
                 Box(
                     modifier = Modifier.fillMaxWidth().height(150.dp).clickable { showImageOptions = true },
@@ -144,75 +144,75 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                             contentDescription = "Change Image",
                             tint = Color.White,
                             modifier = Modifier.align(Alignment.BottomEnd).padding(8.dp)
-                                .background(Primary, CircleShape).padding(6.dp).size(18.dp)
+                                .background(VyaparBlue, CircleShape).padding(6.dp).size(18.dp)
                         )
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(36.dp))
+                            Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(36.dp))
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Add Item Image", fontSize = 12.sp, color = TextSecondary)
+                            Text("Add Item Image", fontSize = 12.sp, color = VyaparTextSecondary)
                         }
                     }
                 }
             }
 
-            Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(value = itemName, onValueChange = { itemName = it }, label = { Text("Item Name *", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Inventory, contentDescription = null, tint = Primary) })
-                    OutlinedTextField(value = hsnCode, onValueChange = { hsnCode = it }, label = { Text("HSN Code", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = Primary) })
+                    OutlinedTextField(value = itemName, onValueChange = { itemName = it }, label = { Text("Item Name *", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Inventory, contentDescription = null, tint = VyaparBlue) })
+                    OutlinedTextField(value = hsnCode, onValueChange = { hsnCode = it }, label = { Text("HSN Code", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = VyaparBlue) })
 
                     ExposedDropdownMenuBox(expanded = showGstMenu, onExpandedChange = { showGstMenu = it }) {
-                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = VyaparBlue) })
                         ExposedDropdownMenu(expanded = showGstMenu, onDismissRequest = { showGstMenu = false }) {
                             gstOptions.forEach { rate -> DropdownMenuItem(text = { Text("$rate%") }, onClick = { gstRate = rate; showGstMenu = false }) }
                         }
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        OutlinedTextField(value = salePrice, onValueChange = { salePrice = it }, label = { Text("Sale Price *", fontSize = 14.sp) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Text("\u20B9", color = Primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) })
-                        OutlinedTextField(value = purchasePrice, onValueChange = { purchasePrice = it }, label = { Text("Purchase Price", fontSize = 14.sp) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Text("\u20B9", color = Primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) })
+                        OutlinedTextField(value = salePrice, onValueChange = { salePrice = it }, label = { Text("Sale Price *", fontSize = 14.sp) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Text("\u20B9", color = VyaparBlue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) })
+                        OutlinedTextField(value = purchasePrice, onValueChange = { purchasePrice = it }, label = { Text("Purchase Price", fontSize = 14.sp) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Text("\u20B9", color = VyaparBlue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) })
                     }
 
-                    OutlinedTextField(value = stockQty, onValueChange = { stockQty = it }, label = { Text("Opening Stock", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Store, contentDescription = null, tint = Primary) })
+                    OutlinedTextField(value = stockQty, onValueChange = { stockQty = it }, label = { Text("Opening Stock", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Store, contentDescription = null, tint = VyaparBlue) })
 
                     ExposedDropdownMenuBox(expanded = showUnitMenu, onExpandedChange = { showUnitMenu = it }) {
-                        OutlinedTextField(value = unit, onValueChange = {}, readOnly = true, label = { Text("Unit", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUnitMenu) }, leadingIcon = { Icon(Icons.Filled.Straighten, contentDescription = null, tint = Primary) })
+                        OutlinedTextField(value = unit, onValueChange = {}, readOnly = true, label = { Text("Unit", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showUnitMenu) }, leadingIcon = { Icon(Icons.Filled.Straighten, contentDescription = null, tint = VyaparBlue) })
                         ExposedDropdownMenu(expanded = showUnitMenu, onDismissRequest = { showUnitMenu = false }) {
                             unitOptions.forEach { u -> DropdownMenuItem(text = { Text(u) }, onClick = { unit = u; showUnitMenu = false }) }
                         }
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                        Text("Service Item", fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                        Switch(checked = isService, onCheckedChange = { isService = it }, colors = SwitchDefaults.colors(checkedTrackColor = Primary))
+                        Text("Service Item", fontSize = 15.sp, color = VyaparTextPrimary, modifier = Modifier.weight(1f))
+                        Switch(checked = isService, onCheckedChange = { isService = it }, colors = SwitchDefaults.colors(checkedTrackColor = VyaparBlue))
                     }
                 }
             }
 
             if (!isService) {
-                Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite)) {
                     Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                            Text("Variants", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                            Text("Variants", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                             TextButton(onClick = {
                                 variantForm = VariantFormState()
                                 showVariantForm = true
                             }) {
-                                Icon(Icons.Filled.Add, contentDescription = null, tint = Primary, modifier = Modifier.size(18.dp))
+                                Icon(Icons.Filled.Add, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Add Variant", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("Add Variant", color = VyaparBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
 
                         if (variants.isEmpty() && !showVariantForm) {
-                            Text("No variants added yet", fontSize = 13.sp, color = TextSecondary)
+                            Text("No variants added yet", fontSize = 13.sp, color = VyaparTextSecondary)
                         }
 
                         variants.forEachIndexed { index, variant ->
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(10.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F9FA))
+                                colors = CardDefaults.cardColors(containerColor = VyaparInputBackground)
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -220,18 +220,18 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(variant.variantName, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = TextPrimary)
-                                        Text("\u20B9${variant.salePrice} | Stock: ${variant.stockQuantity}", fontSize = 12.sp, color = TextSecondary)
+                                        Text(variant.variantName, fontWeight = FontWeight.Medium, fontSize = 14.sp, color = VyaparTextPrimary)
+                                        Text("\u20B9${variant.salePrice} | Stock: ${variant.stockQuantity}", fontSize = 12.sp, color = VyaparTextSecondary)
                                     }
                                     Row {
                                         IconButton(onClick = {
                                             variantForm = variant
                                             showVariantForm = true
                                         }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = Primary, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = VyaparBlue, modifier = Modifier.size(18.dp))
                                         }
                                         IconButton(onClick = { showDeleteVariantDialog = variant }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = VyaparRed, modifier = Modifier.size(18.dp))
                                         }
                                     }
                                 }
@@ -239,10 +239,10 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                         }
 
                         if (showVariantForm) {
-                            HorizontalDivider(color = Color(0xFFF0F0F0))
+                            HorizontalDivider(color = VyaparDivider)
                             Text(
                                 if (variantForm.editingId != null) "Edit Variant" else "Add Variant",
-                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary
+                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary
                             )
                             OutlinedTextField(
                                 value = variantForm.variantName,
@@ -261,7 +261,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp),
                                     singleLine = true,
-                                    leadingIcon = { Text("\u20B9", color = Primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) }
+                                    leadingIcon = { Text("\u20B9", color = VyaparBlue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) }
                                 )
                                 OutlinedTextField(
                                     value = variantForm.purchasePrice,
@@ -270,7 +270,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(10.dp),
                                     singleLine = true,
-                                    leadingIcon = { Text("\u20B9", color = Primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) }
+                                    leadingIcon = { Text("\u20B9", color = VyaparBlue, fontWeight = FontWeight.Bold, modifier = Modifier.padding(start = 12.dp)) }
                                 )
                             }
                             OutlinedTextField(
@@ -336,7 +336,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                                     },
                                     modifier = Modifier.weight(1f),
                                     shape = RoundedCornerShape(50),
-                                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
+                                    colors = ButtonDefaults.buttonColors(containerColor = VyaparRed)
                                 ) {
                                     Text("Save Variant", fontWeight = FontWeight.Bold, color = Color.White)
                                 }
@@ -357,10 +357,10 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                 TextButton(onClick = {
                     variants = variants.filter { it != showDeleteVariantDialog }
                     showDeleteVariantDialog = null
-                }) { Text("Delete", color = RedAccent, fontWeight = FontWeight.Bold) }
+                }) { Text("Delete", color = VyaparRed, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteVariantDialog = null }) { Text("Cancel", color = Primary) }
+                TextButton(onClick = { showDeleteVariantDialog = null }) { Text("Cancel", color = VyaparBlue) }
             }
         )
     }
@@ -380,7 +380,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                         val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", imageFile)
                         cameraLauncher.launch(uri)
                     }.padding(12.dp)) {
-                        Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = Primary)
+                        Icon(Icons.Filled.CameraAlt, contentDescription = null, tint = VyaparBlue)
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("Take Photo", fontSize = 16.sp)
                     }
@@ -388,7 +388,7 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
                         showImageOptions = false
                         galleryLauncher.launch("image/*")
                     }.padding(12.dp)) {
-                        Icon(Icons.Filled.PhotoLibrary, contentDescription = null, tint = Primary)
+                        Icon(Icons.Filled.PhotoLibrary, contentDescription = null, tint = VyaparBlue)
                         Spacer(modifier = Modifier.width(12.dp))
                         Text("Choose from Gallery", fontSize = 16.sp)
                     }

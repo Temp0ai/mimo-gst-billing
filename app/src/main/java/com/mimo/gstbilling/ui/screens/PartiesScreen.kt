@@ -77,7 +77,7 @@ fun PartiesScreen(
         topBar = {
             TopAppBar(
                 title = { Text("All Parties", fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A))
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = VyaparTextPrimary)
             )
         },
         bottomBar = {
@@ -113,27 +113,27 @@ fun PartiesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(LightBlueBg)
+                .background(VyaparBackground)
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = GreenBalance, modifier = Modifier.size(20.dp))
+                            Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = VyaparGreen, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("You'll Get", fontSize = 14.sp, color = GreenBalance, fontWeight = FontWeight.Medium)
+                            Text("You'll Get", fontSize = 14.sp, color = VyaparGreen, fontWeight = FontWeight.Medium)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "\u20B9${String.format(Locale.US, "%,.2f", totalReceivable)}",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = TextPrimary
+                            color = VyaparTextPrimary
                         )
                     }
                 }
@@ -144,8 +144,8 @@ fun PartiesScreen(
                     val tabs = listOf("Parties", "Transactions", "Items")
                     tabs.forEachIndexed { index, title ->
                         val isSelected = selectedTab == index
-                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
+                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) VyaparSelectedBg else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) VyaparRed else VyaparTextSecondary)
                         }
                     }
                 }
@@ -153,13 +153,13 @@ fun PartiesScreen(
 
             item {
                 Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Filled.Search, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     OutlinedTextField(
                         value = searchText,
                         onValueChange = { searchText = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("SEARCH PARTY", fontSize = 14.sp, color = TextSecondary) },
+                        placeholder = { Text("SEARCH PARTY", fontSize = 14.sp, color = VyaparTextSecondary) },
                         shape = RoundedCornerShape(8.dp),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.Transparent, focusedBorderColor = Color.Transparent)
@@ -168,14 +168,14 @@ fun PartiesScreen(
                     Button(
                         onClick = { navController.navigate(Screen.AddParty.route) },
                         shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-                        border = BorderStroke(1.dp, Primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = VyaparWhite),
+                        border = BorderStroke(1.dp, VyaparBlue),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
                     ) {
-                        Text("+ New Party", color = Primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("+ New Party", color = VyaparBlue, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                     }
                     IconButton(onClick = { navController.navigate(Screen.AddParty.route) }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
+                        Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                     }
                 }
             }
@@ -187,24 +187,24 @@ fun PartiesScreen(
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .clickable { navController.navigate(Screen.PartyDetail.createRoute(party.id)) },
                     shape = RoundedCornerShape(0.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
+                    colors = CardDefaults.cardColors(containerColor = VyaparWhite)
                 ) {
                     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                            Text(dateFormat.format(Date(party.createdAt)), fontSize = 12.sp, color = TextSecondary)
+                            Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
+                            Text(dateFormat.format(Date(party.createdAt)), fontSize = 12.sp, color = VyaparTextSecondary)
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 String.format(Locale.US, "\u20B9%,.2f", party.balance),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = GreenBalance
+                                color = VyaparGreen
                             )
-                            Text("You'll Get", fontSize = 12.sp, color = GreenBalance)
+                            Text("You'll Get", fontSize = 12.sp, color = VyaparGreen)
                         }
                     }
-                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                    HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
                 }
             }
 

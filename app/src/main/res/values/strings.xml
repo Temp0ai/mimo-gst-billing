@@ -1,25 +1,274 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Mimo GST Billing</string>
+
+    <!-- Dashboard -->
     <string name="dashboard">Dashboard</string>
+    <string name="business_dashboard">Business Dashboard</string>
+    <string name="you_will_get">You\'ll Get</string>
+    <string name="you_will_give">You\'ll Give</string>
+    <string name="sale_this_month">Sale (%s)</string>
+    <string name="purchase_this_month">Purchase (%s)</string>
+    <string name="total_sales">Total Sales</string>
+    <string name="total_purchase">Total Purchase</string>
+    <string name="receivable">Receivable</string>
+    <string name="payable">Payable</string>
+    <string name="pending_amount">Pending Amount</string>
+    <string name="total_transactions">Total Transactions</string>
+
+    <!-- Navigation -->
     <string name="parties">Parties</string>
     <string name="items">Items</string>
     <string name="invoices">Invoices</string>
     <string name="reports">Reports</string>
     <string name="settings">Settings</string>
-    <string name="create_invoice">Create Invoice</string>
+    <string name="sales">Sales</string>
+    <string name="purchases">Purchases</string>
+    <string name="expenses">Expenses</string>
+    <string name="orders">Orders</string>
+    <string name="cash_bank">Cash &amp; Bank</string>
+    <string name="delivery_challans">Delivery Challans</string>
+    <string name="credit_notes">Credit Notes</string>
+    <string name="debit_notes">Debit Notes</string>
+    <string name="reports_utilities">Reports &amp; Utilities</string>
+    <string name="sync_backup">Sync &amp; Backup</string>
+    <string name="online_store">Online Store</string>
+    <string name="help_support">Help &amp; Support</string>
+
+    <!-- Party / Contact -->
     <string name="add_party">Add Party</string>
+    <string name="edit_party">Edit Party</string>
+    <string name="party_details">Party Details</string>
+    <string name="party_name">Party Name</string>
+    <string name="party_type">Party Type</string>
+    <string name="customer">Customer</string>
+    <string name="supplier">Supplier</string>
+    <string name="both">Both</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">Email</string>
+    <string name="gstin">GSTIN</string>
+    <string name="billing_address">Billing Address</string>
+    <string name="shipping_address">Shipping Address</string>
+    <string name="opening_balance">Opening Balance</string>
+    <string name="party_groups">Party Groups</string>
+    <string name="party_statement">Party Statement</string>
+    <string name="all_parties">All Parties</string>
+    <string name="customers">Customers</string>
+    <string name="suppliers">Suppliers</string>
+    <string name="search_party">SEARCH PARTY</string>
+
+    <!-- Item / Inventory -->
     <string name="add_item">Add Item</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="item_name">Item Name</string>
+    <string name="hsn_code">HSN Code</string>
+    <string name="sale_price">Sale Price</string>
+    <string name="purchase_price">Purchase Price</string>
+    <string name="gst_rate">GST Rate</string>
+    <string name="opening_stock">Opening Stock</string>
+    <string name="unit">Unit</string>
+    <string name="service_item">Service Item</string>
+    <string name="product">Product</string>
+    <string name="service">Service</string>
+    <string name="categories">Categories</string>
+    <string name="units">Units</string>
+    <string name="in_stock">In Stock</string>
+    <string name="out_of_stock">Out of Stock</string>
+    <string name="low_stock">Low Stock</string>
+    <string name="search_items">Search Items by Name or Code</string>
+    <string name="variants">Variants</string>
+    <string name="add_variant">Add Variant</string>
+    <string name="variant_name">Variant Name</string>
+    <string name="sku">SKU</string>
+    <string name="barcode">Barcode</string>
+
+    <!-- Invoice / Billing -->
+    <string name="create_invoice">Create Invoice</string>
+    <string name="edit_invoice">Edit Invoice</string>
+    <string name="invoice_details">Invoice Details</string>
+    <string name="invoice_number">Invoice Number</string>
+    <string name="invoice_date">Invoice Date</string>
+    <string name="due_date">Due Date</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="discount">Discount</string>
+    <string name="tax">Tax</string>
+    <string name="total">Total</string>
+    <string name="amount_paid">Amount Paid</string>
+    <string name="balance">Balance</string>
+    <string name="payment_status">Payment Status</string>
+    <string name="paid">Paid</string>
+    <string name="unpaid">Unpaid</string>
+    <string name="partial">Partial</string>
+    <string name="overdue">Overdue</string>
+    <string name="sale_invoice">Sale Invoice</string>
+    <string name="purchase_invoice">Purchase Invoice</string>
+    <string name="proforma_invoice">Proforma Invoice</string>
+    <string name="quotation">Quotation</string>
+    <string name="estimate">Estimate</string>
+    <string name="delivery_note">Delivery Note</string>
+    <string name="credit_note">Credit Note</string>
+    <string name="debit_note">Debit Note</string>
+
+    <!-- Transaction Fields -->
+    <string name="transaction_date">Transaction Date</string>
+    <string name="payment_mode">Payment Mode</string>
+    <string name="cash">Cash</string>
+    <string name="bank_transfer">Bank Transfer</string>
+    <string name="upi">UPI</string>
+    <string name="cheque">Cheque</string>
+    <string name="credit_card">Credit Card</string>
+    <string name="debit_card">Debit Card</string>
+    <string name="online">Online</string>
+    <string name="other">Other</string>
+    <string name="reference_number">Reference Number</string>
+    <string name="notes">Notes</string>
+    <string name="terms_conditions">Terms &amp; Conditions</string>
+
+    <!-- Tax / GST -->
+    <string name="cgst">CGST</string>
+    <string name="sgst">SGST</string>
+    <string name="igst">IGST</string>
+    <string name="cess">Cess</string>
+    <string name="tds">TDS</string>
+    <string name="tcs">TCS</string>
+    <string name="tax_type">Tax Type</string>
+    <string name="intra_state">Intra State</string>
+    <string name="inter_state">Inter State</string>
+    <string name="gst_settings">GST Settings</string>
+    <string name="hsn_summary">HSN Summary</string>
+    <string name="gstr1">GSTR-1</string>
+    <string name="gstr3b">GSTR-3B</string>
+    <string name="gstr9">GSTR-9</string>
+
+    <!-- Reports -->
+    <string name="day_book">Day Book</string>
+    <string name="cash_flow">Cash Flow</string>
+    <string name="balance_sheet">Balance Sheet</string>
+    <string name="profit_loss">Profit &amp; Loss</string>
+    <string name="expense_report">Expense Report</string>
+    <string name="sales_report">Sales Report</string>
+    <string name="purchase_report">Purchase Report</string>
+    <string name="tax_report">Tax Report</string>
+    <string name="party_report">Party Report</string>
+    <string name="item_report">Item Report</string>
+    <string name="stock_report">Stock Report</string>
+    <string name="receivable_report">Receivable Report</string>
+    <string name="payable_report">Payable Report</string>
+    <string name="aging_report">Aging Report</string>
+    <string name="daily_report">Daily Report</string>
+    <string name="monthly_report">Monthly Report</string>
+    <string name="yearly_report">Yearly Report</string>
+    <string name="custom_report">Custom Report</string>
+    <string name="export_data">Export Data</string>
+    <string name="import_data">Import Data</string>
+
+    <!-- Settings -->
+    <string name="account_plans">Account &amp; Plans</string>
+    <string name="business_profile">Business Profile</string>
+    <string name="business_name">Business Name</string>
+    <string name="business_address">Business Address</string>
+    <string name="business_logo">Business Logo</string>
+    <string name="business_card">Business Card</string>
+    <string name="company_settings">Company Settings</string>
+    <string name="add_company">Add Company</string>
+    <string name="switch_company">Switch Company</string>
+    <string name="operations">Operations</string>
+    <string name="transaction_settings">Transaction Settings</string>
+    <string name="item_settings">Item Settings</string>
+    <string name="party_settings">Party Settings</string>
+    <string name="tax_settings">Tax Settings</string>
+    <string name="notification_settings">Notification Settings</string>
+    <string name="app_lock">App Lock</string>
+    <string name="print_settings">Print Settings</string>
+    <string name="email_settings">Email Settings</string>
+    <string name="backup_restore">Backup &amp; Restore</string>
+    <string name="auto_backup">Auto Backup</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="language">Language</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="rate_us">Rate Us</string>
+    <string name="share_app">Share App</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+
+    <!-- Buttons / Actions -->
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="edit">Edit</string>
     <string name="search">Search</string>
-    <string name="total_sales">Total Sales</string>
-    <string name="total_purchase">Total Purchase</string>
-    <string name="receivable">Receivable</string>
-    <string name="payable">Payable</string>
-    <string name="gst_reports">GST Reports</string>
-    <string name="backup">Backup</string>
-    <string name="restore">Restore</string>
+    <string name="add">Add</string>
+    <string name="update">Update</string>
+    <string name="confirm">Confirm</string>
+    <string name="ok">OK</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="share">Share</string>
+    <string name="print">Print</string>
+    <string name="download">Download</string>
+    <string name="upload">Upload</string>
+    <string name="send">Send</string>
+    <string name="receive">Receive</string>
+    <string name="pay">Pay</string>
+    <string name="collect">Collect</string>
+    <string name="create_sale">Create Sale</string>
+    <string name="create_purchase">Create Purchase</string>
+    <string name="add_expense">Add Expense</string>
+    <string name="take_payment">Take Payment</string>
+    <string name="add_sale">Add Sale</string>
+    <string name="new_party">+ New Party</string>
+    <string name="new_item">+ New Item</string>
+
+    <!-- Tab Labels -->
+    <string name="all">ALL</string>
+    <string name="products">PRODUCTS</string>
+    <string name="services">SERVICES</string>
+    <string name="transactions">Transactions</string>
+    <string name="items_tab">Items</string>
+    <string name="parties_tab">Parties</string>
+    <string name="active">Active</string>
+    <string name="inactive">Inactive</string>
+    <string name="pending">Pending</string>
+    <string name="completed">Completed</string>
+    <string name="cancelled">Cancelled</string>
+
+    <!-- Dialog Messages -->
+    <string name="delete_confirm">Are you sure you want to delete this?</string>
+    <string name="delete_party_confirm">Are you sure you want to delete %s? This action cannot be undone.</string>
+    <string name="delete_item_confirm">Are you sure you want to delete %s?</string>
+    <string name="delete_invoice_confirm">Are you sure you want to delete this invoice?</string>
+    <string name="unsaved_changes">You have unsaved changes. Discard?</string>
+    <string name="confirm_receipt">Are you sure you want to confirm receipt?</string>
+
+    <!-- Error Messages -->
+    <string name="field_required">This field is required</string>
+    <string name="invalid_email">Invalid email address</string>
+    <string name="invalid_phone">Invalid phone number</string>
+    <string name="invalid_gstin">Invalid GSTIN</string>
+    <string name="invalid_amount">Invalid amount</string>
+    <string name="insufficient_stock">Insufficient stock</string>
+    <string name="party_exists">Party already exists</string>
+    <string name="item_exists">Item already exists</string>
+    <string name="no_data">No data found</string>
+    <string name="network_error">Network error. Please try again.</string>
+    <string name="server_error">Server error. Please try again later.</string>
+
+    <!-- Placeholders / Hints -->
+    <string name="enter_name">Enter name</string>
+    <string name="enter_phone">Enter phone number</string>
+    <string name="enter_email">Enter email address</string>
+    <string name="enter_amount">Enter amount</string>
+    <string name="enter_gstin">Enter GSTIN</string>
+    <string name="enter_hsn">Enter HSN code</string>
+    <string name="enter_address">Enter address</string>
+    <string name="enter_notes">Enter notes</string>
+    <string name="search_placeholder">Search...</string>
+    <string name="no_parties_yet">No parties yet</string>
+    <string name="no_items_yet">No items yet</string>
+    <string name="no_invoices_yet">No invoices yet</string>
+    <string name="no_transactions_yet">No transactions yet</string>
+    <string name="tap_to_add_party">Tap + to add a party</string>
+    <string name="tap_to_add_item">Tap + to add an item</string>
+    <string name="tap_to_add_transaction">Tap + to create a transaction</string>
 </resources>

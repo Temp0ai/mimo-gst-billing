@@ -111,7 +111,7 @@ fun DashboardScreen(
                 Column(modifier = Modifier.statusBarsPadding()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Box(
-                            modifier = Modifier.size(48.dp).background(Color(0xFF0075E8), CircleShape),
+                            modifier = Modifier.size(48.dp).background(Primary, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(data.companyName.take(1).uppercase(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -232,19 +232,19 @@ fun DashboardScreen(
                     title = {
                         Text(
                             data.companyName,
-                            fontWeight = FontWeight.ExtraBold,
-                            fontSize = 22.sp,
-                            color = Color(0xFF1A1A1A)
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp,
+                            color = TextPrimary
                         )
                     },
                     navigationIcon = {
                         IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = Color(0xFF1A1A1A), modifier = Modifier.size(26.dp))
+                            Icon(Icons.Filled.Menu, contentDescription = "Menu", tint = TextPrimary, modifier = Modifier.size(24.dp))
                         }
                     },
                     actions = {
                         IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) {
-                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = Color(0xFF1A1A1A), modifier = Modifier.size(24.dp))
+                            Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = TextPrimary, modifier = Modifier.size(24.dp))
                         }
                         IconButton(onClick = { }) {
                             Icon(Icons.Filled.Share, contentDescription = "Share", tint = RedAccent, modifier = Modifier.size(24.dp))
@@ -265,7 +265,7 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFF5F6F6)),
+                    .background(VyaparBackground),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
                 // Two Summary Cards
@@ -279,8 +279,8 @@ fun DashboardScreen(
                         // You'll Get Card
                         Card(
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
@@ -288,11 +288,11 @@ fun DashboardScreen(
                                     Icon(
                                         Icons.Filled.ArrowForward,
                                         contentDescription = null,
-                                        tint = GreenBalance,
+                                        tint = VyaparGreen,
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("You'll Get", fontSize = 13.sp, color = TextSecondary, fontWeight = FontWeight.Medium)
+                                    Text("You'll Get", fontSize = 13.sp, color = VyaparTextSecondary, fontWeight = FontWeight.Medium)
                                 }
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Row(verticalAlignment = Alignment.Bottom) {
@@ -300,13 +300,13 @@ fun DashboardScreen(
                                         text = "\u20B9${String.format(Locale.US, "%,d", data.pendingReceivables.toLong())}",
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextPrimary
+                                        color = VyaparTextPrimary
                                     )
                                     Text(
                                         text = ".${String.format(Locale.US, "%02d", ((data.pendingReceivables % 1) * 100).toInt())}",
                                         fontSize = 12.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = TextSecondary
+                                        color = VyaparTextSecondary
                                     )
                                 }
                             }
@@ -314,8 +314,8 @@ fun DashboardScreen(
                         // Sale (Month) Card
                         Card(
                             modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
                             Column(modifier = Modifier.padding(14.dp)) {
@@ -323,14 +323,14 @@ fun DashboardScreen(
                                     Icon(
                                         Icons.Filled.Category,
                                         contentDescription = null,
-                                        tint = Color(0xFFFF9800),
+                                        tint = VyaparOrange,
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         "Sale (${java.text.SimpleDateFormat("MMM", java.util.Locale.US).format(java.util.Date())})",
                                         fontSize = 13.sp,
-                                        color = TextSecondary,
+                                        color = VyaparTextSecondary,
                                         fontWeight = FontWeight.Medium
                                     )
                                 }
@@ -339,7 +339,7 @@ fun DashboardScreen(
                                     text = "\u20B9${String.format(Locale.US, "%,d", data.totalSales.toLong())}",
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = TextPrimary
+                                    color = VyaparTextPrimary
                                 )
                             }
                         }
@@ -358,14 +358,14 @@ fun DashboardScreen(
                             label = { Text("Parties", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFFFEBEE),
-                                selectedLabelColor = RedAccent,
-                                containerColor = Color.White,
-                                labelColor = TextSecondary
+                                selectedContainerColor = VyaparSelectedBg,
+                                selectedLabelColor = VyaparRed,
+                                containerColor = VyaparWhite,
+                                labelColor = VyaparTextSecondary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = if (selectedTab == 0) RedAccent else Color(0xFFE0E0E0),
-                                selectedBorderColor = RedAccent,
+                                borderColor = if (selectedTab == 0) VyaparRed else VyaparDivider,
+                                selectedBorderColor = VyaparRed,
                                 enabled = true,
                                 selected = selectedTab == 0
                             )
@@ -376,14 +376,14 @@ fun DashboardScreen(
                             label = { Text("Transactions", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFFFEBEE),
-                                selectedLabelColor = RedAccent,
-                                containerColor = Color.White,
-                                labelColor = TextSecondary
+                                selectedContainerColor = VyaparSelectedBg,
+                                selectedLabelColor = VyaparRed,
+                                containerColor = VyaparWhite,
+                                labelColor = VyaparTextSecondary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = if (selectedTab == 1) RedAccent else Color(0xFFE0E0E0),
-                                selectedBorderColor = RedAccent,
+                                borderColor = if (selectedTab == 1) VyaparRed else VyaparDivider,
+                                selectedBorderColor = VyaparRed,
                                 enabled = true,
                                 selected = selectedTab == 1
                             )
@@ -394,14 +394,14 @@ fun DashboardScreen(
                             label = { Text("Items", fontWeight = if (selectedTab == 2) FontWeight.Bold else FontWeight.Medium, fontSize = 14.sp) },
                             shape = RoundedCornerShape(25.dp),
                             colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color(0xFFFFEBEE),
-                                selectedLabelColor = RedAccent,
-                                containerColor = Color.White,
-                                labelColor = TextSecondary
+                                selectedContainerColor = VyaparSelectedBg,
+                                selectedLabelColor = VyaparRed,
+                                containerColor = VyaparWhite,
+                                labelColor = VyaparTextSecondary
                             ),
                             border = FilterChipDefaults.filterChipBorder(
-                                borderColor = if (selectedTab == 2) RedAccent else Color(0xFFE0E0E0),
-                                selectedBorderColor = RedAccent,
+                                borderColor = if (selectedTab == 2) VyaparRed else VyaparDivider,
+                                selectedBorderColor = VyaparRed,
                                 enabled = true,
                                 selected = selectedTab == 2
                             )
@@ -418,13 +418,13 @@ fun DashboardScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = partySearchQuery,
                                 onValueChange = { partySearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH PARTY", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
+                                placeholder = { Text("SEARCH PARTY", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -435,7 +435,7 @@ fun DashboardScreen(
                             )
                             Text(
                                 "+ New Party",
-                                color = Primary,
+                                color = VyaparBlue,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 14.sp,
                                 modifier = Modifier
@@ -443,7 +443,7 @@ fun DashboardScreen(
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                             IconButton(onClick = { }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                             }
                         }
                     }
@@ -463,11 +463,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(Icons.Filled.Group, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Icon(Icons.Filled.Group, contentDescription = null, tint = VyaparEmptyStateIcon, modifier = Modifier.size(64.dp))
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text("No parties yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Text("No parties yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Tap + to add a party", fontSize = 13.sp, color = TextSecondary)
+                                Text("Tap + to add a party", fontSize = 13.sp, color = VyaparTextSecondary)
                             }
                         }
                     } else {
@@ -487,7 +487,7 @@ fun DashboardScreen(
                                             partyBalance.party.name,
                                             fontSize = 17.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF1A1A1A),
+                                            color = VyaparTextPrimary,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
@@ -500,7 +500,7 @@ fun DashboardScreen(
                                             } else ""
                                         } catch (_: Exception) { "" }
                                         if (dateStr.isNotBlank()) {
-                                            Text(dateStr, fontSize = 13.sp, color = Color(0xFF999999))
+                                            Text(dateStr, fontSize = 13.sp, color = VyaparTextSecondary)
                                         }
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
@@ -508,17 +508,17 @@ fun DashboardScreen(
                                             String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance.balance)),
                                             fontSize = 17.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (partyBalance.isReceivable) GreenBalance else RedAccent
+                                            color = if (partyBalance.isReceivable) VyaparGreen else VyaparRed
                                         )
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             if (partyBalance.isReceivable) "You'll Get" else "You'll Give",
                                             fontSize = 12.sp,
-                                            color = if (partyBalance.isReceivable) GreenBalance else RedAccent
+                                            color = if (partyBalance.isReceivable) VyaparGreen else VyaparRed
                                         )
                                     }
                                 }
-                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                                HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
                             }
                         }
                     }
@@ -531,13 +531,13 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = transactionSearchQuery,
                                 onValueChange = { transactionSearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH TRANSACTIONS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
+                                placeholder = { Text("SEARCH TRANSACTIONS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -547,7 +547,7 @@ fun DashboardScreen(
                                 )
                             )
                             IconButton(onClick = { }) {
-                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextSecondary)
+                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                         }
                     }
@@ -558,11 +558,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Icon(Icons.Filled.Receipt, contentDescription = null, tint = VyaparEmptyStateIcon, modifier = Modifier.size(64.dp))
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Tap + to create a transaction", fontSize = 13.sp, color = TextSecondary)
+                                Text("Tap + to create a transaction", fontSize = 13.sp, color = VyaparTextSecondary)
                             }
                         }
                     } else {
@@ -578,19 +578,19 @@ fun DashboardScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Invoice #${invoice.invoiceNumber.takeLast(4)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                        Text("Invoice #${invoice.invoiceNumber.takeLast(4)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                                         Spacer(modifier = Modifier.height(2.dp))
                                         Text(
                                             java.text.SimpleDateFormat("dd MMM", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate)),
                                             fontSize = 12.sp,
-                                            color = TextSecondary
+                                            color = VyaparTextSecondary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text(
                                             "#${invoice.invoiceNumber.takeLast(4)}",
                                             fontSize = 12.sp,
-                                            color = TextSecondary
+                                            color = VyaparTextSecondary
                                         )
                                     }
                                 }
@@ -600,10 +600,10 @@ fun DashboardScreen(
                                 ) {
                                     Box(
                                         modifier = Modifier
-                                            .background(GreenBalance.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
+                                            .background(VyaparGreen.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
                                             .padding(horizontal = 8.dp, vertical = 2.dp)
                                     ) {
-                                        Text("SALE", fontSize = 10.sp, color = GreenBalance, fontWeight = FontWeight.Bold)
+                                        Text("SALE", fontSize = 10.sp, color = VyaparGreen, fontWeight = FontWeight.Bold)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(4.dp))
@@ -613,36 +613,36 @@ fun DashboardScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column {
-                                        Text("Total", fontSize = 12.sp, color = TextSecondary)
+                                        Text("Total", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
                                             String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary
+                                            color = VyaparTextPrimary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text("Balance", fontSize = 12.sp, color = TextSecondary)
+                                        Text("Balance", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
                                             String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary
+                                            color = VyaparTextPrimary
                                         )
                                     }
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                         IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.Print, contentDescription = "Print", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.Print, contentDescription = "Print", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                         IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.Share, contentDescription = "Share", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                         IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                     }
                                 }
-                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                                HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
                             }
                         }
                     }
@@ -655,13 +655,13 @@ fun DashboardScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = Primary, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(22.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             OutlinedTextField(
                                 value = itemSearchQuery,
                                 onValueChange = { itemSearchQuery = it },
                                 modifier = Modifier.weight(1f),
-                                placeholder = { Text("SEARCH ITEMS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = TextSecondary) },
+                                placeholder = { Text("SEARCH ITEMS", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary) },
                                 singleLine = true,
                                 colors = OutlinedTextFieldDefaults.colors(
                                     unfocusedBorderColor = Color.Transparent,
@@ -671,13 +671,13 @@ fun DashboardScreen(
                                 )
                             )
                             IconButton(onClick = { }) {
-                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextSecondary)
+                                Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                             TextButton(onClick = { navController.navigate(Screen.AddItem.route) }) {
-                                Text("+ New Item", color = Primary, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text("+ New Item", color = VyaparBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                             IconButton(onClick = { }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextSecondary)
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                             }
                         }
                     }
@@ -687,7 +687,7 @@ fun DashboardScreen(
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                            colors = CardDefaults.cardColors(containerColor = VyaparInfoBackground)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -696,18 +696,18 @@ fun DashboardScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(40.dp)
-                                        .background(Primary.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
+                                        .background(VyaparBlue.copy(alpha = 0.1f), RoundedCornerShape(10.dp)),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Icon(Icons.Filled.Inventory, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
+                                    Icon(Icons.Filled.Inventory, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(20.dp))
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text("Introducing Manufacturing", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                    Text("Manage goods by creating Bill of materials.", fontSize = 12.sp, color = TextSecondary)
+                                    Text("Introducing Manufacturing", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
+                                    Text("Manage goods by creating Bill of materials.", fontSize = 12.sp, color = VyaparTextSecondary)
                                 }
                                 IconButton(onClick = { }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "Close", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "Close", tint = VyaparTextSecondary, modifier = Modifier.size(16.dp))
                                 }
                             }
                         }
@@ -729,11 +729,11 @@ fun DashboardScreen(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(Icons.Filled.FormatListBulleted, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
+                                Icon(Icons.Filled.FormatListBulleted, contentDescription = null, tint = VyaparEmptyStateIcon, modifier = Modifier.size(64.dp))
                                 Spacer(modifier = Modifier.height(12.dp))
-                                Text("No items yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary)
+                                Text("No items yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text("Tap + to add an item", fontSize = 13.sp, color = TextSecondary)
+                                Text("Tap + to add an item", fontSize = 13.sp, color = VyaparTextSecondary)
                             }
                         }
                     } else {
@@ -753,13 +753,13 @@ fun DashboardScreen(
                                             item.name,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary,
+                                            color = VyaparTextPrimary,
                                             maxLines = 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                     IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
-                                        Icon(Icons.Filled.Share, contentDescription = "Share", tint = TextSecondary, modifier = Modifier.size(18.dp))
+                                        Icon(Icons.Filled.Share, contentDescription = "Share", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                     }
                                 }
                                 Row(
@@ -767,34 +767,34 @@ fun DashboardScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Column {
-                                        Text("Sale Price", fontSize = 12.sp, color = TextSecondary)
+                                        Text("Sale Price", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
                                             String.format(Locale.US, "\u20B9%,.2f", item.salePrice),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary
+                                            color = VyaparTextPrimary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text("Purchase Price", fontSize = 12.sp, color = TextSecondary)
+                                        Text("Purchase Price", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
                                             String.format(Locale.US, "\u20B9%,.2f", item.purchasePrice),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = TextPrimary
+                                            color = VyaparTextPrimary
                                         )
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
-                                        Text("In Stock", fontSize = 12.sp, color = TextSecondary)
+                                        Text("In Stock", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
                                             String.format(Locale.US, "%.1f", item.stockQuantity),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (item.stockQuantity < 0) RedAccent else TextPrimary
+                                            color = if (item.stockQuantity < 0) VyaparRed else VyaparTextPrimary
                                         )
                                     }
                                 }
-                                HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp)
+                                HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
                             }
                         }
                     }

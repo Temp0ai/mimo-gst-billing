@@ -61,8 +61,8 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
-                    titleContentColor = Color(0xFF1A1A1A),
-                    actionIconContentColor = Color(0xFF1A1A1A)
+                    titleContentColor = VyaparTextPrimary,
+                    actionIconContentColor = VyaparTextPrimary
                 )
             )
         },
@@ -113,7 +113,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(LightBlueBg)
+                .background(VyaparBackground)
         ) {
             // Tabs
             item {
@@ -137,14 +137,14 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                                     title,
                                     fontSize = 12.sp,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (isSelected) RedAccent else TextSecondary
+                                    color = if (isSelected) VyaparRed else VyaparTextSecondary
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Box(
                                     modifier = Modifier
                                         .height(2.dp)
                                         .width(40.dp)
-                                        .background(if (isSelected) RedAccent else Color.Transparent)
+                                        .background(if (isSelected) VyaparRed else Color.Transparent)
                                 )
                             }
                         }
@@ -167,7 +167,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                         Icon(
                             Icons.Filled.Search,
                             contentDescription = null,
-                            tint = TextSecondary
+                            tint = VyaparTextSecondary
                         )
                     }
                 )
@@ -181,7 +181,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) },
                     shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Row(
@@ -196,7 +196,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                                 item.name,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 15.sp,
-                                color = TextPrimary
+                                color = VyaparTextPrimary
                             )
                         }
 
@@ -208,13 +208,13 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             Text(
                                 "Sale Price",
                                 fontSize = 10.sp,
-                                color = TextSecondary
+                                color = VyaparTextSecondary
                             )
                             Text(
                                 String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = TextPrimary
+                                color = VyaparTextPrimary
                             )
                         }
 
@@ -226,13 +226,13 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             Text(
                                 "Purchase Price",
                                 fontSize = 10.sp,
-                                color = TextSecondary
+                                color = VyaparTextSecondary
                             )
                             Text(
                                 String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = TextPrimary
+                                color = VyaparTextPrimary
                             )
                         }
 
@@ -244,13 +244,13 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             Text(
                                 "In Stock",
                                 fontSize = 10.sp,
-                                color = TextSecondary
+                                color = VyaparTextSecondary
                             )
                             Text(
                                 item.stockQuantity.toInt().toString(),
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = if (item.stockQuantity > 10) GreenBalance else RedAccent
+                                color = if (item.stockQuantity > 10) VyaparGreen else VyaparRed
                             )
                         }
 
@@ -261,7 +261,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             modifier = Modifier
                                 .padding(start = 8.dp)
                                 .clickable { /* Share */ },
-                            tint = TextSecondary
+                            tint = VyaparTextSecondary
                         )
                     }
                 }
@@ -280,7 +280,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             Icon(
                                 Icons.Filled.Store,
                                 contentDescription = null,
-                                tint = TextSecondary.copy(alpha = 0.5f),
+                                tint = VyaparEmptyStateIcon,
                                 modifier = Modifier.size(64.dp)
                             )
                             Spacer(modifier = Modifier.height(12.dp))
@@ -288,13 +288,13 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                                 "No items yet",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = TextSecondary
+                                color = VyaparTextSecondary
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 "Tap + to add an item",
                                 fontSize = 13.sp,
-                                color = TextSecondary
+                                color = VyaparTextSecondary
                             )
                         }
                     }
@@ -320,23 +320,23 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     "More Options",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = TextPrimary,
+                    color = VyaparTextPrimary,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
                     "Mark Items as Active",
                     fontSize = 15.sp,
-                    color = TextPrimary,
+                    color = VyaparTextPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showMoreOptions = false }
                         .padding(vertical = 12.dp)
                 )
-                HorizontalDivider(color = Color(0xFFE0E0E0))
+                HorizontalDivider(color = VyaparDivider)
                 Text(
                     "Mark Items as Inactive",
                     fontSize = 15.sp,
-                    color = TextPrimary,
+                    color = VyaparTextPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { showMoreOptions = false }

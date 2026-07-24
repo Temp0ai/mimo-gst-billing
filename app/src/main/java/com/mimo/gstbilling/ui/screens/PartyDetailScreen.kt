@@ -56,13 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
-import com.mimo.gstbilling.ui.theme.BlueHeader
-import com.mimo.gstbilling.ui.theme.GreenBalance
-import com.mimo.gstbilling.ui.theme.LightBlueBg
-import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import com.mimo.gstbilling.ui.viewmodel.PartyViewModel
 import com.mimo.gstbilling.data.local.entity.PartyEntity
@@ -130,9 +124,9 @@ fun PartyDetailScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
-                    titleContentColor = TextPrimary,
-                    navigationIconContentColor = TextPrimary,
-                    actionIconContentColor = TextPrimary
+                    titleContentColor = VyaparTextPrimary,
+                    navigationIconContentColor = VyaparTextPrimary,
+                    actionIconContentColor = VyaparTextPrimary
                 )
             )
         },
@@ -150,8 +144,8 @@ fun PartyDetailScreen(
                     onClick = { navController.navigate(Screen.CashBank.route) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    border = BorderStroke(1.dp, Primary),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
+                    border = BorderStroke(1.dp, VyaparBlue),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VyaparBlue)
                 ) {
                     Text("Take Payment", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
@@ -160,7 +154,7 @@ fun PartyDetailScreen(
                     onClick = { navController.navigate(Screen.AddParty.route) },
                     modifier = Modifier.size(50.dp),
                     shape = CircleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = Primary),
+                    colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
@@ -170,7 +164,7 @@ fun PartyDetailScreen(
                     onClick = { navController.navigate(Screen.CreateInvoice.createRoute(partyId)) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
+                    colors = ButtonDefaults.buttonColors(containerColor = VyaparRed)
                 ) {
                     Text("Add Sale", fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                 }
@@ -181,49 +175,49 @@ fun PartyDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(LightBlueBg)
+                .background(VyaparBackground)
         ) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
                             Column {
-                                Text(party?.name ?: "Party", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                Text(party?.name ?: "Party", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Call, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(14.dp))
+                                    Icon(Icons.Filled.Call, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(party?.phone ?: "No phone", fontSize = 14.sp, color = TextSecondary)
+                                    Text(party?.phone ?: "No phone", fontSize = 14.sp, color = VyaparTextSecondary)
                                 }
                             }
                             Column(horizontalAlignment = Alignment.End) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Filled.Note, contentDescription = null, tint = if (partyBalance >= 0) GreenBalance else RedAccent, modifier = Modifier.size(16.dp))
+                                    Icon(Icons.Filled.Note, contentDescription = null, tint = if (partyBalance >= 0) VyaparGreen else VyaparRed, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text(if (partyBalance >= 0) "Receivable:" else "Payable:", fontSize = 12.sp, color = TextSecondary)
+                                    Text(if (partyBalance >= 0) "Receivable:" else "Payable:", fontSize = 12.sp, color = VyaparTextSecondary)
                                 }
-                                Text(String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance)), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (partyBalance >= 0) GreenBalance else RedAccent)
+                                Text(String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(partyBalance)), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (partyBalance >= 0) VyaparGreen else VyaparRed)
                             }
                         }
                         Spacer(modifier = Modifier.height(16.dp))
-                        HorizontalDivider(color = Color(0xFFE0E0E0))
+                        HorizontalDivider(color = VyaparDivider)
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            OutlinedButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
-                                Icon(Icons.Filled.Notifications, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
+                            OutlinedButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, VyaparBlue)) {
+                                Icon(Icons.Filled.Notifications, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("Send Reminder", color = BlueHeader, fontSize = 13.sp)
+                                Text("Send Reminder", color = VyaparBlue, fontSize = 13.sp)
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, BlueHeader)) {
-                                Icon(Icons.Filled.Note, contentDescription = null, tint = BlueHeader, modifier = Modifier.size(16.dp))
+                            OutlinedButton(onClick = { navController.navigate(Screen.PartyStatement.createRoute(partyId)) }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, VyaparBlue)) {
+                                Icon(Icons.Filled.Note, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("View Statement", color = BlueHeader, fontSize = 13.sp)
+                                Text("View Statement", color = VyaparBlue, fontSize = 13.sp)
                             }
                         }
                     }
@@ -235,8 +229,8 @@ fun PartyDetailScreen(
                     val tabs = listOf("Transactions", "Items")
                     tabs.forEachIndexed { index, title ->
                         val isSelected = selectedTab == index
-                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) Color(0xFFFFEBEE) else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) RedAccent else TextSecondary)
+                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) VyaparSelectedBg else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) VyaparRed else VyaparTextSecondary)
                         }
                     }
                 }
@@ -244,10 +238,18 @@ fun PartyDetailScreen(
 
             if (selectedTab == 0) {
                 if (partyInvoices.isEmpty()) {
-                    item { Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Receipt, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add a transaction", fontSize = 13.sp, color = TextSecondary) } }
+                    item {
+                        Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Receipt, contentDescription = null, tint = VyaparEmptyStateIcon, modifier = Modifier.size(64.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("No transactions yet", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Tap + to add a transaction", fontSize = 13.sp, color = VyaparTextSecondary)
+                        }
+                    }
                 } else {
                     items(partyInvoices) { invoice ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                             Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(
@@ -256,22 +258,22 @@ fun PartyDetailScreen(
                                             "purchase" -> "Purchase"
                                             else -> invoice.invoiceType.replaceFirstChar { it.uppercase() }
                                         },
-                                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary
+                                        fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary
                                     )
                                     Column(horizontalAlignment = Alignment.End) {
-                                        Text(invoice.invoiceNumber, fontSize = 13.sp, color = TextSecondary)
-                                        Text(dateFormat.format(Date(invoice.invoiceDate)), fontSize = 12.sp, color = TextSecondary)
+                                        Text(invoice.invoiceNumber, fontSize = 13.sp, color = VyaparTextSecondary)
+                                        Text(dateFormat.format(Date(invoice.invoiceDate)), fontSize = 12.sp, color = VyaparTextSecondary)
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(10.dp))
                                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Total", fontSize = 11.sp, color = TextSecondary)
-                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
+                                        Text("Total", fontSize = 11.sp, color = VyaparTextSecondary)
+                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                                     }
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text("Balance", fontSize = 11.sp, color = TextSecondary)
-                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (invoice.paymentStatus == "paid") GreenBalance else RedAccent)
+                                        Text("Balance", fontSize = 11.sp, color = VyaparTextSecondary)
+                                        Text(String.format(Locale.US, "\u20B9%,.2f", invoice.totalAmount - invoice.amountPaid), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = if (invoice.paymentStatus == "paid") VyaparGreen else VyaparRed)
                                     }
                                 }
                             }
@@ -279,7 +281,15 @@ fun PartyDetailScreen(
                     }
                 }
             } else {
-                item { Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) { Icon(Icons.Filled.Inventory, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp)); Spacer(modifier = Modifier.height(12.dp)); Text("No items for this party", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = TextSecondary); Spacer(modifier = Modifier.height(4.dp)); Text("Tap + to add an item", fontSize = 13.sp, color = TextSecondary) } }
+                item {
+                    Column(modifier = Modifier.fillMaxWidth().padding(48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Filled.Inventory, contentDescription = null, tint = VyaparEmptyStateIcon, modifier = Modifier.size(64.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("No items for this party", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = VyaparTextSecondary)
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Tap + to add an item", fontSize = 13.sp, color = VyaparTextSecondary)
+                    }
+                }
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -296,10 +306,10 @@ fun PartyDetailScreen(
                     party?.let { partyViewModel.deleteParty(it) }
                     showDeleteDialog = false
                     navController.popBackStack()
-                }) { Text("Delete", color = RedAccent, fontWeight = FontWeight.Bold) }
+                }) { Text("Delete", color = VyaparRed, fontWeight = FontWeight.Bold) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel", color = Primary) }
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel", color = VyaparBlue) }
             }
         )
     }
