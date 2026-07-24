@@ -42,6 +42,9 @@ class DashboardViewModel @Inject constructor(
     private val _data = MutableStateFlow(DashboardData())
     val data: StateFlow<DashboardData> = _data.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     private val companyId = 1L
 
     init {
@@ -49,6 +52,7 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun refresh() {
+        _isLoading.value = true
         loadDashboardData()
     }
 
@@ -106,7 +110,10 @@ class DashboardViewModel @Inject constructor(
                     recentInvoices = recentInvoices,
                     recentItems = recentItems
                 )
-            }.collect { _data.value = it }
+            }.collect {
+                _data.value = it
+                _isLoading.value = false
+            }
         }
     }
 

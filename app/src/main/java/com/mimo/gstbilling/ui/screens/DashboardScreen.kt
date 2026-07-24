@@ -56,6 +56,10 @@ import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.navigation.VyaparBottomBar
 import com.mimo.gstbilling.ui.navigation.VyaparDashboardBottomBar
 import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.utils.ShimmerDashboardSummary
+import com.mimo.gstbilling.ui.utils.ShimmerTabRow
+import com.mimo.gstbilling.ui.utils.ShimmerSearchBar
+import com.mimo.gstbilling.ui.utils.ShimmerListItem
 import com.mimo.gstbilling.ui.viewmodel.DashboardViewModel
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -78,6 +82,7 @@ fun DashboardScreen(
 ) {
     val context = LocalContext.current
     val data by viewModel.data.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
@@ -268,6 +273,12 @@ fun DashboardScreen(
                     .background(VyaparBackground),
                 verticalArrangement = Arrangement.spacedBy(0.dp)
             ) {
+                if (isLoading) {
+                    item { ShimmerDashboardSummary() }
+                    item { ShimmerTabRow() }
+                    item { ShimmerSearchBar() }
+                    items(5) { ShimmerListItem() }
+                } else {
                 // Two Summary Cards
                 item {
                     Row(
@@ -801,6 +812,7 @@ fun DashboardScreen(
                 }
 
                 item { Spacer(modifier = Modifier.height(80.dp)) }
+                }
             }
         }
     }

@@ -53,20 +53,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import android.content.Intent
 import android.net.Uri
-import com.mimo.gstbilling.ui.theme.BlueHeader
-import com.mimo.gstbilling.ui.theme.GreenBalance
-import com.mimo.gstbilling.ui.theme.LightBlueBg
-import com.mimo.gstbilling.ui.theme.Primary
-import com.mimo.gstbilling.ui.theme.RedAccent
-import com.mimo.gstbilling.ui.theme.TextPrimary
-import com.mimo.gstbilling.ui.theme.TextSecondary
+import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import com.mimo.gstbilling.utils.PdfGenerator
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import android.content.Intent
+import android.net.Uri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,6 +103,13 @@ fun InvoiceDetailScreen(
                 actions = {
                     IconButton(onClick = {
                         invoice?.let { inv ->
+                            navController.navigate(Screen.InvoicePreview.createRoute(inv.id))
+                        }
+                    }) {
+                        Icon(Icons.Filled.Print, contentDescription = "Preview & Print", tint = VyaparBlue)
+                    }
+                    IconButton(onClick = {
+                        invoice?.let { inv ->
                             val format = PdfGenerator.getPrintFormat(context)
                             val isThermal = PdfGenerator.isThermal(format)
                             val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
@@ -125,16 +124,6 @@ fun InvoiceDetailScreen(
                         }
                     }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Invoice")
-                    }
-                    IconButton(onClick = {
-                        invoice?.let { inv ->
-                            val format = PdfGenerator.getPrintFormat(context)
-                            val isThermal = PdfGenerator.isThermal(format)
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
-                            PdfGenerator.printPdf(context, file)
-                        }
-                    }) {
-                        Icon(Icons.Filled.Print, contentDescription = "Print")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
