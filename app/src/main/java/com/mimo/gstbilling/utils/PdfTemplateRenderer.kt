@@ -7,6 +7,7 @@ import com.mimo.gstbilling.R
 import com.mimo.gstbilling.data.local.entity.CompanyEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceItemEntity
+import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,7 +31,8 @@ object PdfTemplateRenderer {
         items: List<InvoiceItemEntity>,
         company: CompanyEntity?,
         style: InvoiceStyle = InvoiceStyle.CLASSIC,
-        isThermal: Boolean = false
+        isThermal: Boolean = false,
+        party: PartyEntity? = null
     ): PdfDocument {
         val pageWidth = if (isThermal) 576 else 595
         val pageHeight = if (isThermal) 3200 else 842
@@ -49,14 +51,14 @@ object PdfTemplateRenderer {
         val rightMargin = if (isThermal) (pageWidth - 10f) else (pageWidth - 40f)
 
         when (style) {
-            InvoiceStyle.CLASSIC -> drawClassic(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.MODERN -> drawModern(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.ELEGANT -> drawElegant(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.PROFESSIONAL -> drawProfessional(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.BOLD -> drawBold(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.COMPACT -> drawCompact(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.MINIMAL -> drawMinimal(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
-            InvoiceStyle.DETAILED -> drawDetailed(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat)
+            InvoiceStyle.CLASSIC -> drawClassic(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.MODERN -> drawModern(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.ELEGANT -> drawElegant(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.PROFESSIONAL -> drawProfessional(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.BOLD -> drawBold(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.COMPACT -> drawCompact(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.MINIMAL -> drawMinimal(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
+            InvoiceStyle.DETAILED -> drawDetailed(canvas, paint, boldPaint, lightPaint, context, company, invoice, items, leftMargin, rightMargin, y, isThermal, dateFormat, party)
         }
 
         document.finishPage(page)
@@ -81,7 +83,7 @@ object PdfTemplateRenderer {
         return 0f
     }
 
-    private fun drawClassic(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawClassic(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         // Blue header line
         paint.color = Color.parseColor("#0075E8")
@@ -113,7 +115,8 @@ object PdfTemplateRenderer {
         canvas.drawText("Invoice No: ${invoice.invoiceNumber}", leftMargin, y, paint)
         canvas.drawText("Date: ${dateFormat.format(Date(invoice.invoiceDate))}", rightMargin - 160f, y, paint)
         y += 14f
-        canvas.drawText("Party ID: ${invoice.partyId}", leftMargin, y, paint)
+        val partyName = party?.name ?: "Party #${invoice.partyId}"
+        canvas.drawText("Bill To: $partyName", leftMargin, y, paint)
         canvas.drawText("Payment: ${invoice.paymentStatus.uppercase()}", rightMargin - 160f, y, paint)
         y += 18f
 
@@ -133,7 +136,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawModern(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawModern(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         // Dark header band
         paint.color = Color.parseColor("#1A237E")
@@ -151,7 +154,8 @@ object PdfTemplateRenderer {
         canvas.drawText("INVOICE", leftMargin, y, boldPaint)
         y += 22f
         paint.textSize = if (isThermal) 9f else 10f
-        canvas.drawText("${invoice.invoiceNumber}  |  ${dateFormat.format(Date(invoice.invoiceDate))}  |  ${invoice.paymentStatus.uppercase()}", leftMargin, y, paint)
+        val partyName = party?.name ?: "Party #${invoice.partyId}"
+        canvas.drawText("${invoice.invoiceNumber}  |  ${dateFormat.format(Date(invoice.invoiceDate))}  |  $partyName  |  ${invoice.paymentStatus.uppercase()}", leftMargin, y, paint)
         y += 20f
 
         canvas.drawRect(leftMargin, y, rightMargin, y + 2f, paint)
@@ -168,7 +172,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawElegant(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawElegant(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         // Double border header
         paint.color = Color.parseColor("#455A64")
@@ -212,7 +216,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawProfessional(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawProfessional(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         paint.color = Color.parseColor("#0D47A1")
         canvas.drawRect(leftMargin, y - 20f, rightMargin, y, paint)
@@ -247,7 +251,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawBold(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawBold(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         paint.color = Color.parseColor("#D32F2F")
         canvas.drawRect(0f, 0f, rightMargin + 40f, 90f, paint)
@@ -279,7 +283,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawCompact(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawCompact(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         paint.textSize = if (isThermal) 12f else 16f; boldPaint.textSize = paint.textSize
         canvas.drawText(company?.name ?: "My Business", leftMargin, y, boldPaint)
@@ -303,7 +307,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawMinimal(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawMinimal(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         paint.textSize = if (isThermal) 14f else 18f; boldPaint.textSize = paint.textSize
         canvas.drawText(company?.name ?: "My Business", leftMargin, y, boldPaint)
@@ -328,7 +332,7 @@ object PdfTemplateRenderer {
         drawDeclaration(canvas, paint, boldPaint, company, leftMargin, rightMargin, y, isThermal)
     }
 
-    private fun drawDetailed(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat) {
+    private fun drawDetailed(canvas: Canvas, paint: Paint, boldPaint: Paint, lightPaint: Paint, context: Context, company: CompanyEntity?, invoice: InvoiceEntity, items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float, startY: Float, isThermal: Boolean, dateFormat: SimpleDateFormat, party: PartyEntity? = null) {
         var y = startY
         paint.color = Color.parseColor("#1B5E20")
         canvas.drawRect(leftMargin, y - 20f, rightMargin, y, paint)
@@ -390,6 +394,10 @@ object PdfTemplateRenderer {
 
         paint.textSize = if (isThermal) 9f else 10f; boldPaint.textSize = paint.textSize
         canvas.drawText("Item", col1 + 4f, y, boldPaint)
+        if (!isThermal) {
+            val colHsn = leftMargin + 220f
+            canvas.drawText("HSN/SAC", colHsn, y, boldPaint)
+        }
         canvas.drawText("Qty", col2, y, boldPaint)
         canvas.drawText("Rate", col3, y, boldPaint)
         canvas.drawText("Amount", col4 - 65f, y, boldPaint)
@@ -404,6 +412,10 @@ object PdfTemplateRenderer {
         paint.textSize = if (isThermal) 9f else 10f
         items.forEach { item ->
             canvas.drawText(item.itemName.take(if (isThermal) 20 else 28), col1, y, paint)
+            if (!isThermal) {
+                val colHsn = leftMargin + 220f
+                item.hsnCode?.let { canvas.drawText(it, colHsn, y, paint) }
+            }
             canvas.drawText("${item.quantity.toInt()} ${item.unit}", col2, y, paint)
             canvas.drawText(String.format(Locale.US, "%.2f", item.price), col3, y, paint)
             canvas.drawText(String.format(Locale.US, "%.2f", item.totalAmount), col4 - 65f, y, paint)
