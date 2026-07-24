@@ -160,4 +160,7 @@ sealed class Screen(val route: String) {
     object Subscription : Screen("subscription")
     object AnalyticsDashboard : Screen("analytics_dashboard")
     object ItemPriceList : Screen("item_price_list")
+    object InvoicePreview : Screen("invoice_preview/{invoiceId}") {
+        fun createRoute(invoiceId: Long) = "invoice_preview/$invoiceId"
+    }
 }

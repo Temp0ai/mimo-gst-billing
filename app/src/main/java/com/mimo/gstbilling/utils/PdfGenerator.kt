@@ -718,4 +718,17 @@ object PdfGenerator {
             false
         }
     }
+
+    fun getPrintFormat(context: Context): String {
+        val prefs = context.getSharedPreferences("print_settings", Context.MODE_PRIVATE)
+        return prefs.getString("format", "A4") ?: "A4"
+    }
+
+    fun isThermal(format: String): Boolean = format.startsWith("Thermal")
+
+    fun getThermalWidth(format: String): Int = when (format) {
+        "Thermal 58mm" -> 384
+        "Thermal 80mm" -> 576
+        else -> 576
+    }
 }

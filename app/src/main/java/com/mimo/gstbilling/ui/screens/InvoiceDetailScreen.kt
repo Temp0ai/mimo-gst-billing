@@ -82,6 +82,7 @@ fun InvoiceDetailScreen(
 
     var invoice by remember { mutableStateOf<com.mimo.gstbilling.data.local.entity.InvoiceEntity?>(null) }
     var invoiceItems by remember { mutableStateOf<List<com.mimo.gstbilling.data.local.entity.InvoiceItemEntity>>(emptyList()) }
+    var party by remember { mutableStateOf<com.mimo.gstbilling.data.local.entity.PartyEntity?>(null) }
     var partyName by remember { mutableStateOf("") }
     var companyName by remember { mutableStateOf("My Business") }
 
@@ -90,8 +91,9 @@ fun InvoiceDetailScreen(
         invoice = inv
         inv?.let {
             invoiceItems = viewModel.getItemsForInvoice(it.id)
-            val party = viewModel.getPartyById(it.partyId)
-            partyName = party?.name ?: "Unknown Party"
+            val p = viewModel.getPartyById(it.partyId)
+            party = p
+            partyName = p?.name ?: "Unknown Party"
             val company = viewModel.getCompanyById(it.companyId)
             companyName = company?.name ?: "My Business"
         }
@@ -109,7 +111,9 @@ fun InvoiceDetailScreen(
                 actions = {
                     IconButton(onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            val format = PdfGenerator.getPrintFormat(context)
+                            val isThermal = PdfGenerator.isThermal(format)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
                             PdfGenerator.sharePdf(context, file)
                         }
                     }) {
@@ -124,11 +128,13 @@ fun InvoiceDetailScreen(
                     }
                     IconButton(onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = true)
+                            val format = PdfGenerator.getPrintFormat(context)
+                            val isThermal = PdfGenerator.isThermal(format)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
                             PdfGenerator.printPdf(context, file)
                         }
                     }) {
-                        Icon(Icons.Filled.Print, contentDescription = "Thermal Print")
+                        Icon(Icons.Filled.Print, contentDescription = "Print")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -152,15 +158,10 @@ fun InvoiceDetailScreen(
                 Button(
                     onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
-                            val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-                            val intent = Intent(Intent.ACTION_SEND).apply {
-                                type = "application/pdf"
-                                putExtra(Intent.EXTRA_STREAM, uri)
-                                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                setPackage("com.whatsapp")
-                            }
-                            context.startActivity(intent)
+                            val format = PdfGenerator.getPrintFormat(context)
+                            val isThermal = PdfGenerator.isThermal(format)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
+                            PdfGenerator.sharePdfToWhatsApp(context, file)
                         }
                     },
                     modifier = Modifier.weight(1f),
@@ -172,7 +173,9 @@ fun InvoiceDetailScreen(
                 Button(
                     onClick = {
                         invoice?.let { inv ->
-                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, isThermal = false)
+                            val format = PdfGenerator.getPrintFormat(context)
+                            val isThermal = PdfGenerator.isThermal(format)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
                             PdfGenerator.printPdf(context, file)
                         }
                     },
