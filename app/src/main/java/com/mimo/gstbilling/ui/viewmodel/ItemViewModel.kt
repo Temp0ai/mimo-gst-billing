@@ -133,6 +133,13 @@ class ItemViewModel @Inject constructor(
         }
     }
 
+    fun toggleItemActive(item: ItemEntity) {
+        viewModelScope.launch {
+            itemDao.updateItem(item.copy(isActive = !item.isActive))
+            loadCounts()
+        }
+    }
+
     fun deleteItem(item: ItemEntity) {
         viewModelScope.launch {
             itemDao.deleteItem(item)

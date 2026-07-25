@@ -154,60 +154,7 @@ fun ItemWiseProfitLossScreen(navController: NavController, viewModel: InvoiceVie
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun StockDetailReportScreen(navController: NavController, viewModel: com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel = hiltViewModel()) {
-    val items by viewModel.getItems().collectAsState(initial = emptyList())
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Stock Detail Report", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary))
-        }
-    ) { padding ->
-        val goods = items.filter { !it.isService }
-        val totalStock = goods.sumOf { it.stockQuantity }
-        val totalValue = goods.sumOf { it.stockQuantity * it.salePrice }
-        val totalPurchaseValue = goods.sumOf { it.stockQuantity * it.purchasePrice }
-        LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item {
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Stock Detail", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Items", color = TextSecondary); Text("${goods.size}", fontWeight = FontWeight.Bold, color = Primary) }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Units in Stock", color = TextSecondary); Text("${totalStock.toInt()}", fontWeight = FontWeight.Bold, color = Primary) }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Sale Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalValue), fontWeight = FontWeight.Bold, color = GreenBalance) }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Purchase Value", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalPurchaseValue), fontWeight = FontWeight.Bold, color = Primary) }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Potential Profit", color = TextSecondary); Text(String.format(Locale.US, "\u20B9%,.2f", totalValue - totalPurchaseValue), fontWeight = FontWeight.Bold, color = GreenBalance) }
-                    }
-                }
-            }
-            goods.forEach { item ->
-                item {
-                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                        Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(item.name, fontWeight = FontWeight.Bold, color = TextPrimary)
-                                Text("HSN: ${item.hsnCode ?: "N/A"} | GST: ${item.gstRate.toInt()}% | ${item.unit}", fontSize = 12.sp, color = TextSecondary)
-                            }
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("${item.stockQuantity.toInt()} ${item.unit}", fontWeight = FontWeight.Bold, color = if (item.stockQuantity <= 5) RedAccent else Primary)
-                                Text(String.format(Locale.US, "\u20B9%,.2f", item.salePrice), fontSize = 12.sp, color = TextSecondary)
-                            }
-                        }
-                    }
-                }
-            }
-            if (goods.isEmpty()) {
-                item { Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) { Text("No stock items found", color = TextSecondary) } }
-            }
-        }
-    }
-}
+// StockDetailReportScreen is now in StockDetailReportScreen.kt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -233,29 +180,7 @@ fun ItemWiseDiscountScreen(navController: NavController, viewModel: InvoiceViewM
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DiscountReportScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
-    val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
-    GenericReportScreen(navController, "Discount Report", "All discounts", Icons.Filled.Percent) {
-        if (invoices.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("No data available", color = TextSecondary) }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                invoices.filter { it.discount > 0 }.forEach { invoice ->
-                    item {
-                        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                            Row(modifier = Modifier.fillMaxWidth().padding(14.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Column { Text(invoice.invoiceNumber, fontWeight = FontWeight.Bold, color = TextPrimary); Text("Party #${invoice.partyId}", fontSize = 12.sp, color = TextSecondary) }
-                                Text(String.format(Locale.US, "-\u20B9%,.2f", invoice.discount), fontWeight = FontWeight.Bold, color = RedAccent)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+// DiscountReportScreen is now in DiscountReportScreen.kt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

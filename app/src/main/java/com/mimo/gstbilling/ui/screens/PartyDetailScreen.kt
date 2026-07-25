@@ -141,7 +141,7 @@ fun PartyDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedButton(
-                    onClick = { navController.navigate(Screen.CashBank.route) },
+                    onClick = { navController.navigate(Screen.PaymentReceived.route) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, VyaparBlue),
@@ -151,13 +151,13 @@ fun PartyDetailScreen(
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
-                    onClick = { navController.navigate(Screen.AddParty.route) },
+                    onClick = { navController.navigate(Screen.CreateInvoice.createRoute(partyId)) },
                     modifier = Modifier.size(50.dp),
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue),
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add", tint = Color.White)
+                    Icon(Icons.Filled.Add, contentDescription = "Create Invoice", tint = Color.White)
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Button(
@@ -249,7 +249,7 @@ fun PartyDetailScreen(
                     }
                 } else {
                     items(partyInvoices) { invoice ->
-                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
+                        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable { navController.navigate(Screen.InvoiceDetail.createRoute(invoice.id)) }, shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
                             Column(modifier = Modifier.fillMaxWidth().padding(14.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(

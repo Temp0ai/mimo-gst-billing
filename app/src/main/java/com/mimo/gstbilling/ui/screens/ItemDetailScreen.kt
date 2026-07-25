@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.data.local.entity.ItemEntity
 import com.mimo.gstbilling.data.local.entity.ItemVariantEntity
 
@@ -64,6 +65,11 @@ fun ItemDetailScreen(
                 title = { Text("Item Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 actions = {
+                    IconButton(onClick = {
+                        navController.navigate(Screen.AddItem.route)
+                    }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Item")
+                    }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete")
                     }
@@ -284,6 +290,19 @@ fun ItemDetailScreen(
                         }
                     }
                 }
+            }
+
+            Button(
+                onClick = {
+                    navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
+                },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(50.dp),
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = Primary)
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Create Sale", fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
         }
     }

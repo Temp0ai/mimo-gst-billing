@@ -41,4 +41,10 @@ interface ItemDao {
 
     @Query("SELECT COUNT(*) FROM items WHERE companyId = :companyId AND stockQuantity <= 5")
     suspend fun getLowStockCount(companyId: Long): Int
+
+    @Query("SELECT * FROM items WHERE companyId = :companyId AND isActive = 1 ORDER BY name ASC")
+    fun getActiveItemsByCompany(companyId: Long): Flow<List<ItemEntity>>
+
+    @Query("SELECT * FROM items WHERE companyId = :companyId AND isActive = 0 ORDER BY name ASC")
+    fun getInactiveItemsByCompany(companyId: Long): Flow<List<ItemEntity>>
 }

@@ -22,5 +22,6 @@ data class ItemEntity(
     val stockQuantity: Double = 0.0,
     val isService: Boolean = false,
     val imageUri: String? = null,
+    val isActive: Boolean = true,
     val createdAt: Long = System.currentTimeMillis()
 )

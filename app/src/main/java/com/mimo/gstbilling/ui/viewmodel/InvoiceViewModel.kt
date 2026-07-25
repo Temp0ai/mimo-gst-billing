@@ -61,7 +61,8 @@ class InvoiceViewModel @Inject constructor(
     private val partyDao: PartyDao,
     private val expenseDao: ExpenseDao,
     private val itemVariantDao: ItemVariantDao,
-    private val companyDao: CompanyDao
+    private val companyDao: CompanyDao,
+    private val transactionDao: TransactionDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(InvoiceUiState())
@@ -374,6 +375,32 @@ class InvoiceViewModel @Inject constructor(
         val balance = receivable - payable
         val party = partyDao.getPartyById(partyId) ?: return
         partyDao.updateParty(party.copy(balance = balance))
+    }
+
+    fun recordPayment(invoiceId: Long, amount: Double, paymentMode: String) {
+        viewModelScope.launch {
+            val invoice = invoiceDao.getInvoiceById(invoiceId) ?: return@launch
+            val newAmountPaid = invoice.amountPaid + amount
+            val newStatus = when {
+                newAmountPaid >= invoice.totalAmount -> "paid"
+                newAmountPaid > 0 -> "partial"
+                else -> "unpaid"
+            }
+            invoiceDao.updateInvoice(invoice.copy(amountPaid = newAmountPaid, paymentStatus = newStatus))
+            val transactionType = if (invoice.invoiceType == "sales") "credit" else "debit"
+            val transaction = TransactionEntity(
+                companyId = companyId,
+                partyId = invoice.partyId,
+                invoiceId = invoiceId,
+                amount = amount,
+                type = transactionType,
+                mode = paymentMode.lowercase(),
+                description = "Payment for ${invoice.invoiceNumber}",
+                date = System.currentTimeMillis()
+            )
+            transactionDao.insertTransaction(transaction)
+            updatePartyBalance(invoice.partyId)
+        }
     }
 
     fun updateInvoice(invoice: InvoiceEntity) {

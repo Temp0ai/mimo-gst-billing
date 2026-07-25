@@ -13,9 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
@@ -24,6 +26,7 @@ import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentReceivedScreen(navController: NavController, viewModel: InvoiceViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     val invoices by viewModel.getInvoices("sales").collectAsState(initial = emptyList())
     val unpaidInvoices = invoices.filter { it.totalAmount > it.amountPaid }
     var showRecordDialog by remember { mutableStateOf(false) }
@@ -48,7 +51,14 @@ fun PaymentReceivedScreen(navController: NavController, viewModel: InvoiceViewMo
                     }
                 }
             },
-            confirmButton = { TextButton(onClick = { showRecordDialog = false }, enabled = (amount.toDoubleOrNull() ?: 0.0) > 0) { Text("Record", fontWeight = FontWeight.Bold) } },
+            confirmButton = { TextButton(onClick = {
+                val paymentAmount = amount.toDoubleOrNull() ?: 0.0
+                if (paymentAmount > 0 && selectedInvoice != null) {
+                    viewModel.recordPayment(selectedInvoice!!.id, paymentAmount, paymentMode)
+                    Toast.makeText(context, "Payment recorded successfully", Toast.LENGTH_SHORT).show()
+                    showRecordDialog = false
+                }
+            }, enabled = (amount.toDoubleOrNull() ?: 0.0) > 0) { Text("Record", fontWeight = FontWeight.Bold) } },
             dismissButton = { TextButton(onClick = { showRecordDialog = false }) { Text("Cancel") } })
     }
 

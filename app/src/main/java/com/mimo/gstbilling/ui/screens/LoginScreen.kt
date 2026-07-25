@@ -29,7 +29,7 @@ import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
+fun LoginScreen(navController: NavController, onLoginSuccess: () -> Unit) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE) }
     val isLoggedIn = remember { prefs.getBoolean("logged_in", false) }

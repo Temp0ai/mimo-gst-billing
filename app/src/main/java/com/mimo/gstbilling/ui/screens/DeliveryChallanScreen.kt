@@ -9,12 +9,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +29,8 @@ import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.DeliveryChallanViewModel
+import com.mimo.gstbilling.utils.PdfGenerator
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -35,6 +43,27 @@ fun DeliveryChallanScreen(
     val challans by viewModel.challans.collectAsState()
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     var searchQuery by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    var showDeleteDialog by remember { mutableStateOf<Long?>(null) }
+    var expandedMenuId by remember { mutableStateOf<Long?>(null) }
+    val scope = rememberCoroutineScope()
+
+    if (showDeleteDialog != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = null },
+            title = { Text("Delete Delivery Challan", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete this delivery challan?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog?.let { viewModel.deleteChallan(it) }
+                    showDeleteDialog = null
+                }) { Text("Delete", color = RedAccent, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = null }) { Text("Cancel") }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -50,7 +79,7 @@ fun DeliveryChallanScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                onClick = { navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "delivery_challan")) },
                 containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Delivery Challan", tint = Color.White)
@@ -135,6 +164,59 @@ fun DeliveryChallanScreen(
                                     fontSize = 11.sp,
                                     color = if (challan.paymentStatus == "paid") GreenBalance else Primary
                                 )
+                            }
+                            Box {
+                                IconButton(onClick = { expandedMenuId = challan.id }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "Actions", tint = TextSecondary)
+                                }
+                                DropdownMenu(
+                                    expanded = expandedMenuId == challan.id,
+                                    onDismissRequest = { expandedMenuId = null }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Convert to Invoice") },
+                                        onClick = {
+                                            expandedMenuId = null
+                                            navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = Primary) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Print / PDF") },
+                                        onClick = {
+                                            expandedMenuId = null
+                                            scope.launch {
+                                                val format = PdfGenerator.getPrintFormat(context)
+                                                val isThermal = PdfGenerator.isThermal(format)
+                                                val file = PdfGenerator.generateInvoicePdf(context, challan, viewModel.getItemsForChallan(challan.id), null, null, isThermal = isThermal)
+                                                PdfGenerator.printPdf(context, file)
+                                            }
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Print, contentDescription = null, tint = Primary) }
+                                    )
+                                    DropdownMenuItem(
+                                        text = { Text("Share PDF") },
+                                        onClick = {
+                                            expandedMenuId = null
+                                            scope.launch {
+                                                val format = PdfGenerator.getPrintFormat(context)
+                                                val isThermal = PdfGenerator.isThermal(format)
+                                                val file = PdfGenerator.generateInvoicePdf(context, challan, viewModel.getItemsForChallan(challan.id), null, null, isThermal = isThermal)
+                                                PdfGenerator.sharePdf(context, file)
+                                            }
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Share, contentDescription = null, tint = GreenBalance) }
+                                    )
+                                    HorizontalDivider()
+                                    DropdownMenuItem(
+                                        text = { Text("Delete", color = RedAccent) },
+                                        onClick = {
+                                            expandedMenuId = null
+                                            showDeleteDialog = challan.id
+                                        },
+                                        leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null, tint = RedAccent) }
+                                    )
+                                }
                             }
                         }
                     }

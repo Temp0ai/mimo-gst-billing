@@ -14,12 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
+import com.mimo.gstbilling.utils.PdfGenerator
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -30,6 +34,8 @@ fun QuotationScreen(navController: NavController, invoiceId: Long, viewModel: In
     var invoiceItems by remember { mutableStateOf<List<com.mimo.gstbilling.data.local.entity.InvoiceItemEntity>>(emptyList()) }
     var partyName by remember { mutableStateOf("Loading...") }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(invoiceId) {
         invoice = viewModel.getInvoiceByIdDirect(invoiceId)
@@ -40,7 +46,17 @@ fun QuotationScreen(navController: NavController, invoiceId: Long, viewModel: In
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Quotation", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }, actions = { IconButton(onClick = { }) { Icon(Icons.Filled.Share, contentDescription = "Share") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) }
+        topBar = { TopAppBar(title = { Text("Quotation", fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },             actions = { IconButton(onClick = {
+                scope.launch {
+                    invoice?.let { inv ->
+                        val items = viewModel.getItemsForInvoice(inv.id)
+                        val company = viewModel.getCompanyById(1L)
+                        val party = viewModel.getPartyById(inv.partyId)
+                        val file = PdfGenerator.generateInvoicePdf(context, inv, items, company, party, isThermal = false)
+                        PdfGenerator.sharePdf(context, file)
+                    }
+                }
+            }) { Icon(Icons.Filled.Share, contentDescription = "Share") } }, colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = Color(0xFF1A1A1A), navigationIconContentColor = Color(0xFF1A1A1A))) }
     ) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(Background)) {
             item {
@@ -72,6 +88,22 @@ fun QuotationScreen(navController: NavController, invoiceId: Long, viewModel: In
                 }
             }
             item { Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))) { Text("This quotation is valid for 30 days from the date of issue.", fontSize = 12.sp, color = Color(0xFF1565C0), modifier = Modifier.padding(12.dp)) } }
+            item {
+                Button(
+                    onClick = {
+                        invoice?.let { inv ->
+                            navController.navigate(Screen.CreateInvoice.createRoute(partyId = inv.partyId, invoiceType = "sales"))
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).height(50.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    Icon(Icons.Filled.Receipt, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Convert to Invoice", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            }
         }
     }
 }

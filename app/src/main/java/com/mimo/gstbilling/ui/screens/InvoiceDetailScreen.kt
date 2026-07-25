@@ -1,7 +1,9 @@
 package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,19 +21,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Payment
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -53,12 +65,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
 import com.mimo.gstbilling.utils.PdfGenerator
-import android.content.Intent
-import android.net.Uri
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +90,9 @@ fun InvoiceDetailScreen(
     var party by remember { mutableStateOf<com.mimo.gstbilling.data.local.entity.PartyEntity?>(null) }
     var partyName by remember { mutableStateOf("") }
     var companyName by remember { mutableStateOf("My Business") }
+    var showRecordPaymentDialog by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(invoiceId) {
         val inv = viewModel.getInvoiceByIdDirect(invoiceId)
@@ -89,6 +105,59 @@ fun InvoiceDetailScreen(
             val company = viewModel.getCompanyById(it.companyId)
             companyName = company?.name ?: "My Business"
         }
+    }
+
+    if (showRecordPaymentDialog && invoice != null) {
+        val inv = invoice!!
+        val remaining = inv.totalAmount - inv.amountPaid
+        var amount by remember { mutableStateOf(String.format(java.util.Locale.US, "%.2f", remaining)) }
+        var paymentMode by remember { mutableStateOf("Cash") }
+        var showModeDropdown by remember { mutableStateOf(false) }
+        AlertDialog(onDismissRequest = { showRecordPaymentDialog = false },
+            title = { Text("Record Payment", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text("Invoice: ${inv.invoiceNumber}", fontSize = 14.sp, color = TextSecondary)
+                    Text("Outstanding: ${String.format(java.util.Locale.US, "\u20B9%,.2f", remaining)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = RedAccent)
+                    OutlinedTextField(value = amount, onValueChange = { amount = it }, label = { Text("Amount *") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    Box {
+                        OutlinedTextField(value = paymentMode, onValueChange = {}, readOnly = true, label = { Text("Payment Mode") }, trailingIcon = { Icon(Icons.Filled.ArrowDropDown, contentDescription = null, modifier = Modifier.clickable { showModeDropdown = true }) }, modifier = Modifier.fillMaxWidth())
+                        DropdownMenu(expanded = showModeDropdown, onDismissRequest = { showModeDropdown = false }) {
+                            listOf("Cash", "UPI", "Bank Transfer", "Cheque", "Credit Card", "Debit Card").forEach { m -> DropdownMenuItem(text = { Text(m) }, onClick = { paymentMode = m; showModeDropdown = false }) }
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = {
+                val paymentAmount = amount.toDoubleOrNull() ?: 0.0
+                if (paymentAmount > 0) {
+                    viewModel.recordPayment(inv.id, paymentAmount, paymentMode)
+                    Toast.makeText(context, "Payment recorded successfully", Toast.LENGTH_SHORT).show()
+                    showRecordPaymentDialog = false
+                    scope.launch {
+                        invoice = viewModel.getInvoiceByIdDirect(invoiceId)
+                    }
+                }
+            }, enabled = (amount.toDoubleOrNull() ?: 0.0) > 0) { Text("Record", fontWeight = FontWeight.Bold) } },
+            dismissButton = { TextButton(onClick = { showRecordPaymentDialog = false }) { Text("Cancel") } })
+    }
+
+    if (showDeleteDialog && invoice != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Invoice", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to delete this invoice? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    invoice?.let { viewModel.deleteInvoice(it) }
+                    showDeleteDialog = false
+                    navController.popBackStack()
+                }) { Text("Delete", color = RedAccent, fontWeight = FontWeight.Bold) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 
     Scaffold(
@@ -125,6 +194,38 @@ fun InvoiceDetailScreen(
                     }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Invoice")
                     }
+                    Box {
+                        IconButton(onClick = { showMoreMenu = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = "More Options")
+                        }
+                        DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Convert to Delivery Challan") },
+                                onClick = {
+                                    showMoreMenu = false
+                                    navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "delivery_challan"))
+                                },
+                                leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = Primary) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Create Credit Note") },
+                                onClick = {
+                                    showMoreMenu = false
+                                    navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "credit_note"))
+                                },
+                                leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = RedAccent) }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text("Delete Invoice", color = RedAccent) },
+                                onClick = {
+                                    showMoreMenu = false
+                                    showDeleteDialog = true
+                                },
+                                leadingIcon = { Icon(Icons.Filled.Delete, contentDescription = null, tint = RedAccent) }
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.White,
@@ -136,14 +237,30 @@ fun InvoiceDetailScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
                     .navigationBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (invoice != null && invoice!!.totalAmount > invoice!!.amountPaid) {
+                    Button(
+                        onClick = { showRecordPaymentDialog = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = GreenBalance)
+                    ) {
+                        Icon(Icons.Filled.Payment, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Record Payment", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                 Button(
                     onClick = {
                         invoice?.let { inv ->

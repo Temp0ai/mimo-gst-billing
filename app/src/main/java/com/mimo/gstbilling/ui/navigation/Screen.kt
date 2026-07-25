@@ -1,7 +1,6 @@
 package com.mimo.gstbilling.ui.navigation
 
 sealed class Screen(val route: String) {
-    object Login : Screen("login")
     object Dashboard : Screen("dashboard")
     object CreateInvoice : Screen("create_invoice?partyId={partyId}&invoiceType={invoiceType}") {
         fun createRoute(partyId: Long = -1L, invoiceType: String = "sales") = 
@@ -36,6 +35,9 @@ sealed class Screen(val route: String) {
     object BarcodeScanner : Screen("barcode_scanner")
     object StockTransfer : Screen("stock_transfer")
     object Orders : Screen("orders")
+    object CreateOrder : Screen("create_order?orderType={orderType}") {
+        fun createRoute(orderType: String = "sale") = "create_order?orderType=$orderType"
+    }
     object OrderDetail : Screen("order_detail/{orderId}") {
         fun createRoute(orderId: Long) = "order_detail/$orderId"
     }
@@ -51,6 +53,17 @@ sealed class Screen(val route: String) {
     object BalanceSheet : Screen("balance_sheet")
     object ProfitLossReport : Screen("profit_loss_report")
     object ExpenseCategoryReport : Screen("expense_category_report")
+    object StockTransferReport : Screen("stock_transfer_report")
+    object StockTransferDetailReport : Screen("stock_transfer_detail_report")
+    object SummaryByHsnReport : Screen("summary_by_hsn_report")
+    object SalePurchaseAmountReport : Screen("sale_purchase_amount_report")
+    object SalePurchaseExpenseReport : Screen("sale_purchase_expense_report")
+    object PartyReport : Screen("party_report")
+    object PartyReportByItem : Screen("party_report_by_item")
+    object PartyGroupSalePurchaseReport : Screen("party_group_sale_purchase_report")
+    object ItemWiseProfitLossReport : Screen("item_wise_profit_loss_report")
+    object BillWiseProfitLossReport : Screen("bill_wise_profit_loss_report")
+    object TaxRateReport : Screen("tax_rate_report")
     object ItemBatchTracking : Screen("item_batch_tracking")
     object ImportData : Screen("import_data")
     object ExportData : Screen("export_data")
@@ -77,7 +90,6 @@ sealed class Screen(val route: String) {
     object ExpenseItemReport : Screen("expense_item_report")
     object OrderItemReport : Screen("order_item_report")
     object LoanStatement : Screen("loan_statement")
-    object VyaparImport : Screen("vyapar_import")
     object Gstr1Filing : Screen("gstr1_filing")
     object Gstr3bFiling : Screen("gstr3b_filing")
     object EWayBill : Screen("e_way_bill")
@@ -163,4 +175,55 @@ sealed class Screen(val route: String) {
     object InvoicePreview : Screen("invoice_preview/{invoiceId}") {
         fun createRoute(invoiceId: Long) = "invoice_preview/$invoiceId"
     }
+    object KycIntro : Screen("kyc_intro")
+    object KycVerification : Screen("kyc_verification")
+    object ItemBulkOperations : Screen("item_bulk_operations")
+    object BarcodeManagement : Screen("barcode_management")
+    object ContinuousScanning : Screen("continuous_scanning")
+    object UnitMapping : Screen("unit_mapping")
+    object CustomReportBuilder : Screen("custom_report_builder")
+    object ReportSchedule : Screen("report_schedule")
+    object About : Screen("about")
+    object RemindersHub : Screen("reminders_hub")
+    object ProfitOnInvoice : Screen("profit_on_invoice")
+    object WhatsAppPreview : Screen("whatsapp_preview")
+    object TrendingItems : Screen("trending_items")
+    object TransactionSelect : Screen("transaction_select")
+    object MultiFirmSettings : Screen("multi_firm_settings")
+}
+
+    object FixedAssetsList : Screen("fixed_assets_list")
+    object FixedAssetDetail : Screen("fixed_asset_detail/{assetId}") {
+        fun createRoute(assetId: Long) = "fixed_asset_detail/$assetId"
+    }
+    object AddFixedAsset : Screen("add_fixed_asset")
+    object Catalogue : Screen("catalogue")
+    object ViewStore : Screen("view_store")
+    object CatalogueItemDetail : Screen("catalogue_item_detail/{itemId}") {
+        fun createRoute(itemId: Long) = "catalogue_item_detail/$itemId"
+    }
+    object OnlineOrderList : Screen("online_order_list")
+    object SmsList : Screen("sms_list")
+    object MultiplePartyReminder : Screen("multiple_party_reminder")
+    object InputReminderMessage : Screen("input_reminder_message")
+    object MessageToParty : Screen("message_to_party")
+    object Gstr2Report : Screen("gstr2_report")
+    object TcsManagement : Screen("tcs_management")
+    object TcsReport : Screen("tcs_report")
+    object SecurityLog : Screen("security_log")
+    object CashInHandAdjustment : Screen("cash_in_hand_adjustment")
+    object CashInHandDetail : Screen("cash_in_hand_detail")
+    object TransferMoney : Screen("transfer_money")
+    object BankStatementDetail : Screen("bank_statement_detail")
+    object BankDetail : Screen("bank_detail")
+    object ChequeList : Screen("cheque_list")
+    object ChequeDetail : Screen("cheque_detail")
+    object ChequeClose : Screen("cheque_close")
+    object LoanAccountsList : Screen("loan_accounts_list")
+    object AddLoan : Screen("add_loan")
+    object LoanDetail : Screen("loan_detail")
+    object LoanTransaction : Screen("loan_transaction")
+    object LoanExpense : Screen("loan_expense")
+    object CashBook : Screen("cash_book")
+    object BankReconciliationDetail : Screen("bank_reconciliation_detail")
 }

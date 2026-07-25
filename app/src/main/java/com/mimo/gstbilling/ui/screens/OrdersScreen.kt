@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.OrderViewModel
 import java.text.SimpleDateFormat
@@ -70,7 +71,7 @@ fun OrdersScreen(navController: NavController, viewModel: OrderViewModel = hiltV
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate("create_order?orderType=${orderTypes[selectedTab]}") },
+                onClick = { navController.navigate(Screen.CreateOrder.createRoute(orderType = orderTypes[selectedTab])) },
                 containerColor = RedAccent,
                 contentColor = Color.White
             ) {

@@ -21,7 +21,9 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "mimo_gst_billing_db"
-        ).fallbackToDestructiveMigration().build()
+        ).fallbackToDestructiveMigration()
+            .addMigrations(AppDatabase.MIGRATION_14_15, AppDatabase.MIGRATION_15_16)
+            .build()
     }
 
     @Provides fun provideCompanyDao(db: AppDatabase) = db.companyDao()
@@ -44,4 +46,17 @@ object AppModule {
     @Provides fun provideBomDao(db: AppDatabase) = db.bomDao()
     @Provides fun provideRecurringInvoiceDao(db: AppDatabase) = db.recurringInvoiceDao()
     @Provides fun provideDiscountConfigDao(db: AppDatabase) = db.discountConfigDao()
+    @Provides fun provideChequeDao(db: AppDatabase) = db.chequeDao()
+    @Provides fun provideLoanDao(db: AppDatabase) = db.loanDao()
+    @Provides fun provideLoanTransactionDao(db: AppDatabase) = db.loanTransactionDao()
+    @Provides fun provideAssetDao(db: AppDatabase) = db.assetDao()
+    @Provides fun provideAssetDepreciationDao(db: AppDatabase) = db.assetDepreciationDao()
+    @Provides fun provideCashAdjustmentDao(db: AppDatabase) = db.cashAdjustmentDao()
+    @Provides fun provideTransferDao(db: AppDatabase) = db.transferDao()
+    @Provides fun provideTcsRateDao(db: AppDatabase) = db.tcsRateDao()
+    @Provides fun provideTcsTransactionDao(db: AppDatabase) = db.tcsTransactionDao()
+    @Provides fun provideAuditLogDao(db: AppDatabase) = db.auditLogDao()
+    @Provides fun provideKycDao(db: AppDatabase) = db.kycDao()
+    @Provides fun provideUnitMappingDao(db: AppDatabase) = db.unitMappingDao()
+    @Provides fun provideOnlineOrderDao(db: AppDatabase) = db.onlineOrderDao()
 }

@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,9 +36,24 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
     val tabs = listOf("PRODUCTS", "SERVICES", "CATEGORIES", "UNITS")
     val scope = rememberCoroutineScope()
     var showMoreOptions by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var filterType by remember { mutableIntStateOf(0) }
+    var filterStock by remember { mutableIntStateOf(0) }
+    var sortBy by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
 
     val filteredItems = items.filter {
-        it.name.contains(searchText, ignoreCase = true) && (selectedTab == 0 || (selectedTab == 1 && it.isService) || (selectedTab == 2 && false) || (selectedTab == 3 && false))
+        it.name.contains(searchText, ignoreCase = true) &&
+        (selectedTab == 0 || (selectedTab == 1 && it.isService) || (selectedTab == 2 && false) || (selectedTab == 3 && false)) &&
+        (filterType == 0 || (filterType == 1 && !it.isService) || (filterType == 2 && it.isService)) &&
+        (filterStock == 0 || (filterStock == 1 && it.stockQuantity <= 5) || (filterStock == 2 && it.stockQuantity <= 0))
+    }.let { list ->
+        when (sortBy) {
+            1 -> list.sortedBy { it.name }
+            2 -> list.sortedBy { it.salePrice }
+            3 -> list.sortedBy { it.stockQuantity }
+            else -> list
+        }
     }
 
     Scaffold(
@@ -52,7 +69,7 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     IconButton(onClick = { navController.navigate(Screen.ItemSettings.route) }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
-                    IconButton(onClick = { /* Filter */ }) {
+                    IconButton(onClick = { showFilterSheet = true }) {
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter")
                     }
                     IconButton(onClick = { showMoreOptions = true }) {
@@ -260,7 +277,21 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                             contentDescription = "Share",
                             modifier = Modifier
                                 .padding(start = 8.dp)
-                                .clickable { /* Share */ },
+                                .clickable {
+                                    val shareText = buildString {
+                                        appendLine("Item: ${item.name}")
+                                        appendLine("Sale Price: ${String.format(java.util.Locale.US, "\u20B9%,.2f", item.salePrice)}")
+                                        appendLine("Purchase Price: ${String.format(java.util.Locale.US, "\u20B9%,.2f", item.purchasePrice)}")
+                                        appendLine("In Stock: ${item.stockQuantity.toInt()}")
+                                        appendLine("Type: ${if (item.isService) "Service" else "Product"}")
+                                    }
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, shareText)
+                                        setPackage("com.whatsapp")
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Share item via"))
+                                },
                             tint = VyaparTextSecondary
                         )
                     }
@@ -305,6 +336,50 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
         }
     }
 
+    // Filter Bottom Sheet
+    if (showFilterSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilterSheet = false },
+            containerColor = Color.White
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    "Filter Items",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = VyaparTextPrimary,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Text("Type", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = VyaparTextPrimary, modifier = Modifier.padding(bottom = 8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = filterType == 0, onClick = { filterType = 0 }, label = { Text("All") })
+                    FilterChip(selected = filterType == 1, onClick = { filterType = 1 }, label = { Text("Products") })
+                    FilterChip(selected = filterType == 2, onClick = { filterType = 2 }, label = { Text("Services") })
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("Stock Status", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = VyaparTextPrimary, modifier = Modifier.padding(bottom = 8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = filterStock == 0, onClick = { filterStock = 0 }, label = { Text("All") })
+                    FilterChip(selected = filterStock == 1, onClick = { filterStock = 1 }, label = { Text("Low Stock") })
+                    FilterChip(selected = filterStock == 2, onClick = { filterStock = 2 }, label = { Text("Out of Stock") })
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text("Sort By", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = VyaparTextPrimary, modifier = Modifier.padding(bottom = 8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(selected = sortBy == 0, onClick = { sortBy = 0 }, label = { Text("Default") })
+                    FilterChip(selected = sortBy == 1, onClick = { sortBy = 1 }, label = { Text("Name") })
+                    FilterChip(selected = sortBy == 2, onClick = { sortBy = 2 }, label = { Text("Price") })
+                    FilterChip(selected = sortBy == 3, onClick = { sortBy = 3 }, label = { Text("Stock") })
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+
     // More Options Bottom Sheet
     if (showMoreOptions) {
         ModalBottomSheet(
@@ -329,7 +404,12 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     color = VyaparTextPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showMoreOptions = false }
+                        .clickable {
+                            filteredItems.forEach { item ->
+                                if (!item.isActive) viewModel.toggleItemActive(item)
+                            }
+                            showMoreOptions = false
+                        }
                         .padding(vertical = 12.dp)
                 )
                 HorizontalDivider(color = VyaparDivider)
@@ -339,7 +419,12 @@ fun ItemsScreen(navController: NavController, viewModel: ItemViewModel = hiltVie
                     color = VyaparTextPrimary,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showMoreOptions = false }
+                        .clickable {
+                            filteredItems.forEach { item ->
+                                if (item.isActive) viewModel.toggleItemActive(item)
+                            }
+                            showMoreOptions = false
+                        }
                         .padding(vertical = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(32.dp))

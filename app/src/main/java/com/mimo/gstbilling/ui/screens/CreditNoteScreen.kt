@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -50,7 +51,7 @@ fun CreditNoteScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navController.navigate(Screen.CreateInvoice.route) },
+                onClick = { navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "credit_note")) },
                 containerColor = RedAccent
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Credit Note", tint = Color.White)
@@ -142,6 +143,11 @@ fun CreditNoteScreen(
                                     fontSize = 11.sp,
                                     color = if (note.paymentStatus == "paid") GreenBalance else RedAccent
                                 )
+                            }
+                            IconButton(onClick = {
+                                navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "credit_note"))
+                            }) {
+                                Icon(Icons.Filled.Link, contentDescription = "Link to Invoice", tint = Primary, modifier = Modifier.size(20.dp))
                             }
                         }
                     }

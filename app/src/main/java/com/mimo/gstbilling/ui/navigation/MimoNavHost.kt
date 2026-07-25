@@ -91,6 +91,17 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.BalanceSheet.route) { BalanceSheetScreen(navController) }
         composable(Screen.ProfitLossReport.route) { ProfitLossReportScreen(navController) }
         composable(Screen.ExpenseCategoryReport.route) { ExpenseCategoryReportScreen(navController) }
+        composable(Screen.StockTransferReport.route) { StockTransferReportScreen(navController) }
+        composable(Screen.StockTransferDetailReport.route) { StockTransferDetailReportScreen(navController) }
+        composable(Screen.SummaryByHsnReport.route) { SummaryByHsnReportScreen(navController) }
+        composable(Screen.SalePurchaseAmountReport.route) { SalePurchaseAmountReportScreen(navController) }
+        composable(Screen.SalePurchaseExpenseReport.route) { SalePurchaseExpenseReportScreen(navController) }
+        composable(Screen.PartyReport.route) { PartyReportScreen(navController) }
+        composable(Screen.PartyReportByItem.route) { PartyReportByItemScreen(navController) }
+        composable(Screen.PartyGroupSalePurchaseReport.route) { PartyGroupSalePurchaseReportScreen(navController) }
+        composable(Screen.ItemWiseProfitLossReport.route) { ItemWiseProfitLossReportScreen(navController) }
+        composable(Screen.BillWiseProfitLossReport.route) { BillWiseProfitLossReportScreen(navController) }
+        composable(Screen.TaxRateReport.route) { TaxRateReportScreen(navController) }
         composable(Screen.ItemBatchTracking.route) { ItemBatchScreen(navController) }
         composable(Screen.ImportData.route) { ImportDataScreen(navController) }
         composable(Screen.ExportData.route) { ExportDataScreen(navController) }
@@ -205,5 +216,26 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.Subscription.route) { SubscriptionScreen(navController) }
         composable(Screen.AnalyticsDashboard.route) { AnalyticsDashboardScreen(navController) }
         composable(Screen.ItemPriceList.route) { ItemPriceListScreen(navController) }
+        composable(Screen.FixedAssetsList.route) { FixedAssetsListScreen(navController) }
+        composable(Screen.FixedAssetDetail.route, arguments = listOf(navArgument("assetId") { type = NavType.LongType })) { backStackEntry ->
+            val assetId = backStackEntry.arguments?.getLong("assetId") ?: 0L
+            FixedAssetDetailScreen(navController, assetId)
+        }
+        composable(Screen.AddFixedAsset.route) { AddFixedAssetScreen(navController) }
+        composable(Screen.Catalogue.route) { CatalogueScreen(navController) }
+        composable(Screen.ViewStore.route) { ViewStoreScreen(navController) }
+        composable(Screen.CatalogueItemDetail.route, arguments = listOf(navArgument("itemId") { type = NavType.LongType })) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getLong("itemId") ?: 0L
+            CatalogueItemDetailScreen(navController, itemId)
+        }
+        composable(Screen.OnlineOrderList.route) { OnlineOrderListScreen(navController) }
+        composable(Screen.SmsList.route) { SmsListScreen(navController) }
+        composable(Screen.MultiplePartyReminder.route) { MultiplePartyReminderScreen(navController) }
+        composable(Screen.InputReminderMessage.route) { InputReminderMessageScreen(navController) }
+        composable(Screen.MessageToParty.route) { MessageToPartyScreen(navController) }
+        composable(Screen.Gstr2Report.route) { Gstr2ReportScreen(navController) }
+        composable(Screen.TcsManagement.route) { TcsManagementScreen(navController) }
+        composable(Screen.TcsReport.route) { TcsReportScreen(navController) }
+        composable(Screen.SecurityLog.route) { SecurityLogScreen(navController) }
     }
 }

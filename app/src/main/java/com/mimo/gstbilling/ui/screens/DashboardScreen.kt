@@ -142,6 +142,7 @@ fun DashboardScreen(
                                                 "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
                                                 "Reports" -> navController.navigate(Screen.Reports.route)
                                                 "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
+                                                "Expense" -> navController.navigate(Screen.Expenses.route)
                                                 "Settings" -> navController.navigate(Screen.Settings.route)
                                             }
                                         }
@@ -190,18 +191,19 @@ fun DashboardScreen(
                                                 when (subItem) {
                                                     "All Parties" -> navController.navigate(Screen.Parties.route)
                                                     "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
-                                                    "Party Statement" -> navController.navigate(Screen.PartyStatement.createRoute(1L))
+                                                    "Party Statement" -> navController.navigate(Screen.Parties.route)
                                                     "All Sales" -> navController.navigate(Screen.Sales.route)
                                                     "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
                                                     "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
                                                     "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
                                                     "All Purchases" -> navController.navigate(Screen.Purchases.route)
-                                                    "Create Purchase" -> navController.navigate(Screen.CreateInvoice.route)
+                                                    "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
                                                     "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
                                                     "Cash Book" -> navController.navigate(Screen.CashBank.route)
                                                     "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
                                                     "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
                                                     "Products" -> navController.navigate(Screen.Items.route)
+                                                    // TODO: Each backup sub-item should navigate to its own dedicated screen
                                                     "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
                                                     "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
                                                     "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)

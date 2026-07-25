@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
@@ -56,6 +57,7 @@ fun PartiesScreen(
     val totalReceivable = parties.filter { it.balance > 0 }.sumOf { it.balance }
     val filteredParties = parties.filter { it.name.contains(searchText, ignoreCase = true) || (it.phone ?: "").contains(searchText) }
     var showTransactionSheet by remember { mutableStateOf(false) }
+    var expandedPartyId by remember { mutableStateOf<Long?>(null) }
 
     if (showTransactionSheet) {
         TransactionTypeSheet(
@@ -202,6 +204,24 @@ fun PartiesScreen(
                                 color = VyaparGreen
                             )
                             Text("You'll Get", fontSize = 12.sp, color = VyaparGreen)
+                        }
+                        Box {
+                            IconButton(onClick = { expandedPartyId = party.id }, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "Actions", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
+                            }
+                            DropdownMenu(
+                                expanded = expandedPartyId == party.id,
+                                onDismissRequest = { expandedPartyId = null }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Create Invoice") },
+                                    onClick = {
+                                        expandedPartyId = null
+                                        navController.navigate(Screen.CreateInvoice.createRoute(partyId = party.id, invoiceType = "sales"))
+                                    },
+                                    leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = VyaparBlue) }
+                                )
+                            }
                         }
                     }
                     HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)

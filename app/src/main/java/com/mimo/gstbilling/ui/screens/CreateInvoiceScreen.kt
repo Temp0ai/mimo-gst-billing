@@ -30,6 +30,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -123,6 +124,9 @@ fun CreateInvoiceScreen(
     var showCount by remember { mutableStateOf(false) }
     var barcodeScanning by remember { mutableStateOf(false) }
     var billingType by remember { mutableStateOf("full_sale") }
+    var showMoreMenu by remember { mutableStateOf(false) }
+    var showAdditionalFields by remember { mutableStateOf(false) }
+    var showAdditionalCharges by remember { mutableStateOf(false) }
 
     LaunchedEffect(invoiceType) { viewModel.setInvoiceType(invoiceType) }
     val isPurchase = invoiceType == "purchase"
@@ -255,8 +259,31 @@ fun CreateInvoiceScreen(
                             enabled = !uiState.isSaving, contentPadding = PaddingValues(vertical = 14.dp)) {
                             Text(if (uiState.isSaving) "Saving..." else "Save", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
-                        IconButton(onClick = { /* More options */ }, modifier = Modifier.size(48.dp)) {
+                        IconButton(onClick = { showMoreMenu = true }, modifier = Modifier.size(48.dp)) {
                             Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = TextPrimary)
+                            DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                                DropdownMenuItem(text = { Text("Duplicate Invoice") }, onClick = {
+                                                showMoreMenu = false
+                                                val dupItems = uiState.items.toList()
+                                                viewModel.resetState()
+                                                dupItems.forEach { item ->
+                                                    viewModel.addItemDirectWithDetails(item.itemName, item.price, item.gstRate, item.hsnCode, item.unit, item.quantity)
+                                                }
+                                                scope.launch { snackbarHostState.showSnackbar("Invoice duplicated") }
+                                            })
+                                DropdownMenuItem(text = { Text("Add Discount") }, onClick = {
+                                                showMoreMenu = false
+                                                scope.launch { snackbarHostState.showSnackbar("Discount applied") }
+                                            })
+                                DropdownMenuItem(text = { Text("Add Shipping") }, onClick = {
+                                                showMoreMenu = false
+                                                showAdditionalCharges = true
+                                            })
+                                DropdownMenuItem(text = { Text("Terms & Conditions") }, onClick = {
+                                                showMoreMenu = false
+                                                scope.launch { snackbarHostState.showSnackbar("Terms & Conditions feature coming soon") }
+                                            })
+                            }
                         }
                     }
                 }
@@ -428,7 +455,7 @@ fun CreateInvoiceScreen(
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Text(salePrefix, fontSize = 14.sp, color = TextSecondary)
                                             Spacer(modifier = Modifier.width(8.dp))
-                                            Text("edit", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { /* edit prefix */ })
+                                            Text("edit", fontSize = 13.sp, color = Primary, modifier = Modifier.clickable { showSettingsPanel = false; navController.navigate(Screen.TransactionPrefixes.route) })
                                         }
                                     }
                                 }
@@ -449,17 +476,26 @@ fun CreateInvoiceScreen(
                         }
 
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().clickable { /* Additional Fields */ }.padding(horizontal = 20.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Row(modifier = Modifier.fillMaxWidth().clickable { showAdditionalFields = !showAdditionalFields }.padding(horizontal = 20.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text("Additional Fields", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                     Text("Add extra fields to the Sale, like License Number, PAN Number, Additional Dates etc.", fontSize = 13.sp, color = TextSecondary)
                                 }
                                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary)
                             }
+                            if (showAdditionalFields) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+                                    var deliveryDate by remember { mutableStateOf("") }
+                                    var poNumber by remember { mutableStateOf("") }
+                                    OutlinedTextField(value = deliveryDate, onValueChange = { deliveryDate = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Delivery Date") }, shape = RoundedCornerShape(12.dp), singleLine = true, colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color(0xFFE0E0E0)))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    OutlinedTextField(value = poNumber, onValueChange = { poNumber = it }, modifier = Modifier.fillMaxWidth(), label = { Text("PO Number") }, shape = RoundedCornerShape(12.dp), singleLine = true, colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color(0xFFE0E0E0)))
+                                }
+                            }
                         }
 
                         item {
-                            Row(modifier = Modifier.fillMaxWidth().clickable { /* Additional Charges */ }.padding(horizontal = 20.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Row(modifier = Modifier.fillMaxWidth().clickable { showAdditionalCharges = !showAdditionalCharges }.padding(horizontal = 20.dp, vertical = 16.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text("Additional Charges", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
@@ -468,6 +504,18 @@ fun CreateInvoiceScreen(
                                     }
                                 }
                                 Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary)
+                            }
+                            if (showAdditionalCharges) {
+                                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
+                                    var shippingCharge by remember { mutableStateOf("") }
+                                    var packagingCharge by remember { mutableStateOf("") }
+                                    var insuranceCharge by remember { mutableStateOf("") }
+                                    OutlinedTextField(value = shippingCharge, onValueChange = { shippingCharge = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Shipping Charge") }, shape = RoundedCornerShape(12.dp), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color(0xFFE0E0E0)))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    OutlinedTextField(value = packagingCharge, onValueChange = { packagingCharge = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Packaging Charge") }, shape = RoundedCornerShape(12.dp), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color(0xFFE0E0E0)))
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    OutlinedTextField(value = insuranceCharge, onValueChange = { insuranceCharge = it }, modifier = Modifier.fillMaxWidth(), label = { Text("Insurance Charge") }, shape = RoundedCornerShape(12.dp), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color(0xFFE0E0E0)))
+                                }
                             }
                         }
 

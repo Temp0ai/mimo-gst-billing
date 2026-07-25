@@ -34,6 +34,7 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Day Book", Screen.DayBookReport.route),
             ReportItem("All Transactions", Screen.AllTransactionsReport.route),
             ReportItem("Bill Wise Profit", Screen.BillWiseProfitLoss.route),
+            ReportItem("Bill Wise P&L Report", Screen.BillWiseProfitLossReport.route),
             ReportItem("Profit & Loss", Screen.ProfitLossReport.route),
             ReportItem("Cashflow", Screen.CashFlowReport.route),
             ReportItem("Balance Sheet", Screen.BalanceSheet.route)
@@ -42,9 +43,13 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Party Statement", Screen.Parties.route),
             ReportItem("Party Wise Profit & Loss", Screen.PartyWiseProfitLoss.route),
             ReportItem("All Parties Report", Screen.AllPartiesReport.route),
+            ReportItem("Party Report", Screen.PartyReport.route),
             ReportItem("Party Report by Items", Screen.PartyReportByItems.route),
+            ReportItem("Party Report by Item", Screen.PartyReportByItem.route),
             ReportItem("Sale/Purchase by Party", Screen.SalePurchaseByParty.route),
-            ReportItem("Sale/Purchase By Party Groups", Screen.Parties.route)
+            ReportItem("Sale/Purchase by Amount", Screen.SalePurchaseAmountReport.route),
+            ReportItem("Sale/Purchase By Party Groups", Screen.PartyGroupSalePurchaseReport.route),
+            ReportItem("Sale/Purchase/Expense", Screen.SalePurchaseExpenseReport.route)
         ),
         "GST reports" to listOf(
             ReportItem("GSTR-1", Screen.Gstr1Filing.route),
@@ -53,6 +58,7 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("GST Transaction report", Screen.GstrSummary.route),
             ReportItem("GSTR-9", Screen.Gstr9aFiling.route),
             ReportItem("Sale Summary by HSN", Screen.HsnSummary.route),
+            ReportItem("Summary by HSN", Screen.SummaryByHsnReport.route),
             ReportItem("SAC Report", Screen.SacReport.route),
             ReportItem("e-Way Bill", Screen.EWayBill.route)
         ),
@@ -60,9 +66,12 @@ fun ReportsScreen(navController: NavController) {
             ReportItem("Stock Summary Report", Screen.StockSummaryReport.route),
             ReportItem("Item Report by Party", Screen.ItemReportByParty.route),
             ReportItem("Item Wise Profit & Loss", Screen.ItemWiseProfitLoss.route),
+            ReportItem("Item Wise P&L Report", Screen.ItemWiseProfitLossReport.route),
             ReportItem("Low Stock Summary Report", Screen.LowStockReport.route),
-            ReportItem("Item Detail Report", Screen.StockSummaryReport.route),
-            ReportItem("Stock Detail Report", Screen.StockSummaryReport.route),
+            ReportItem("Item Detail Report", Screen.StockDetailReport.route),
+            ReportItem("Stock Detail Report", Screen.StockDetailReport.route),
+            ReportItem("Stock Transfer Report", Screen.StockTransferReport.route),
+            ReportItem("Stock Transfer Detail", Screen.StockTransferDetailReport.route),
             ReportItem("Sale/Purchase By Item Category", Screen.CategorySalePurchase.route),
             ReportItem("Stock summary By Item Category", Screen.CategoryStockReport.route),
             ReportItem("Item Batch Report", Screen.ItemBatchTracking.route),
@@ -71,11 +80,13 @@ fun ReportsScreen(navController: NavController) {
         ),
         "Business status" to listOf(
             ReportItem("Bank Statement", Screen.BankStatementReport.route),
-            ReportItem("Discount Report", Screen.DiscountReport.route)
+            ReportItem("Discount Report", Screen.DiscountReport.route),
+            ReportItem("Item Wise Discount Report", Screen.ItemWiseDiscount.route)
         ),
         "Taxes" to listOf(
             ReportItem("GST Report", Screen.GstrSummary.route),
-            ReportItem("GST Rate Report", Screen.GstrSummary.route),
+            ReportItem("GST Rate Report", Screen.TaxRateReport.route),
+            ReportItem("Tax Report", Screen.TaxReport.route),
             ReportItem("Form No. 27EQ", Screen.Form27Eq.route),
             ReportItem("TCS Receivable", Screen.TcsReceivable.route),
             ReportItem("TDS Payable", Screen.TdsPayable.route),

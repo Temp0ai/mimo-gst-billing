@@ -8,6 +8,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +24,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.data.local.entity.OrderEntity
 import com.mimo.gstbilling.data.local.entity.OrderItemEntity
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.OrderViewModel
 import java.text.SimpleDateFormat
@@ -40,6 +47,8 @@ fun OrderDetailScreen(
     var showConvertDialog by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var showMenu by remember { mutableStateOf(false) }
 
     LaunchedEffect(orderId) {
         viewModel.getOrderById(orderId).collect { order = it }
@@ -102,6 +111,51 @@ fun OrderDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = {
+                        order?.let { o ->
+                            val message = buildString {
+                                append("Order #${o.orderNumber}\n")
+                                append("Date: ${dateFormat.format(Date(o.orderDate))}\n")
+                                append("Party: $partyName\n\n")
+                                orderItems.forEach { item ->
+                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
+                                }
+                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", o.totalAmount)}")
+                            }
+                            val encoded = Uri.encode(message)
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
+                            context.startActivity(intent)
+                        }
+                    }) {
+                        Icon(Icons.Filled.Share, contentDescription = "WhatsApp", tint = Color(0xFF25D366))
+                    }
+                    IconButton(onClick = {
+                        order?.let { o ->
+                            val message = buildString {
+                                append("Order #${o.orderNumber}\n")
+                                append("Date: ${dateFormat.format(Date(o.orderDate))}\n")
+                                append("Party: $partyName\n\n")
+                                orderItems.forEach { item ->
+                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
+                                }
+                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", o.totalAmount)}")
+                            }
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, message)
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Print Order"))
+                        }
+                    }) {
+                        Icon(Icons.Filled.Print, contentDescription = "Print / Share", tint = Primary)
+                    }
+                    IconButton(onClick = {
+                        order?.let { o ->
+                            navController.navigate(Screen.CreateOrder.createRoute(orderType = o.orderType))
+                        }
+                    }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Order")
+                    }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent)
                     }
