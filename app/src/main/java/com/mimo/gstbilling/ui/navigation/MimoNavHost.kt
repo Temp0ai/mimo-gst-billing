@@ -65,7 +65,7 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.StockTransfer.route) { StockTransferScreen(navController) }
         composable(Screen.Orders.route) { OrdersScreen(navController) }
         composable(
-            route = "create_order?orderType={orderType}",
+            route = Screen.CreateOrder.route,
             arguments = listOf(navArgument("orderType") { type = NavType.StringType; defaultValue = "sales_order" })
         ) { backStackEntry ->
             val orderType = backStackEntry.arguments?.getString("orderType") ?: "sales_order"
@@ -237,5 +237,41 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.TcsManagement.route) { TcsManagementScreen(navController) }
         composable(Screen.TcsReport.route) { TcsReportScreen(navController) }
         composable(Screen.SecurityLog.route) { SecurityLogScreen(navController) }
+        composable(Screen.About.route) { AboutScreen(navController) }
+        composable(Screen.BarcodeManagement.route) { BarcodeManagementScreen(navController) }
+        composable(Screen.ContinuousScanning.route) { ContinuousScanningScreen(navController) }
+        composable(Screen.CustomReportBuilder.route) { CustomReportBuilderScreen(navController) }
+        composable(Screen.ItemBulkOperations.route) { ItemBulkOperationsScreen(navController) }
+        composable(Screen.KycIntro.route) { KycIntroScreen(navController) }
+        composable(Screen.KycVerification.route) { KycVerificationScreen(navController) }
+        composable(Screen.MultiFirmSettings.route) { MultiFirmSettingsScreen(navController) }
+        composable(Screen.ProfitOnInvoice.route) { ProfitOnInvoiceScreen(navController) }
+        composable(Screen.RemindersHub.route) { RemindersHubScreen(navController) }
+        composable(Screen.ReportSchedule.route) { ReportScheduleScreen(navController) }
+        composable(Screen.TransactionSelect.route) { TransactionSelectScreen(navController) }
+        composable(Screen.TrendingItems.route) { TrendingItemsScreen(navController) }
+        composable(Screen.UnitMapping.route) { UnitMappingScreen(navController) }
+        composable(Screen.WhatsAppPreview.route) { WhatsAppPreviewScreen(navController) }
+        composable(Screen.CashInHandAdjustment.route) { CashInHandAdjustmentScreen(navController) }
+        composable(Screen.CashInHandDetail.route) { CashInHandDetailScreen(navController) }
+        composable(Screen.TransferMoney.route) { TransferMoneyScreen(navController) }
+        composable(Screen.BankStatementDetail.route) { BankStatementScreen(navController) }
+        composable(Screen.BankDetail.route) { BankDetailScreen(navController) }
+        composable(Screen.ChequeList.route) { ChequeListScreen(navController) }
+        composable(Screen.ChequeDetail.route) { ChequeDetailScreen(navController) }
+        composable(Screen.ChequeClose.route) { ChequeCloseScreen(navController) }
+        composable(Screen.LoanAccountsList.route) { LoanAccountsListScreen(navController) }
+        composable(Screen.AddLoan.route) { AddLoanScreen(navController) }
+        composable(
+            route = Screen.LoanDetail.route,
+            arguments = listOf(navArgument("loanId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val loanId = backStackEntry.arguments?.getLong("loanId") ?: 0L
+            LoanDetailScreen(navController, loanId)
+        }
+        composable(Screen.LoanTransaction.route) { LoanTransactionScreen(navController) }
+        composable(Screen.LoanExpense.route) { LoanExpenseScreen(navController) }
+        composable(Screen.CashBook.route) { CashBookScreen(navController) }
+        composable(Screen.BankReconciliationDetail.route) { BankReconciliationDetailScreen(navController) }
     }
 }

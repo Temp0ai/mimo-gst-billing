@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,6 +27,8 @@ import com.mimo.gstbilling.ui.theme.*
 fun TaxSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("tax_settings", Context.MODE_PRIVATE)
+    var showSearch by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var gst by remember { mutableStateOf(prefs.getBoolean("gst", true)) }
     var hsnSacCode by remember { mutableStateOf(prefs.getBoolean("hsn_sac_code", true)) }
@@ -49,7 +52,7 @@ fun TaxSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Show search/filter for tax settings */ }) {
+                    IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = TextPrimary)
                     }
                 },
@@ -64,6 +67,18 @@ fun TaxSettingsScreen(navController: NavController) {
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (showSearch) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search tax settings") },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    trailingIcon = { IconButton(onClick = { showSearch = false; searchQuery = "" }) { Icon(Icons.Filled.Close, contentDescription = "Close") } },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
             SettingNavigationRow("Tax List", false) { navController.navigate(Screen.SettingsDetail.createRoute("Tax List")) }
 
             SettingToggleRow("GST", gst) { gst = it; save("gst", it) }

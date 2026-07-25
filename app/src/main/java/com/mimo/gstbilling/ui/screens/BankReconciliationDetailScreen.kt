@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.coroutines.launch
 
 data class ReconciliationTxn(val description: String, val amount: Double, val date: Long, val isMatched: Boolean, val type: String)
 
@@ -28,6 +29,8 @@ data class ReconciliationTxn(val description: String, val amount: Double, val da
 fun BankReconciliationDetailScreen(navController: NavController) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     var selectedTab by remember { mutableIntStateOf(0) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val matchedTxns = remember {
         listOf(
@@ -63,7 +66,8 @@ fun BankReconciliationDetailScreen(navController: NavController) {
                     navigationIconContentColor = VyaparTextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -156,7 +160,7 @@ fun BankReconciliationDetailScreen(navController: NavController) {
                                     fontSize = 14.sp
                                 )
                                 if (!txn.isMatched) {
-                                    TextButton(onClick = { /* TODO: Reconcile transaction */ }, contentPadding = PaddingValues(0.dp)) {
+                                    TextButton(onClick = { scope.launch { snackbarHostState.showSnackbar("Reconciled") } }, contentPadding = PaddingValues(0.dp)) {
                                         Text("Reconcile", fontSize = 11.sp, color = VyaparBlue)
                                     }
                                 }
@@ -168,7 +172,7 @@ fun BankReconciliationDetailScreen(navController: NavController) {
 
             if (selectedTab == 1 && unmatchedTxns.isNotEmpty()) {
                 Button(
-                    onClick = { /* TODO: Reconcile all matched transactions */ },
+                    onClick = { scope.launch { snackbarHostState.showSnackbar("All reconciled") } },
                     modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)

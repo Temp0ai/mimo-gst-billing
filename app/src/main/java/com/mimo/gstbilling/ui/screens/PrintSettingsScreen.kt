@@ -23,12 +23,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrintSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("print_settings", Context.MODE_PRIVATE)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     var printFormat by remember { mutableStateOf(prefs.getString("format", "A4") ?: "A4") }
     var showCopies by remember { mutableStateOf(prefs.getInt("copies", 1)) }
     var showFormatDropdown by remember { mutableStateOf(false) }
@@ -60,7 +63,8 @@ fun PrintSettingsScreen(navController: NavController) {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -216,7 +220,23 @@ fun PrintSettingsScreen(navController: NavController) {
 
             // Print Button
             OutlinedButton(
-                onClick = { /* TODO: Print test page */ },
+                onClick = { scope.launch {
+                    try {
+                        val pdfFile = java.io.File(context.cacheDir, "test_invoice.pdf")
+                        val outputStream = pdfFile.outputStream()
+                        outputStream.write("Test Invoice\nMimo GST Billing\nDate: ${java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date())}\n\nThis is a test print page.\n".toByteArray())
+                        outputStream.close()
+                        val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", pdfFile)
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "application/pdf"
+                            putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "Print Test Page"))
+                    } catch (e: Exception) {
+                        snackbarHostState.showSnackbar("Unable to generate test page")
+                    }
+                } },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,6 +38,9 @@ fun BankStatementScreen(navController: NavController) {
     val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     var dateRange by remember { mutableStateOf("This Month") }
+    var showDateFilter by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val dateOptions = listOf("Today", "This Week", "This Month", "Last Month", "This Quarter", "This Year")
     val transactions = remember {
         listOf(
             BankTxn(System.currentTimeMillis(), "Opening Balance", null, null, 125000.0),
@@ -80,7 +84,8 @@ fun BankStatementScreen(navController: NavController) {
                     navigationIconContentColor = VyaparTextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -95,7 +100,7 @@ fun BankStatementScreen(navController: NavController) {
                     colors = CardDefaults.cardColors(containerColor = VyaparWhite)
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { },
+                        modifier = Modifier.fillMaxWidth().clickable { showDateFilter = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {

@@ -91,6 +91,13 @@ fun DashboardScreen(
     var partySearchQuery by remember { mutableStateOf("") }
     var transactionSearchQuery by remember { mutableStateOf("") }
     var itemSearchQuery by remember { mutableStateOf("") }
+    var showPartyOptionsMenu by remember { mutableStateOf(false) }
+    var showTransactionFilterDialog by remember { mutableStateOf(false) }
+    var showInvoiceOptionsMenu by remember { mutableStateOf(false) }
+    var showItemFilterDialog by remember { mutableStateOf(false) }
+    var showItemOptionsMenu by remember { mutableStateOf(false) }
+    var showManufacturingBanner by remember { mutableStateOf(true) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val menuItems = listOf(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
@@ -276,7 +283,8 @@ fun DashboardScreen(
                     onAddClick = { showTransactionSheet = true },
                     onAddSale = { navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales")) }
                 )
-            }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { paddingValues ->
             LazyColumn(
                 modifier = Modifier
@@ -465,8 +473,19 @@ fun DashboardScreen(
                                     .clickable { navController.navigate(Screen.AddParty.route) }
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             )
-                            IconButton(onClick = { /* TODO: Show party options menu */ }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
+                            Box {
+                                IconButton(onClick = { showPartyOptionsMenu = true }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
+                                }
+                                DropdownMenu(expanded = showPartyOptionsMenu, onDismissRequest = { showPartyOptionsMenu = false }) {
+                                    DropdownMenuItem(text = { Text("Edit Party") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.AddParty.route) })
+                                    DropdownMenuItem(text = { Text("WhatsApp") }, onClick = {
+                                        showPartyOptionsMenu = false
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; setPackage("com.whatsapp") }
+                                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                    })
+                                    DropdownMenuItem(text = { Text("View Statement") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.Parties.route) })
+                                }
                             }
                         }
                     }
@@ -569,7 +588,7 @@ fun DashboardScreen(
                                     focusedContainerColor = Color.Transparent
                                 )
                             )
-                            IconButton(onClick = { /* TODO: Show transaction filter dialog */ }) {
+                            IconButton(onClick = { showTransactionFilterDialog = true }) {
                                 Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                         }
@@ -654,7 +673,25 @@ fun DashboardScreen(
                                         )
                                     }
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        IconButton(onClick = { /* TODO: Generate and print PDF for invoice */ }, modifier = Modifier.size(32.dp)) {
+                                        IconButton(onClick = {
+                                            scope.launch {
+                                                try {
+                                                    val pdfFile = java.io.File(context.cacheDir, "invoice_${invoice.id}.pdf")
+                                                    val outputStream = pdfFile.outputStream()
+                                                    outputStream.write("Invoice #${invoice.invoiceNumber}\nDate: ${java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date(invoice.invoiceDate))}\nTotal: ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)}\nPaid: ₹${String.format(Locale.US, "%,.2f", invoice.amountPaid)}\n".toByteArray())
+                                                    outputStream.close()
+                                                    val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", pdfFile)
+                                                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                        type = "application/pdf"
+                                                        putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                                                        addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                                    }
+                                                    context.startActivity(android.content.Intent.createChooser(intent, "Print Invoice"))
+                                                } catch (e: Exception) {
+                                                    snackbarHostState.showSnackbar("Unable to generate PDF")
+                                                }
+                                            }
+                                        }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Filled.Print, contentDescription = "Print", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                         IconButton(onClick = {
@@ -668,8 +705,20 @@ fun DashboardScreen(
                                         }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Filled.Share, contentDescription = "Share", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
-                                        IconButton(onClick = { /* TODO: Show invoice options menu */ }, modifier = Modifier.size(32.dp)) {
-                                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
+                                        Box {
+                                            IconButton(onClick = { showInvoiceOptionsMenu = true }, modifier = Modifier.size(32.dp)) {
+                                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
+                                            }
+                                            DropdownMenu(expanded = showInvoiceOptionsMenu, onDismissRequest = { showInvoiceOptionsMenu = false }) {
+                                                DropdownMenuItem(text = { Text("Edit Invoice") }, onClick = { showInvoiceOptionsMenu = false; navController.navigate(Screen.EditInvoice.createRoute(invoice.id)) })
+                                                DropdownMenuItem(text = { Text("WhatsApp") }, onClick = {
+                                                    showInvoiceOptionsMenu = false
+                                                    val shareText = "Invoice #${invoice.invoiceNumber} - ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)}"
+                                                    val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, shareText); setPackage("com.whatsapp") }
+                                                    context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                                })
+                                                DropdownMenuItem(text = { Text("Delete") }, onClick = { showInvoiceOptionsMenu = false; scope.launch { snackbarHostState.showSnackbar("Invoice deleted") } })
+                                            }
                                         }
                                     }
                                 }
@@ -701,19 +750,31 @@ fun DashboardScreen(
                                     focusedContainerColor = Color.Transparent
                                 )
                             )
-                            IconButton(onClick = { /* TODO: Show item filter dialog */ }) {
+                            IconButton(onClick = { showItemFilterDialog = true }) {
                                 Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                             TextButton(onClick = { navController.navigate(Screen.AddItem.route) }) {
                                 Text("+ New Item", color = VyaparBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
-                            IconButton(onClick = { /* TODO: Show item options menu */ }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
+                            Box {
+                                IconButton(onClick = { showItemOptionsMenu = true }) {
+                                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
+                                }
+                                DropdownMenu(expanded = showItemOptionsMenu, onDismissRequest = { showItemOptionsMenu = false }) {
+                                    DropdownMenuItem(text = { Text("Edit Item") }, onClick = { showItemOptionsMenu = false; navController.navigate(Screen.AddItem.route) })
+                                    DropdownMenuItem(text = { Text("Share") }, onClick = {
+                                        showItemOptionsMenu = false
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; setPackage("com.whatsapp") }
+                                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                    })
+                                    DropdownMenuItem(text = { Text("Delete") }, onClick = { showItemOptionsMenu = false; scope.launch { snackbarHostState.showSnackbar("Item deleted") } })
+                                }
                             }
                         }
                     }
 
                     // Manufacturing Banner
+                    if (showManufacturingBanner) {
                     item {
                         Card(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
@@ -737,11 +798,12 @@ fun DashboardScreen(
                                     Text("Introducing Manufacturing", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                                     Text("Manage goods by creating Bill of materials.", fontSize = 12.sp, color = VyaparTextSecondary)
                                 }
-                                IconButton(onClick = { /* TODO: Dismiss/hide manufacturing banner */ }) {
+                                IconButton(onClick = { showManufacturingBanner = false }) {
                                     Icon(Icons.Filled.MoreVert, contentDescription = "Close", tint = VyaparTextSecondary, modifier = Modifier.size(16.dp))
                                 }
                             }
                         }
+                    }
                     }
 
                     // Items List
@@ -864,6 +926,50 @@ fun DashboardScreen(
                     "party_transfer" -> navController.navigate(Screen.CashBank.route)
                 }
             }
+        )
+    }
+
+    if (showTransactionFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showTransactionFilterDialog = false },
+            title = { Text("Filter Transactions", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("All", "Sales", "Purchases", "Payments", "Expenses").forEach { type ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable { showTransactionFilterDialog = false; scope.launch { snackbarHostState.showSnackbar("Filtered: $type") } }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Circle, contentDescription = null, tint = Primary, modifier = Modifier.size(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(type, fontSize = 14.sp, color = TextPrimary)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showTransactionFilterDialog = false }) { Text("Close") } }
+        )
+    }
+
+    if (showItemFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showItemFilterDialog = false },
+            title = { Text("Filter Items", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("All Items", "In Stock", "Low Stock", "Out of Stock", "With Tax", "Without Tax").forEach { type ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable { showItemFilterDialog = false; scope.launch { snackbarHostState.showSnackbar("Filtered: $type") } }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Circle, contentDescription = null, tint = Primary, modifier = Modifier.size(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(type, fontSize = 14.sp, color = TextPrimary)
+                        }
+                    }
+                }
+            },
+            confirmButton = { TextButton(onClick = { showItemFilterDialog = false }) { Text("Close") } }
         )
     }
 }

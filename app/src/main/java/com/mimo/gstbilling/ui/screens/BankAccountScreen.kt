@@ -41,6 +41,8 @@ fun BankAccountScreen(navController: NavController) {
     var accountNumber by remember { mutableStateOf("") }
     var ifscCode by remember { mutableStateOf("") }
     var branch by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val accounts = remember {
         mutableStateListOf(
@@ -101,7 +103,7 @@ fun BankAccountScreen(navController: NavController) {
 
             items(accounts) { account ->
                 Card(
-                    modifier = Modifier.fillMaxWidth().clickable { },
+                    modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.BankDetail.createRoute(account.id)) },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -130,7 +132,7 @@ fun BankAccountScreen(navController: NavController) {
                                 Text("\u20B9${String.format(java.util.Locale.US, "%,.2f", account.balance)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = GreenBalance)
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(onClick = { /* TODO: Navigate to transfer screen */ }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                OutlinedButton(onClick = { navController.navigate(Screen.TransferMoney.route) }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
                                     Icon(Icons.Filled.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("Transfer", fontSize = 12.sp)

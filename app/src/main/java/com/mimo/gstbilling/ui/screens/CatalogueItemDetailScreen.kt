@@ -19,11 +19,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     var quantity by remember { mutableIntStateOf(1) }
 
     val productName = when (itemId) {
@@ -90,7 +93,8 @@ fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
                     navigationIconContentColor = TextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -222,7 +226,7 @@ fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
                 }
 
                 Button(
-                    onClick = { /* TODO: Add to cart */ },
+                    onClick = { scope.launch { snackbarHostState.showSnackbar("Added to cart") } },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary),

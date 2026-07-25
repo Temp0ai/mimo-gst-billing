@@ -27,6 +27,8 @@ import com.mimo.gstbilling.ui.theme.*
 fun PartySettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("party_settings", Context.MODE_PRIVATE)
+    var showSearch by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var gstinNumber by remember { mutableStateOf(prefs.getBoolean("gstin_number", true)) }
     var partyGrouping by remember { mutableStateOf(prefs.getBoolean("party_grouping", true)) }
@@ -47,7 +49,7 @@ fun PartySettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Show search/filter for party settings */ }) {
+                    IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color.White)
                     }
                 },
@@ -62,6 +64,18 @@ fun PartySettingsScreen(navController: NavController) {
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (showSearch) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search party settings") },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    trailingIcon = { IconButton(onClick = { showSearch = false; searchQuery = "" }) { Icon(Icons.Filled.Close, contentDescription = "Close") } },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
             SettingToggleRow("GSTIN Number", gstinNumber) { gstinNumber = it; save("gstin_number", it) }
             SettingToggleRow("Party Grouping", partyGrouping) { partyGrouping = it; save("party_grouping", it) }
 

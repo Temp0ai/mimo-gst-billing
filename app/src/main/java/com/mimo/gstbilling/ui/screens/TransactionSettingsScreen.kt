@@ -28,6 +28,8 @@ import com.mimo.gstbilling.ui.theme.*
 fun TransactionSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("transaction_settings", Context.MODE_PRIVATE)
+    var showSearch by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var invoiceBillNumber by remember { mutableStateOf(prefs.getBoolean("invoice_bill_number", true)) }
     var cashSaleDefault by remember { mutableStateOf(prefs.getBoolean("cash_sale_default", false)) }
@@ -76,7 +78,7 @@ fun TransactionSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Show search/filter for transaction settings */ }) {
+                    IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = TextPrimary)
                     }
                 },
@@ -91,6 +93,18 @@ fun TransactionSettingsScreen(navController: NavController) {
                 .background(Color.White)
                 .verticalScroll(rememberScrollState())
         ) {
+            if (showSearch) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search transaction settings") },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    trailingIcon = { IconButton(onClick = { showSearch = false; searchQuery = "" }) { Icon(Icons.Filled.Close, contentDescription = "Close") } },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
             // Transaction Header
             SectionHeader("Transaction Header")
             SettingToggleRow("Invoice/Bill Number", invoiceBillNumber) { invoiceBillNumber = it; save("invoice_bill_number", it) }

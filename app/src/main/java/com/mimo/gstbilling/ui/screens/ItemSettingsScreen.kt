@@ -27,6 +27,8 @@ import com.mimo.gstbilling.ui.theme.*
 fun ItemSettingsScreen(navController: NavController) {
     val context = LocalContext.current
     val prefs = context.getSharedPreferences("item_settings", Context.MODE_PRIVATE)
+    var showSearch by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
 
     var enableItem by remember { mutableStateOf(prefs.getBoolean("enable_item", true)) }
     var itemType by remember { mutableStateOf(prefs.getString("item_type", "Product") ?: "Product") }
@@ -82,7 +84,7 @@ fun ItemSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO: Show search/filter for item settings */ }) {
+                    IconButton(onClick = { showSearch = !showSearch }) {
                         Icon(
                             Icons.Filled.Search,
                             contentDescription = "Search",
@@ -106,6 +108,18 @@ fun ItemSettingsScreen(navController: NavController) {
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
         ) {
+            if (showSearch) {
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    placeholder = { Text("Search item settings") },
+                    leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                    trailingIcon = { IconButton(onClick = { showSearch = false; searchQuery = "" }) { Icon(Icons.Filled.Close, contentDescription = "Close") } },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
+                )
+            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

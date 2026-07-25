@@ -112,7 +112,7 @@ fun LoanDetailScreen(navController: NavController) {
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { /* TODO: Show payment recording dialog */ },
+                    onClick = { navController.navigate(Screen.LoanTransaction.route) },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)

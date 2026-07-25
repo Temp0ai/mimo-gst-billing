@@ -138,7 +138,7 @@ fun OnlineOrderListScreen(navController: NavController) {
                         Card(
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White),
-                            modifier = Modifier.clickable { }
+                            modifier = Modifier.clickable { navController.navigate(Screen.OrderDetail.createRoute(order.id.toLongOrNull() ?: 0L)) }
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(

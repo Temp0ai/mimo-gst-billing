@@ -638,6 +638,9 @@ fun BasicDetailsTab(
     val logoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { onLogoChange(it.toString()) }
     }
+    val signatureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let { onSignatureChange(it.toString()) }
+    }
 
     Text("Business Logo", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = TextPrimary)
     Card(
@@ -836,7 +839,7 @@ fun BasicDetailsTab(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { /* TODO: Change signature */ },
+                    onClick = { signatureLauncher.launch("image/*") },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -845,7 +848,7 @@ fun BasicDetailsTab(
                     Text("Change", fontSize = 12.sp)
                 }
                 OutlinedButton(
-                    onClick = { /* TODO: Upload signature */ },
+                    onClick = { signatureLauncher.launch("image/*") },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {

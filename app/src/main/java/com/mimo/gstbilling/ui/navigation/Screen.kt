@@ -190,7 +190,6 @@ sealed class Screen(val route: String) {
     object TrendingItems : Screen("trending_items")
     object TransactionSelect : Screen("transaction_select")
     object MultiFirmSettings : Screen("multi_firm_settings")
-}
 
     object FixedAssetsList : Screen("fixed_assets_list")
     object FixedAssetDetail : Screen("fixed_asset_detail/{assetId}") {
@@ -215,13 +214,17 @@ sealed class Screen(val route: String) {
     object CashInHandDetail : Screen("cash_in_hand_detail")
     object TransferMoney : Screen("transfer_money")
     object BankStatementDetail : Screen("bank_statement_detail")
-    object BankDetail : Screen("bank_detail")
+    object BankDetail : Screen("bank_detail/{bankId}") {
+        fun createRoute(bankId: Long) = "bank_detail/$bankId"
+    }
     object ChequeList : Screen("cheque_list")
     object ChequeDetail : Screen("cheque_detail")
     object ChequeClose : Screen("cheque_close")
     object LoanAccountsList : Screen("loan_accounts_list")
     object AddLoan : Screen("add_loan")
-    object LoanDetail : Screen("loan_detail")
+    object LoanDetail : Screen("loan_detail/{loanId}") {
+        fun createRoute(loanId: Long) = "loan_detail/$loanId"
+    }
     object LoanTransaction : Screen("loan_transaction")
     object LoanExpense : Screen("loan_expense")
     object CashBook : Screen("cash_book")
