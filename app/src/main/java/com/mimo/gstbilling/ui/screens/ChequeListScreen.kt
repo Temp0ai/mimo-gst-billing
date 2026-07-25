@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -76,7 +77,7 @@ fun ChequeListScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Add Cheque")) },
                 containerColor = VyaparFABBackground
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Cheque", tint = VyaparFABIcon)
@@ -160,7 +161,7 @@ fun ChequeListScreen(navController: NavController) {
                                 Text(String.format(Locale.US, "\u20B9%,.2f", cheque.amount), fontWeight = FontWeight.Bold, color = VyaparTextPrimary, fontSize = 14.sp)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 AssistChip(
-                                    onClick = { },
+                                    onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Cheque Detail")) },
                                     label = { Text(cheque.status.replaceFirstChar { it.uppercase() }, fontSize = 11.sp) },
                                     shape = RoundedCornerShape(50),
                                     colors = AssistChipDefaults.assistChipColors(

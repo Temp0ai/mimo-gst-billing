@@ -47,7 +47,7 @@ fun PartySettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO: Show search/filter for party settings */ }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = Color.White)
                     }
                 },

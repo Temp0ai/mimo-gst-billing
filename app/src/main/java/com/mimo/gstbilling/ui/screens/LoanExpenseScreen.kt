@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,7 +55,7 @@ fun LoanExpenseScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Add Loan Expense")) },
                 containerColor = VyaparFABBackground
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Add Expense", tint = VyaparFABIcon)

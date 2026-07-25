@@ -199,23 +199,21 @@ fun DashboardScreen(
                                                     "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                     "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
                                                     "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
-                                                    "Cash Book" -> navController.navigate(Screen.CashBank.route)
+                                                    "Cash Book" -> navController.navigate(Screen.CashBook.route)
                                                     "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
                                                     "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
                                                     "Products" -> navController.navigate(Screen.Items.route)
                                                     // TODO: Each backup sub-item should navigate to its own dedicated screen
                                                     "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
                                                     "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
-                                                    "Backup to e-mail" -> navController.navigate(Screen.BackupRestore.route)
+                                                    "Backup to e-mail" -> navController.navigate(Screen.ExportData.route)
                                                     "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
-                                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                                    "Analytics" -> navController.navigate(Screen.Reports.route)
                                                     "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
                                                     "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
                                                     "Import Data" -> navController.navigate(Screen.ImportData.route)
                                                     "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
-                                                    "FAQs" -> navController.navigate(Screen.Settings.route)
-                                                    "Contact Support" -> navController.navigate(Screen.Settings.route)
+                                                    "FAQs" -> navController.navigate(Screen.About.route)
+                                                    "Contact Support" -> navController.navigate(Screen.About.route)
                                                 }
                                             }
                                             .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
@@ -253,7 +251,19 @@ fun DashboardScreen(
                         IconButton(onClick = { navController.navigate(Screen.PaymentReminders.route) }) {
                             Icon(Icons.Filled.Notifications, contentDescription = "Notifications", tint = TextPrimary, modifier = Modifier.size(24.dp))
                         }
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = {
+                            val shareText = buildString {
+                                append("Business: ${data.companyName}\n")
+                                append("You'll Get: ₹${String.format(Locale.US, "%,d", data.pendingReceivables.toLong())}\n")
+                                append("Sales (${java.text.SimpleDateFormat("MMM", java.util.Locale.US).format(java.util.Date())}): ₹${String.format(Locale.US, "%,d", data.totalSales.toLong())}\n")
+                            }
+                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                                setPackage("com.whatsapp")
+                            }
+                            context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                        }) {
                             Icon(Icons.Filled.Share, contentDescription = "Share", tint = RedAccent, modifier = Modifier.size(24.dp))
                         }
                     },
@@ -455,7 +465,7 @@ fun DashboardScreen(
                                     .clickable { navController.navigate(Screen.AddParty.route) }
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             )
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { /* TODO: Show party options menu */ }) {
                                 Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                             }
                         }
@@ -559,7 +569,7 @@ fun DashboardScreen(
                                     focusedContainerColor = Color.Transparent
                                 )
                             )
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { /* TODO: Show transaction filter dialog */ }) {
                                 Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                         }
@@ -644,13 +654,21 @@ fun DashboardScreen(
                                         )
                                     }
                                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                        IconButton(onClick = { /* TODO: Generate and print PDF for invoice */ }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Filled.Print, contentDescription = "Print", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
-                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                        IconButton(onClick = {
+                                            val shareText = "Invoice #${invoice.invoiceNumber} - ₹${String.format(Locale.US, "%,.2f", invoice.totalAmount)}"
+                                            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                                type = "text/plain"
+                                                putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                                                setPackage("com.whatsapp")
+                                            }
+                                            context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                        }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Filled.Share, contentDescription = "Share", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
-                                        IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                        IconButton(onClick = { /* TODO: Show invoice options menu */ }, modifier = Modifier.size(32.dp)) {
                                             Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                         }
                                     }
@@ -683,13 +701,13 @@ fun DashboardScreen(
                                     focusedContainerColor = Color.Transparent
                                 )
                             )
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { /* TODO: Show item filter dialog */ }) {
                                 Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = VyaparTextSecondary)
                             }
                             TextButton(onClick = { navController.navigate(Screen.AddItem.route) }) {
                                 Text("+ New Item", color = VyaparBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { /* TODO: Show item options menu */ }) {
                                 Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                             }
                         }
@@ -719,7 +737,7 @@ fun DashboardScreen(
                                     Text("Introducing Manufacturing", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
                                     Text("Manage goods by creating Bill of materials.", fontSize = 12.sp, color = VyaparTextSecondary)
                                 }
-                                IconButton(onClick = { }) {
+                                IconButton(onClick = { /* TODO: Dismiss/hide manufacturing banner */ }) {
                                     Icon(Icons.Filled.MoreVert, contentDescription = "Close", tint = VyaparTextSecondary, modifier = Modifier.size(16.dp))
                                 }
                             }
@@ -771,7 +789,15 @@ fun DashboardScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     }
-                                    IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                    IconButton(onClick = {
+                                        val shareText = "${item.name} - ₹${String.format(Locale.US, "%,.2f", item.salePrice)}"
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                                            setPackage("com.whatsapp")
+                                        }
+                                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                    }, modifier = Modifier.size(32.dp)) {
                                         Icon(Icons.Filled.Share, contentDescription = "Share", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
                                     }
                                 }

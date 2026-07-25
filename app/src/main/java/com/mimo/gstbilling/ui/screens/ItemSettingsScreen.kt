@@ -82,7 +82,7 @@ fun ItemSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO: Show search/filter for item settings */ }) {
                         Icon(
                             Icons.Filled.Search,
                             contentDescription = "Search",

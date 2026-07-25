@@ -156,7 +156,7 @@ fun BankReconciliationDetailScreen(navController: NavController) {
                                     fontSize = 14.sp
                                 )
                                 if (!txn.isMatched) {
-                                    TextButton(onClick = { }, contentPadding = PaddingValues(0.dp)) {
+                                    TextButton(onClick = { /* TODO: Reconcile transaction */ }, contentPadding = PaddingValues(0.dp)) {
                                         Text("Reconcile", fontSize = 11.sp, color = VyaparBlue)
                                     }
                                 }
@@ -168,7 +168,7 @@ fun BankReconciliationDetailScreen(navController: NavController) {
 
             if (selectedTab == 1 && unmatchedTxns.isNotEmpty()) {
                 Button(
-                    onClick = { },
+                    onClick = { /* TODO: Reconcile all matched transactions */ },
                     modifier = Modifier.fillMaxWidth().padding(16.dp).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)

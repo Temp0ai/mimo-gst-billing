@@ -49,7 +49,7 @@ fun TaxSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO: Show search/filter for tax settings */ }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = TextPrimary)
                     }
                 },

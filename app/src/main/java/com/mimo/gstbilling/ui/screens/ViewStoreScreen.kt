@@ -22,11 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
+import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewStoreScreen(navController: NavController) {
+    val context = LocalContext.current
     var searchQuery by remember { mutableStateOf("") }
     var selectedFilter by remember { mutableStateOf("All") }
 
@@ -63,10 +65,23 @@ fun ViewStoreScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {
+                        val shareText = buildString {
+                            append("My Store Products:\n")
+                            filteredProducts.forEach { p ->
+                                append("${p.name} - ₹${String.format("%,.0f", p.price)} (${if (p.stock > 0) "In Stock" else "Out of Stock"})\n")
+                            }
+                        }
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                            setPackage("com.whatsapp")
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                    }) {
                         Icon(Icons.Filled.Share, contentDescription = "Share Store", tint = Primary)
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { selectedFilter = if (selectedFilter == "All") "In Stock" else "All" }) {
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Primary)
                     }
                 },

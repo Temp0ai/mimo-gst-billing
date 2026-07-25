@@ -68,7 +68,7 @@ fun ChequeDetailScreen(navController: NavController) {
                             Text("Received Cheque", fontSize = 13.sp, color = VyaparTextSecondary)
                         }
                         AssistChip(
-                            onClick = { },
+                            onClick = { showStatusDropdown = true },
                             label = { Text(status.replaceFirstChar { it.uppercase() }, fontSize = 12.sp) },
                             shape = RoundedCornerShape(50),
                             colors = AssistChipDefaults.assistChipColors(

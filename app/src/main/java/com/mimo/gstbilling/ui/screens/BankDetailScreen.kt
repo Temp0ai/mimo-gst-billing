@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,6 +25,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BankDetailScreen(navController: NavController) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val transactions = remember {
         listOf(
@@ -44,10 +46,10 @@ fun BankDetailScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Edit Bank Account")) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = VyaparBlue)
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = VyaparRed)
                     }
                 },
@@ -156,5 +158,26 @@ fun BankDetailScreen(navController: NavController) {
 
             item { Spacer(modifier = Modifier.height(80.dp)) }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Bank Account") },
+            text = { Text("Are you sure you want to delete this bank account? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteDialog = false
+                    navController.popBackStack()
+                }) {
+                    Text("Delete", color = VyaparRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel", color = VyaparTextSecondary)
+                }
+            }
+        )
     }
 }

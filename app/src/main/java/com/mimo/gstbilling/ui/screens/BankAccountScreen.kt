@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 
 data class BankAccount(
@@ -129,12 +130,12 @@ fun BankAccountScreen(navController: NavController) {
                                 Text("\u20B9${String.format(java.util.Locale.US, "%,.2f", account.balance)}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = GreenBalance)
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                OutlinedButton(onClick = { }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                OutlinedButton(onClick = { /* TODO: Navigate to transfer screen */ }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
                                     Icon(Icons.Filled.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("Transfer", fontSize = 12.sp)
                                 }
-                                OutlinedButton(onClick = { }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
+                                OutlinedButton(onClick = { navController.navigate(Screen.BankStatementReport.route) }, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)) {
                                     Icon(Icons.Filled.Description, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("Statement", fontSize = 12.sp)

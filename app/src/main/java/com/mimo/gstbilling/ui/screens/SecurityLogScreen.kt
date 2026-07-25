@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
 
 data class AuditLogEntry(
@@ -30,6 +31,7 @@ data class AuditLogEntry(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecurityLogScreen(navController: NavController) {
+    val context = LocalContext.current
     var startDate by remember { mutableStateOf("01 Jul 2026") }
     var endDate by remember { mutableStateOf("31 Jul 2026") }
     var selectedActionFilter by remember { mutableStateOf("All") }
@@ -65,7 +67,20 @@ fun SecurityLogScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {
+                        val csv = buildString {
+                            append("Timestamp,User,Action,Entity,Details\n")
+                            filteredLogs.forEach { log ->
+                                append("\"${log.timestamp}\",\"${log.user}\",\"${log.action}\",\"${log.entity}\",\"${log.details}\"\n")
+                            }
+                        }
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/csv"
+                            putExtra(android.content.Intent.EXTRA_TEXT, csv)
+                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "Export Security Log"))
+                    }) {
                         Icon(Icons.Filled.FileDownload, contentDescription = "Export", tint = Primary)
                     }
                 },

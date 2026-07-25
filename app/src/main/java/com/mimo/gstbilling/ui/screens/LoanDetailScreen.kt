@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -111,7 +112,7 @@ fun LoanDetailScreen(navController: NavController) {
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(
-                    onClick = { },
+                    onClick = { /* TODO: Show payment recording dialog */ },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)

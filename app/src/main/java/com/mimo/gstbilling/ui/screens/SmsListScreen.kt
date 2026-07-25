@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 
 data class SentSms(val id: Long, val recipient: String, val message: String, val timestamp: String)
@@ -29,6 +30,7 @@ data class ScheduledSms(val id: Long, val recipient: String, val message: String
 @Composable
 fun SmsListScreen(navController: NavController) {
     var selectedTab by remember { mutableIntStateOf(0) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     val tabs = listOf("Sent", "Templates", "Scheduled")
 
     val sentMessages = remember {
@@ -156,10 +158,10 @@ fun SmsListScreen(navController: NavController) {
                                     ) {
                                         Text(template.name, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TextPrimary)
                                         Row {
-                                            IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                            IconButton(onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Edit Template")) }, modifier = Modifier.size(32.dp)) {
                                                 Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = Primary, modifier = Modifier.size(18.dp))
                                             }
-                                            IconButton(onClick = { }, modifier = Modifier.size(32.dp)) {
+                                            IconButton(onClick = { showDeleteDialog = true }, modifier = Modifier.size(32.dp)) {
                                                 Icon(Icons.Filled.Delete, contentDescription = "Delete", tint = RedAccent, modifier = Modifier.size(18.dp))
                                             }
                                         }
@@ -208,5 +210,23 @@ fun SmsListScreen(navController: NavController) {
                 }
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Template") },
+            text = { Text("Are you sure you want to delete this SMS template?") },
+            confirmButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Delete", color = RedAccent)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel", color = TextSecondary)
+                }
+            }
+        )
     }
 }

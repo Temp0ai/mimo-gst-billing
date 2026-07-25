@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 
 data class TcsRate(
@@ -61,7 +62,7 @@ fun TcsManagementScreen(navController: NavController) {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { },
+                onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Add TCS Rate")) },
                 containerColor = VyaparFABBackground,
                 shape = RoundedCornerShape(16.dp)
             ) {
@@ -128,7 +129,7 @@ fun TcsManagementScreen(navController: NavController) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
                         ) {
-                            TextButton(onClick = { }) {
+                            TextButton(onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Edit TCS Rate")) }) {
                                 Icon(Icons.Filled.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text("Edit", fontSize = 13.sp)

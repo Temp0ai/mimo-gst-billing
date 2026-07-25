@@ -76,7 +76,7 @@ fun TransactionSettingsScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { /* TODO: Show search/filter for transaction settings */ }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search", tint = TextPrimary)
                     }
                 },

@@ -216,7 +216,7 @@ fun PrintSettingsScreen(navController: NavController) {
 
             // Print Button
             OutlinedButton(
-                onClick = { },
+                onClick = { /* TODO: Print test page */ },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)

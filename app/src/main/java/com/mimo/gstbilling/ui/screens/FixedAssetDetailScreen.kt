@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 
 data class DepreciationEntry(
@@ -65,7 +66,7 @@ fun FixedAssetDetailScreen(navController: NavController, assetId: Long) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.navigate(Screen.SettingsDetail.createRoute("Edit Asset")) }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit", tint = Primary)
                     }
                     IconButton(onClick = { showDeleteDialog = true }) {

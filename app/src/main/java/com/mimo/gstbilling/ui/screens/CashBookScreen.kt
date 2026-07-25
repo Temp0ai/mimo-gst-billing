@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,6 +28,7 @@ data class CashBookEntry(val description: String, val debit: Double?, val credit
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CashBookScreen(navController: NavController) {
+    val context = LocalContext.current
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     var dateRange by remember { mutableStateOf("This Month") }
 
@@ -54,7 +56,22 @@ fun CashBookScreen(navController: NavController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {
+                        val csv = buildString {
+                            append("Date,Description,Debit,Credit,Balance\n")
+                            groupedEntries.forEach { (date, entries) ->
+                                entries.forEach { entry ->
+                                    append("\"$date\",\"${entry.description}\",${entry.debit ?: ""},${entry.credit ?: ""},${entry.balance}\n")
+                                }
+                            }
+                        }
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/csv"
+                            putExtra(android.content.Intent.EXTRA_TEXT, csv)
+                            addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "Export Cash Book"))
+                    }) {
                         Icon(Icons.Filled.Share, contentDescription = "Export", tint = VyaparBlue)
                     }
                 },

@@ -17,11 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
+    val context = LocalContext.current
     var quantity by remember { mutableIntStateOf(1) }
 
     val productName = when (itemId) {
@@ -68,7 +70,17 @@ fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = {
+                        val shareText = "Check out this product: $productName - ₹${String.format("%,.0f", price)} (${
+                            if (stock > 0) "In Stock" else "Out of Stock"
+                        })"
+                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                            setPackage("com.whatsapp")
+                        }
+                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                    }) {
                         Icon(Icons.Filled.Share, contentDescription = "Share", tint = Primary)
                     }
                 },
@@ -210,7 +222,7 @@ fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
                 }
 
                 Button(
-                    onClick = { },
+                    onClick = { /* TODO: Add to cart */ },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary),
