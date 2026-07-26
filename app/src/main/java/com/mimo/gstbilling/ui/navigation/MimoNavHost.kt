@@ -267,7 +267,7 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
             arguments = listOf(navArgument("loanId") { type = NavType.LongType })
         ) { backStackEntry ->
             val loanId = backStackEntry.arguments?.getLong("loanId") ?: 0L
-            LoanDetailScreen(navController, loanId)
+            LoanDetailScreen(navController)
         }
         composable(Screen.LoanTransaction.route) { LoanTransactionScreen(navController) }
         composable(Screen.LoanExpense.route) { LoanExpenseScreen(navController) }

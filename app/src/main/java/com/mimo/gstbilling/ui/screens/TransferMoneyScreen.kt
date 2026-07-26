@@ -203,8 +203,7 @@ fun TransferMoneyScreen(navController: NavController) {
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f).height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VyaparTextSecondary),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(border = androidx.compose.foundation.BorderStroke(1.dp, VyaparDivider))
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VyaparTextSecondary)
                 ) { Text("Cancel") }
 
                 Button(

@@ -122,7 +122,7 @@ object PdfGenerator {
         y += 12f
 
         // === ITEMS TABLE ===
-        val tableResult = drawItemsTableVyapar(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, pageWidth, pageHeight, document, pageNumber, pageNumber, watermark, company, invoice, party, copyType)
+        val tableResult = drawItemsTableVyapar(canvas, paint, boldPaint, lightPaint, items, leftMargin, rightMargin, y, isThermal, pageWidth, pageHeight, document, currentPage, pageNumber, watermark, company, invoice, party, copyType)
         y = tableResult.first
         pageNumber = tableResult.second
         currentPage = tableResult.third
@@ -293,13 +293,13 @@ object PdfGenerator {
         items: List<InvoiceItemEntity>, leftMargin: Float, rightMargin: Float,
         startY: Float, isThermal: Boolean,
         pageWidth: Int, pageHeight: Int, document: PdfDocument,
-        currentpageNumber: Int, totalPages: Int,
+        initialPage: PdfDocument.Page, currentpageNumber: Int,
         watermark: WatermarkType, company: CompanyEntity?, invoice: InvoiceEntity, party: PartyEntity?,
         copyType: PdfCopyType
     ): Triple<Float, Int, PdfDocument.Page> {
         var y = startY
         var pageNumber = currentpageNumber
-        var currentPage = document.getPage(pageNumber - 1)
+        var currentPage = initialPage
         var canvas = currentPage.canvas
 
         // Column positions
@@ -383,15 +383,6 @@ object PdfGenerator {
             canvas.drawText(String.format(Locale.US, "%.2f", item.totalAmount), colAmount - 55f, y, paint)
             y += lineHeight
 
-            // Description (if present, A4 only)
-            if (!isThermal && !item.description.isNullOrBlank()) {
-                paint.textSize = 8f
-                lightPaint.textSize = 8f
-                canvas.drawText(item.description.take(50), colItem, y, lightPaint)
-                paint.textSize = 9f
-                y += 10f
-            }
-
             // GST breakdown per item (CGST + SGST)
             if (!isThermal) {
                 paint.textSize = 7f
@@ -452,11 +443,6 @@ object PdfGenerator {
             if (invoice.sgstTotal > 0) drawLine("SGST:", String.format(Locale.US, "%.2f", invoice.sgstTotal))
         }
 
-        // Additional charges
-        if (invoice.shippingCharges > 0) drawLine("Shipping:", String.format(Locale.US, "%.2f", invoice.shippingCharges))
-        if (invoice.packagingCharges > 0) drawLine("Packaging:", String.format(Locale.US, "%.2f", invoice.packagingCharges))
-        if (invoice.insuranceCharges > 0) drawLine("Insurance:", String.format(Locale.US, "%.2f", invoice.insuranceCharges))
-
         // TCS/TDS
         if (invoice.tcsAmount > 0) drawLine("TCS (${invoice.tcsRate}%):", String.format(Locale.US, "%.2f", invoice.tcsAmount))
         if (invoice.tdsAmount > 0) drawLine("TDS (${invoice.tdsRate}%):", String.format(Locale.US, "%.2f", invoice.tdsAmount))
@@ -483,13 +469,13 @@ object PdfGenerator {
         if (invoice.amountPaid > 0) {
             paint.textSize = if (isThermal) 9f else 11f
             canvas.drawText("Amount Received:", labelX, y, paint)
-            canvas.drawText(String.format(Locale.US, "\u20B9%.2f", invoice.amountPaid), valueX - 80f, paint)
+            canvas.drawText(String.format(Locale.US, "\u20B9%.2f", invoice.amountPaid), valueX - 80f, y, paint)
             y += 14f
             val balance = invoice.totalAmount - invoice.amountPaid
             if (balance > 0) {
                 boldPaint.textSize = if (isThermal) 10f else 12f
                 canvas.drawText("Balance Due:", labelX, y, boldPaint)
-                canvas.drawText(String.format(Locale.US, "\u20B9%.2f", balance), valueX - 80f, boldPaint)
+                canvas.drawText(String.format(Locale.US, "\u20B9%.2f", balance), valueX - 80f, y, boldPaint)
                 y += 16f
             }
         }

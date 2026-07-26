@@ -3,6 +3,7 @@ package com.mimo.gstbilling.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
+import com.mimo.gstbilling.data.local.dao.InvoiceItemDao
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.InvoiceItemEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DeliveryChallanViewModel @Inject constructor(
-    private val invoiceDao: InvoiceDao
+    private val invoiceDao: InvoiceDao,
+    private val invoiceItemDao: InvoiceItemDao
 ) : ViewModel() {
 
     private val companyId = 1L
@@ -28,6 +30,6 @@ class DeliveryChallanViewModel @Inject constructor(
     }
 
     suspend fun getItemsForChallan(challanId: Long): List<InvoiceItemEntity> {
-        return invoiceDao.getItemsForInvoice(challanId)
+        return invoiceItemDao.getItemsForInvoice(challanId)
     }
 }

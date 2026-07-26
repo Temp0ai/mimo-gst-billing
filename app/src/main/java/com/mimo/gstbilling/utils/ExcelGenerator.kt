@@ -117,7 +117,7 @@ object ExcelGenerator {
 
         val fileName = "Items_${SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())}.xls"
         val file = File(context.cacheDir, fileName)
-        FileOutputStream(file).use { workbook.writeTo(it) }
+        FileOutputStream(file).use { workbook.write(it) }
         workbook.close()
         return file
     }
@@ -165,7 +165,7 @@ object ExcelGenerator {
 
         val fileName = "Parties_${SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())}.xls"
         val file = File(context.cacheDir, fileName)
-        FileOutputStream(file).use { workbook.writeTo(it) }
+        FileOutputStream(file).use { workbook.write(it) }
         workbook.close()
         return file
     }
@@ -222,7 +222,7 @@ object ExcelGenerator {
 
         val fileName = "Invoices_${SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())}.xls"
         val file = File(context.cacheDir, fileName)
-        FileOutputStream(file).use { workbook.writeTo(it) }
+        FileOutputStream(file).use { workbook.write(it) }
         workbook.close()
         return file
     }
@@ -270,7 +270,7 @@ object ExcelGenerator {
 
         val fileName = "Expenses_${SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())}.xls"
         val file = File(context.cacheDir, fileName)
-        FileOutputStream(file).use { workbook.writeTo(it) }
+        FileOutputStream(file).use { workbook.write(it) }
         workbook.close()
         return file
     }
@@ -350,7 +350,7 @@ object ExcelGenerator {
 
         val fileName = "GSTR1_${SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(Date())}.xls"
         val file = File(context.cacheDir, fileName)
-        FileOutputStream(file).use { workbook.writeTo(it) }
+        FileOutputStream(file).use { workbook.write(it) }
         workbook.close()
         return file
     }
