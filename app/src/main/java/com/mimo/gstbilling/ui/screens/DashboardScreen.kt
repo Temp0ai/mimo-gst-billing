@@ -226,101 +226,101 @@ fun DashboardScreen(
                         HorizontalDivider()
                     } else {
                         menuItems.forEach { item ->
-                        Column {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        if (item.hasExpand) {
-                                            expandedSection = if (expandedSection == item.title) "" else item.title
-                                        } else {
-                                            scope.launch { drawerState.close() }
-                                            when (item.title) {
-                                                "Parties" -> navController.navigate(Screen.Parties.route)
-                                                "Items" -> navController.navigate(Screen.Items.route)
-                                                "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
-                                                "Reports" -> navController.navigate(Screen.Reports.route)
-                                                "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
-                                                "Expense" -> navController.navigate(Screen.Expenses.route)
-                                                "Settings" -> navController.navigate(Screen.Settings.route)
-                                            }
-                                        }
-                                    }
-                                    .padding(horizontal = 16.dp, vertical = 14.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
-                                Spacer(modifier = Modifier.width(16.dp))
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(item.title, fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
-                                    item.subtitle?.let {
-                                        Text(it, fontSize = 11.sp, color = TextSecondary)
-                                    }
-                                }
-                                if (item.hasNewBadge) {
-                                    Box(
-                                        modifier = Modifier
-                                            .background(RedAccent, RoundedCornerShape(4.dp))
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                    ) {
-                                        Text("NEW", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                }
-                                if (item.hasAddIcon) {
-                                    Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                } else if (item.hasExpand) {
-                                    Icon(
-                                        if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                        contentDescription = null,
-                                        tint = TextSecondary,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                } else {
-                                    Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
-                                }
-                            }
-                            if (item.hasExpand && expandedSection == item.title) {
-                                item.subItems.forEach { subItem ->
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            if (item.hasExpand) {
+                                                expandedSection = if (expandedSection == item.title) "" else item.title
+                                            } else {
                                                 scope.launch { drawerState.close() }
-                                                when (subItem) {
-                                                    "All Parties" -> navController.navigate(Screen.Parties.route)
-                                                    "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
-                                                    "Party Statement" -> navController.navigate(Screen.Parties.route)
-                                                    "All Sales" -> navController.navigate(Screen.Sales.route)
-                                                    "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
-                                                    "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
-                                                    "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
-                                                    "All Purchases" -> navController.navigate(Screen.Purchases.route)
-                                                    "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
-                                                    "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
-                                                    "Cash Book" -> navController.navigate(Screen.CashBook.route)
-                                                    "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
-                                                    "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
-                                                    "Products" -> navController.navigate(Screen.Items.route)
-                                                    // TODO: Each backup sub-item should navigate to its own dedicated screen
-                                                    "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
-                                                    "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
-                                                    "Backup to e-mail" -> navController.navigate(Screen.ExportData.route)
-                                                    "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
-                                                    "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
-                                                    "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
-                                                    "Import Data" -> navController.navigate(Screen.ImportData.route)
-                                                    "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
-                                                    "FAQs" -> navController.navigate(Screen.About.route)
-                                                    "Contact Support" -> navController.navigate(Screen.About.route)
+                                                when (item.title) {
+                                                    "Parties" -> navController.navigate(Screen.Parties.route)
+                                                    "Items" -> navController.navigate(Screen.Items.route)
+                                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                                    "Reports" -> navController.navigate(Screen.Reports.route)
+                                                    "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
+                                                    "Expense" -> navController.navigate(Screen.Expenses.route)
+                                                    "Settings" -> navController.navigate(Screen.Settings.route)
                                                 }
                                             }
-                                            .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(5.dp))
-                                        Spacer(modifier = Modifier.width(12.dp))
-                                        Text(subItem, fontSize = 14.sp, color = TextSecondary)
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(item.icon, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(22.dp))
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(item.title, fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium)
+                                        item.subtitle?.let {
+                                            Text(it, fontSize = 11.sp, color = TextSecondary)
+                                        }
+                                    }
+                                    if (item.hasNewBadge) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(RedAccent, RoundedCornerShape(4.dp))
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        ) {
+                                            Text("NEW", fontSize = 9.sp, color = Color.White, fontWeight = FontWeight.Bold)
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+                                    if (item.hasAddIcon) {
+                                        Icon(Icons.Filled.Add, contentDescription = "Add", tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                    } else if (item.hasExpand) {
+                                        Icon(
+                                            if (expandedSection == item.title) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                            contentDescription = null,
+                                            tint = TextSecondary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    } else {
+                                        Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                                if (item.hasExpand && expandedSection == item.title) {
+                                    item.subItems.forEach { subItem ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    scope.launch { drawerState.close() }
+                                                    when (subItem) {
+                                                        "All Parties" -> navController.navigate(Screen.Parties.route)
+                                                        "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
+                                                        "Party Statement" -> navController.navigate(Screen.Parties.route)
+                                                        "All Sales" -> navController.navigate(Screen.Sales.route)
+                                                        "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
+                                                        "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
+                                                        "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
+                                                        "All Purchases" -> navController.navigate(Screen.Purchases.route)
+                                                        "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
+                                                        "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
+                                                        "Cash Book" -> navController.navigate(Screen.CashBook.route)
+                                                        "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
+                                                        "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
+                                                        "Products" -> navController.navigate(Screen.Items.route)
+                                                        "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                        "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
+                                                        "Backup to e-mail" -> navController.navigate(Screen.ExportData.route)
+                                                        "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                        "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
+                                                        "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
+                                                        "Import Data" -> navController.navigate(Screen.ImportData.route)
+                                                        "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
+                                                        "FAQs" -> navController.navigate(Screen.About.route)
+                                                        "Contact Support" -> navController.navigate(Screen.About.route)
+                                                    }
+                                                }
+                                                .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(Icons.Filled.Circle, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(5.dp))
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Text(subItem, fontSize = 14.sp, color = TextSecondary)
+                                        }
                                     }
                                 }
                             }
