@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.entity.ExpenseEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,25 +13,44 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExpenseViewModel @Inject constructor(
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
-    private val companyId = 1L
 
-    val expenses: StateFlow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
+
+    private val _expenses = MutableStateFlow<List<ExpenseEntity>>(emptyList())
+    val expenses: StateFlow<List<ExpenseEntity>> = _expenses.asStateFlow()
 
     private val _totalExpenses = MutableStateFlow(0.0)
     val totalExpenses: StateFlow<Double> = _totalExpenses.asStateFlow()
 
-    init { loadTotal() }
+    init {
+        loadExpenses()
+        loadTotal()
+    }
+
+    private fun loadExpenses() {
+        viewModelScope.launch {
+            val cId = getCurrentCompanyId()
+            expenseDao.getExpensesByCompany(cId).collect { _expenses.value = it }
+        }
+    }
 
     private fun loadTotal() {
-        viewModelScope.launch { _totalExpenses.value = expenseDao.getTotalExpenses(companyId) ?: 0.0 }
+        viewModelScope.launch {
+            val cId = getCurrentCompanyId()
+            _totalExpenses.value = expenseDao.getTotalExpenses(cId) ?: 0.0
+        }
     }
 
     fun addExpense(category: String, amount: Double, date: Long, description: String?, paymentMode: String) {
         viewModelScope.launch {
-            expenseDao.insertExpense(ExpenseEntity(companyId = companyId, category = category, amount = amount, date = date, description = description, paymentMode = paymentMode))
+            val cId = getCurrentCompanyId()
+            expenseDao.insertExpense(ExpenseEntity(companyId = cId, category = category, amount = amount, date = date, description = description, paymentMode = paymentMode))
+            loadExpenses()
             loadTotal()
         }
     }
@@ -38,6 +58,7 @@ class ExpenseViewModel @Inject constructor(
     fun editExpense(expense: ExpenseEntity) {
         viewModelScope.launch {
             expenseDao.updateExpense(expense)
+            loadExpenses()
             loadTotal()
         }
     }
@@ -45,12 +66,15 @@ class ExpenseViewModel @Inject constructor(
     fun deleteExpense(expense: ExpenseEntity) {
         viewModelScope.launch {
             expenseDao.deleteExpense(expense)
+            loadExpenses()
             loadTotal()
         }
     }
 
-    fun getExpensesByCategory(category: String): Flow<List<ExpenseEntity>> =
-        expenseDao.getExpensesByCategoryFlow(companyId, category)
+    fun getExpensesByCategory(category: String): Flow<List<ExpenseEntity>> = flow {
+        val cId = getCurrentCompanyId()
+        emit(expenseDao.getExpensesByCategoryFlow(cId, category).first())
+    }
 
     fun getMonthlyTotal(month: Int, year: Int): Flow<Double> = flow {
         val cal = Calendar.getInstance()
@@ -58,6 +82,7 @@ class ExpenseViewModel @Inject constructor(
         val start = cal.timeInMillis
         cal.add(Calendar.MONTH, 1)
         val end = cal.timeInMillis
-        emit(expenseDao.getMonthlyTotal(companyId, start, end) ?: 0.0)
+        val cId = getCurrentCompanyId()
+        emit(expenseDao.getMonthlyTotal(cId, start, end) ?: 0.0)
     }
 }

@@ -3,6 +3,7 @@ package com.mimo.gstbilling.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.BomDao
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ItemDao
 import com.mimo.gstbilling.data.local.entity.BillOfMaterialsEntity
 import com.mimo.gstbilling.data.local.entity.BomItemEntity
@@ -14,21 +15,27 @@ import javax.inject.Inject
 @HiltViewModel
 class BomViewModel @Inject constructor(
     private val bomDao: BomDao,
-    private val itemDao: ItemDao
+    private val itemDao: ItemDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
-    private val companyId = 1L
 
-    val boms: StateFlow<List<BillOfMaterialsEntity>> = bomDao.getBomsByCompany(companyId)
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
+
+    val boms: StateFlow<List<BillOfMaterialsEntity>> = flow { emit(getCurrentCompanyId()) }
+        .flatMapLatest { id -> bomDao.getBomsByCompany(id) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val items = itemDao.getItemsByCompany(companyId)
+    val items = flow { emit(getCurrentCompanyId()) }
+        .flatMapLatest { id -> itemDao.getItemsByCompany(id) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun getBomItems(bomId: Long): Flow<List<BomItemEntity>> = bomDao.getBomItems(bomId)
 
     fun addBom(name: String, outputItemId: Long, outputItemName: String, outputQty: Double, notes: String?, bomItems: List<BomItemEntity>) {
         viewModelScope.launch {
-            val bomId = bomDao.insertBom(BillOfMaterialsEntity(companyId = companyId, name = name, outputItemId = outputItemId, outputItemName = outputItemName, outputQuantity = outputQty, notes = notes))
+            val bomId = bomDao.insertBom(BillOfMaterialsEntity(companyId = getCurrentCompanyId(), name = name, outputItemId = outputItemId, outputItemName = outputItemName, outputQuantity = outputQty, notes = notes))
             val items = bomItems.map { it.copy(bomId = bomId) }
             bomDao.insertBomItems(items)
         }

@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.InvoiceItemDao
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
@@ -14,12 +15,16 @@ import javax.inject.Inject
 @HiltViewModel
 class DeliveryChallanViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
-    private val invoiceItemDao: InvoiceItemDao
+    private val invoiceItemDao: InvoiceItemDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val challans: StateFlow<List<InvoiceEntity>> = invoiceDao.getInvoicesByCompany(companyId)
+    val challans: StateFlow<List<InvoiceEntity>> = flow { emit(getCurrentCompanyId()) }
+        .flatMapLatest { id -> invoiceDao.getInvoicesByCompany(id) }
         .map { invoices -> invoices.filter { it.invoiceType == "delivery_challan" } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 

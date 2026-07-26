@@ -7,6 +7,7 @@ import com.mimo.gstbilling.data.local.entity.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 data class InvoiceUiState(
@@ -68,7 +69,9 @@ class InvoiceViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(InvoiceUiState())
     val uiState: StateFlow<InvoiceUiState> = _uiState.asStateFlow()
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
     init {
         loadReferenceData()
@@ -76,15 +79,17 @@ class InvoiceViewModel @Inject constructor(
 
     private fun loadReferenceData() {
         viewModelScope.launch {
+            val cId = getCurrentCompanyId()
             combine(
-                itemDao.getItemsByCompany(companyId),
-                partyDao.getPartiesByCompany(companyId)
+                itemDao.getItemsByCompany(cId),
+                partyDao.getPartiesByCompany(cId)
             ) { items, parties ->
                 _uiState.value.copy(allItems = items, allParties = parties)
             }.collect { _uiState.value = it }
         }
         viewModelScope.launch {
-            val count = invoiceDao.getSalesInvoiceCount(companyId)
+            val cId = getCurrentCompanyId()
+            val count = invoiceDao.getSalesInvoiceCount(cId)
             _uiState.update { it.copy(invoiceNumber = "INV-${String.format("%04d", count + 1)}") }
         }
     }
@@ -99,12 +104,15 @@ class InvoiceViewModel @Inject constructor(
     fun setInvoiceType(type: String) {
         val prefix = if (type == "purchase") "PUR" else "INV"
         viewModelScope.launch {
-            val count = if (type == "purchase") invoiceDao.getPurchaseInvoiceCount(companyId) else invoiceDao.getSalesInvoiceCount(companyId)
+            val cId = getCurrentCompanyId()
+            val count = if (type == "purchase") invoiceDao.getPurchaseInvoiceCount(cId) else invoiceDao.getSalesInvoiceCount(cId)
             _uiState.update { it.copy(invoiceType = type, invoiceNumber = "$prefix-${String.format("%04d", count + 1)}") }
         }
     }
 
-    fun getExpenses(): Flow<List<ExpenseEntity>> = expenseDao.getExpensesByCompany(companyId)
+    fun getExpenses(): Flow<List<ExpenseEntity>> = flow {
+        emit(expenseDao.getExpensesByCompany(getCurrentCompanyId()).first())
+    }
 
     fun addItem(item: ItemEntity) {
         viewModelScope.launch {
@@ -264,8 +272,9 @@ class InvoiceViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             val state = _uiState.value
+            val cId = getCurrentCompanyId()
             val invoice = InvoiceEntity(
-                companyId = companyId,
+                companyId = cId,
                 partyId = state.partyId,
                 invoiceNumber = state.invoiceNumber,
                 invoiceDate = state.invoiceDate,
@@ -308,7 +317,8 @@ class InvoiceViewModel @Inject constructor(
 
     fun resetState() {
         viewModelScope.launch {
-            val count = invoiceDao.getSalesInvoiceCount(companyId)
+            val cId = getCurrentCompanyId()
+            val count = invoiceDao.getSalesInvoiceCount(cId)
             _uiState.value = InvoiceUiState(
                 invoiceNumber = "INV-${String.format("%04d", count + 1)}"
             )
@@ -320,8 +330,8 @@ class InvoiceViewModel @Inject constructor(
         _uiState.update { it.copy(savedInvoiceId = null) }
     }
 
-    fun getInvoices(type: String): Flow<List<InvoiceEntity>> {
-        return invoiceDao.getInvoicesByType(companyId, type)
+    fun getInvoices(type: String): Flow<List<InvoiceEntity>> = flow {
+        emit(invoiceDao.getInvoicesByType(getCurrentCompanyId(), type).first())
     }
 
     fun getInvoices(): Flow<List<InvoiceEntity>> {
@@ -340,8 +350,8 @@ class InvoiceViewModel @Inject constructor(
         return partyDao.getPartiesByCompany(_uiState.value.companyId)
     }
 
-    fun getInvoicesByParty(partyId: Long): Flow<List<InvoiceEntity>> {
-        return invoiceDao.getInvoicesByPartyOrdered(companyId, partyId)
+    fun getInvoicesByParty(partyId: Long): Flow<List<InvoiceEntity>> = flow {
+        emit(invoiceDao.getInvoicesByPartyOrdered(getCurrentCompanyId(), partyId).first())
     }
 
     fun getInvoiceById(id: Long): Flow<InvoiceEntity?> {
@@ -392,8 +402,9 @@ class InvoiceViewModel @Inject constructor(
             }
             invoiceDao.updateInvoice(invoice.copy(amountPaid = newAmountPaid, paymentStatus = newStatus))
             val transactionType = if (invoice.invoiceType == "sales") "credit" else "debit"
+            val cId = getCurrentCompanyId()
             val transaction = TransactionEntity(
-                companyId = companyId,
+                companyId = cId,
                 partyId = invoice.partyId,
                 invoiceId = invoiceId,
                 amount = amount,
@@ -423,16 +434,17 @@ class InvoiceViewModel @Inject constructor(
     }
 
     suspend fun getAllParties(): List<PartyEntity> {
-        return partyDao.getPartiesByCompany(companyId).first()
+        return partyDao.getPartiesByCompany(getCurrentCompanyId()).first()
     }
 
     suspend fun createPartyFromContact(name: String, phone: String): Long {
-        val existingParties = partyDao.getPartiesByCompany(companyId).first()
+        val cId = getCurrentCompanyId()
+        val existingParties = partyDao.getPartiesByCompany(cId).first()
         val existing = existingParties.find { it.phone == phone }
         if (existing != null) return existing.id
 
         val newParty = PartyEntity(
-            companyId = companyId,
+            companyId = cId,
             name = name,
             phone = phone,
             email = null,
@@ -450,8 +462,9 @@ class InvoiceViewModel @Inject constructor(
 
     fun addItemDirectWithDetails(name: String, price: Double, gstRate: Double, hsnCode: String, unit: String, qty: Double) {
         viewModelScope.launch {
+            val cId = getCurrentCompanyId()
             val item = ItemEntity(
-                companyId = companyId,
+                companyId = cId,
                 name = name,
                 hsnCode = hsnCode.ifBlank { null },
                 description = null,
@@ -470,8 +483,9 @@ class InvoiceViewModel @Inject constructor(
     }
 
     suspend fun createQuickItem(name: String, price: Double, gstRate: Double, hsnCode: String, unit: String): ItemEntity {
+        val cId = getCurrentCompanyId()
         val item = ItemEntity(
-            companyId = companyId,
+            companyId = cId,
             name = name,
             hsnCode = hsnCode.ifBlank { null },
             description = null,

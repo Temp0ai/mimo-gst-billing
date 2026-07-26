@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ItemDao
 import com.mimo.gstbilling.data.local.dao.ItemVariantDao
 import com.mimo.gstbilling.data.local.entity.ItemEntity
@@ -9,27 +10,31 @@ import com.mimo.gstbilling.data.local.entity.ItemVariantEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @HiltViewModel
 class ItemViewModel @Inject constructor(
     private val itemDao: ItemDao,
-    private val itemVariantDao: ItemVariantDao
+    private val itemVariantDao: ItemVariantDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val allItems: StateFlow<List<ItemEntity>> = itemDao.getItemsByCompany(companyId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _allItems = MutableStateFlow<List<ItemEntity>>(emptyList())
+    val allItems: StateFlow<List<ItemEntity>> = _allItems.asStateFlow()
 
-    val products: StateFlow<List<ItemEntity>> = itemDao.getProductsByCompany(companyId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _products = MutableStateFlow<List<ItemEntity>>(emptyList())
+    val products: StateFlow<List<ItemEntity>> = _products.asStateFlow()
 
-    val services: StateFlow<List<ItemEntity>> = itemDao.getServicesByCompany(companyId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _services = MutableStateFlow<List<ItemEntity>>(emptyList())
+    val services: StateFlow<List<ItemEntity>> = _services.asStateFlow()
 
-    val lowStockItems: StateFlow<List<ItemEntity>> = itemDao.getLowStockItems(companyId)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _lowStockItems = MutableStateFlow<List<ItemEntity>>(emptyList())
+    val lowStockItems: StateFlow<List<ItemEntity>> = _lowStockItems.asStateFlow()
 
     private val _itemCount = MutableStateFlow(0)
     val itemCount: StateFlow<Int> = _itemCount.asStateFlow()
@@ -41,14 +46,33 @@ class ItemViewModel @Inject constructor(
     val serviceCount: StateFlow<Int> = _serviceCount.asStateFlow()
 
     init {
+        loadAllItems()
         loadCounts()
+    }
+
+    private fun loadAllItems() {
+        viewModelScope.launch {
+            val cId = getCurrentCompanyId()
+            combine(
+                itemDao.getItemsByCompany(cId),
+                itemDao.getProductsByCompany(cId),
+                itemDao.getServicesByCompany(cId),
+                itemDao.getLowStockItems(cId)
+            ) { items, products, services, lowStock ->
+                _allItems.value = items
+                _products.value = products
+                _services.value = services
+                _lowStockItems.value = lowStock
+            }.collect()
+        }
     }
 
     private fun loadCounts() {
         viewModelScope.launch {
-            _itemCount.value = itemDao.getItemCount(companyId)
-            _lowStockCount.value = itemDao.getLowStockCount(companyId)
-            _serviceCount.value = itemDao.getServiceCount(companyId)
+            val cId = getCurrentCompanyId()
+            _itemCount.value = itemDao.getItemCount(cId)
+            _lowStockCount.value = itemDao.getLowStockCount(cId)
+            _serviceCount.value = itemDao.getServiceCount(cId)
         }
     }
 
@@ -65,8 +89,9 @@ class ItemViewModel @Inject constructor(
         imageUri: String? = null
     ) {
         viewModelScope.launch {
+            val cId = getCurrentCompanyId()
             val item = ItemEntity(
-                companyId = companyId,
+                companyId = cId,
                 name = name,
                 hsnCode = hsnCode?.ifBlank { null },
                 description = description?.ifBlank { null },
@@ -97,8 +122,9 @@ class ItemViewModel @Inject constructor(
         imageUri: String? = null
     ) {
         viewModelScope.launch {
+            val cId = getCurrentCompanyId()
             val item = ItemEntity(
-                companyId = companyId,
+                companyId = cId,
                 name = name,
                 hsnCode = hsnCode?.ifBlank { null },
                 description = description?.ifBlank { null },

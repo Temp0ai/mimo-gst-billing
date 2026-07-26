@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.PartyGroupDao
 import com.mimo.gstbilling.data.local.entity.PartyGroupEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,16 +12,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PartyGroupViewModel @Inject constructor(
-    private val partyGroupDao: PartyGroupDao
+    private val partyGroupDao: PartyGroupDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val groups: StateFlow<List<PartyGroupEntity>> = partyGroupDao.getGroupsByCompany(companyId)
+    val groups: StateFlow<List<PartyGroupEntity>> = companyDao.getSelectedCompany()
+        .flatMapLatest { company ->
+            partyGroupDao.getGroupsByCompany(company?.id ?: 1L)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun addGroup(name: String, description: String?) {
         viewModelScope.launch {
+            val companyId = getCurrentCompanyId()
             partyGroupDao.insertGroup(PartyGroupEntity(companyId = companyId, name = name, description = description))
         }
     }

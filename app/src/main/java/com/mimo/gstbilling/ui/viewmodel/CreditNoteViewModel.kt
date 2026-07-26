@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,12 +11,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CreditNoteViewModel @Inject constructor(
-    private val invoiceDao: InvoiceDao
+    private val invoiceDao: InvoiceDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val creditNotes: StateFlow<List<InvoiceEntity>> = invoiceDao.getInvoicesByCompany(companyId)
+    val creditNotes: StateFlow<List<InvoiceEntity>> = companyDao.getSelectedCompany()
+        .flatMapLatest { company ->
+            invoiceDao.getInvoicesByCompany(company?.id ?: 1L)
+        }
         .map { invoices -> invoices.filter { it.invoiceType == "credit_note" } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 }

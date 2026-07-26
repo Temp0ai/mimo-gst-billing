@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.OrderDao
 import com.mimo.gstbilling.data.local.dao.OrderItemDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
@@ -19,12 +20,16 @@ class OrderViewModel @Inject constructor(
     private val orderItemDao: OrderItemDao,
     private val partyDao: PartyDao,
     private val invoiceDao: InvoiceDao,
-    private val invoiceItemDao: InvoiceItemDao
+    private val invoiceItemDao: InvoiceItemDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    fun getOrders(orderType: String = "sales_order"): Flow<List<OrderEntity>> =
-        orderDao.getOrdersByType(companyId, orderType)
+    fun getOrders(orderType: String = "sales_order"): Flow<List<OrderEntity>> = flow {
+        emitAll(orderDao.getOrdersByType(getCurrentCompanyId(), orderType))
+    }
 
     fun getOrderById(id: Long): Flow<OrderEntity?> = flow {
         emit(orderDao.getOrderById(id))
@@ -42,7 +47,7 @@ class OrderViewModel @Inject constructor(
     }
 
     suspend fun getOrderNumber(orderType: String): String {
-        val count = orderDao.getOrderCountByType(companyId, orderType)
+        val count = orderDao.getOrderCountByType(getCurrentCompanyId(), orderType)
         val prefix = if (orderType == "sales_order") "SO" else "PO"
         return "$prefix-${String.format("%04d", count + 1)}"
     }
@@ -64,6 +69,7 @@ class OrderViewModel @Inject constructor(
     fun convertOrderToInvoice(orderId: Long): Flow<Long> = flow {
         val order = orderDao.getOrderById(orderId) ?: throw Exception("Order not found")
         val orderItems = orderItemDao.getItemsForOrderDirect(orderId)
+        val companyId = getCurrentCompanyId()
 
         val invoice = InvoiceEntity(
             companyId = companyId,

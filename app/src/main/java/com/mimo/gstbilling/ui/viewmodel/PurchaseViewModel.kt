@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,13 +12,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PurchaseViewModel @Inject constructor(
-    private val invoiceDao: InvoiceDao
+    private val invoiceDao: InvoiceDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val purchaseInvoices: StateFlow<List<InvoiceEntity>> = invoiceDao.getInvoicesByType(companyId, "purchase")
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    private val _purchaseInvoices = MutableStateFlow<List<InvoiceEntity>>(emptyList())
+    val purchaseInvoices: StateFlow<List<InvoiceEntity>> = _purchaseInvoices.asStateFlow()
 
     private val _totalPurchases = MutableStateFlow(0.0)
     val totalPurchases: StateFlow<Double> = _totalPurchases.asStateFlow()
@@ -29,20 +33,30 @@ class PurchaseViewModel @Inject constructor(
     val pendingAmount: StateFlow<Double> = _pendingAmount.asStateFlow()
 
     init {
+        loadPurchaseInvoices()
         loadSummary()
+    }
+
+    private fun loadPurchaseInvoices() {
+        viewModelScope.launch {
+            val cId = getCurrentCompanyId()
+            invoiceDao.getInvoicesByType(cId, "purchase").collect { _purchaseInvoices.value = it }
+        }
     }
 
     private fun loadSummary() {
         viewModelScope.launch {
-            _totalPurchases.value = invoiceDao.getTotalPurchases(companyId) ?: 0.0
-            _paidAmount.value = invoiceDao.getPaidTotal(companyId) ?: 0.0
-            _pendingAmount.value = invoiceDao.getPendingPayables(companyId) ?: 0.0
+            val cId = getCurrentCompanyId()
+            _totalPurchases.value = invoiceDao.getTotalPurchases(cId) ?: 0.0
+            _paidAmount.value = invoiceDao.getPaidTotal(cId) ?: 0.0
+            _pendingAmount.value = invoiceDao.getPendingPayables(cId) ?: 0.0
         }
     }
 
     fun deleteInvoice(invoice: InvoiceEntity) {
         viewModelScope.launch {
             invoiceDao.deleteInvoice(invoice)
+            loadPurchaseInvoices()
             loadSummary()
         }
     }

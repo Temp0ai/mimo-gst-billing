@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ManufacturingDao
 import com.mimo.gstbilling.data.local.entity.ManufacturingEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,12 +12,18 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManufacturingViewModel @Inject constructor(
-    private val manufacturingDao: ManufacturingDao
+    private val manufacturingDao: ManufacturingDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
-    private val companyId = 1L
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
-    val entries: StateFlow<List<ManufacturingEntity>> = manufacturingDao.getManufacturingByCompany(companyId)
+    val entries: StateFlow<List<ManufacturingEntity>> = companyDao.getSelectedCompany()
+        .flatMapLatest { company ->
+            manufacturingDao.getManufacturingByCompany(company?.id ?: 1L)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _totalCost = MutableStateFlow(0.0)
@@ -25,11 +32,12 @@ class ManufacturingViewModel @Inject constructor(
     init { loadTotal() }
 
     private fun loadTotal() {
-        viewModelScope.launch { _totalCost.value = manufacturingDao.getTotalManufacturingCost(companyId) ?: 0.0 }
+        viewModelScope.launch { _totalCost.value = manufacturingDao.getTotalManufacturingCost(getCurrentCompanyId()) ?: 0.0 }
     }
 
     fun addEntry(name: String, qty: Double, rawMaterials: String, cost: Double, notes: String?) {
         viewModelScope.launch {
+            val companyId = getCurrentCompanyId()
             manufacturingDao.insertManufacturing(
                 ManufacturingEntity(
                     companyId = companyId,
