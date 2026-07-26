@@ -7,6 +7,7 @@ import com.mimo.gstbilling.data.local.entity.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 data class PartyBalance(
@@ -17,6 +18,8 @@ data class PartyBalance(
 
 data class DashboardData(
     val companyName: String = "My Business",
+    val companyEmail: String = "",
+    val selectedCompanyId: Long = 1L,
     val totalSales: Double = 0.0,
     val totalPurchases: Double = 0.0,
     val pendingReceivables: Double = 0.0,
@@ -45,7 +48,14 @@ class DashboardViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val companyId = 1L
+    val allCompanies: Flow<List<CompanyEntity>> = companyDao.getAllCompanies()
+
+    fun switchCompany(companyId: Long) {
+        viewModelScope.launch {
+            companyDao.clearSelectedCompany()
+            companyDao.setSelectedCompany(companyId)
+        }
+    }
 
     init {
         loadDashboardData()
@@ -58,20 +68,22 @@ class DashboardViewModel @Inject constructor(
 
     private fun loadDashboardData() {
         viewModelScope.launch {
-            combine(
-                companyDao.getSelectedCompany(),
-                partyDao.getPartiesByCompany(companyId),
-                invoiceDao.getInvoicesByCompany(companyId),
-                itemDao.getItemsByCompany(companyId)
-            ) { company, parties, invoices, items ->
+            companyDao.getSelectedCompany().collect { company ->
+                val cId = company?.id ?: 1L
                 val companyName = company?.name ?: "My Business"
-                val totalSales = invoiceDao.getTotalSales(companyId) ?: 0.0
-                val totalPurchases = invoiceDao.getTotalPurchases(companyId) ?: 0.0
-                val pendingReceivables = invoiceDao.getPendingReceivables(companyId) ?: 0.0
-                val pendingPayables = invoiceDao.getPendingPayables(companyId) ?: 0.0
-                val totalExpenses = expenseDao.getTotalExpenses(companyId) ?: 0.0
-                val totalTax = (invoiceDao.getTotalTax(companyId, "sales") ?: 0.0) +
-                        (invoiceDao.getTotalTax(companyId, "purchase") ?: 0.0)
+                val companyEmail = company?.email ?: ""
+
+                val parties = partyDao.getPartiesByCompany(cId).first()
+                val invoices = invoiceDao.getInvoicesByCompany(cId).first()
+                val items = itemDao.getItemsByCompany(cId).first()
+
+                val totalSales = invoiceDao.getTotalSales(cId) ?: 0.0
+                val totalPurchases = invoiceDao.getTotalPurchases(cId) ?: 0.0
+                val pendingReceivables = invoiceDao.getPendingReceivables(cId) ?: 0.0
+                val pendingPayables = invoiceDao.getPendingPayables(cId) ?: 0.0
+                val totalExpenses = expenseDao.getTotalExpenses(cId) ?: 0.0
+                val totalTax = (invoiceDao.getTotalTax(cId, "sales") ?: 0.0) +
+                        (invoiceDao.getTotalTax(cId, "purchase") ?: 0.0)
 
                 val todayStart = getTodayStart()
                 val todaySales = invoices.filter {
@@ -97,8 +109,10 @@ class DashboardViewModel @Inject constructor(
                 val recentInvoices = invoices.take(5)
                 val recentItems = items.take(10)
 
-                DashboardData(
+                _data.value = DashboardData(
                     companyName = companyName,
+                    companyEmail = companyEmail,
+                    selectedCompanyId = cId,
                     totalSales = totalSales,
                     totalPurchases = totalPurchases,
                     pendingReceivables = pendingReceivables,
@@ -110,8 +124,6 @@ class DashboardViewModel @Inject constructor(
                     recentInvoices = recentInvoices,
                     recentItems = recentItems
                 )
-            }.collect {
-                _data.value = it
                 _isLoading.value = false
             }
         }

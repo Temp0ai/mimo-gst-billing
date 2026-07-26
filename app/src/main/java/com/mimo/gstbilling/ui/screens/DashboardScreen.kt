@@ -86,6 +86,9 @@ fun DashboardScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var expandedSection by remember { mutableStateOf("") }
+    var showCompanyList by remember { mutableStateOf(false) }
+    val allCompanies by viewModel.allCompanies.collectAsState(initial = emptyList())
+    val selectedCompanyId by remember { derivedStateOf { data.selectedCompanyId } }
     var showTransactionSheet by remember { mutableStateOf(false) }
     var selectedTab by remember { mutableIntStateOf(0) }
     var partySearchQuery by remember { mutableStateOf("") }
@@ -119,21 +122,110 @@ fun DashboardScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                modifier = Modifier.width(300.dp),
+                drawerContainerColor = Color.White
+            ) {
                 Column(modifier = Modifier.statusBarsPadding()) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Box(
-                            modifier = Modifier.size(48.dp).background(Primary, CircleShape),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(data.companyName.take(1).uppercase(), color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(VyaparBlue)
+                            .padding(16.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    data.companyName.take(1).uppercase(),
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(data.companyName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                if (data.companyEmail.isNotBlank()) {
+                                    Text(data.companyEmail, fontSize = 12.sp, color = Color.White.copy(alpha = 0.8f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                }
+                            }
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(data.companyName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                        Text("Business Account", fontSize = 12.sp, color = TextSecondary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.White.copy(alpha = 0.15f))
+                                .clickable { showCompanyList = !showCompanyList }
+                                .padding(vertical = 10.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Change Company", fontSize = 14.sp, color = Color.White, fontWeight = FontWeight.Medium)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                if (showCompanyList) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
                     }
-                    HorizontalDivider()
-                    menuItems.forEach { item ->
+
+                    if (showCompanyList) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    scope.launch { drawerState.close() }
+                                    navController.navigate(Screen.CompanySwitch.route)
+                                }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Filled.Settings, contentDescription = null, tint = VyaparBlue, modifier = Modifier.size(22.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text("Manage Companies", fontSize = 15.sp, color = VyaparBlue, fontWeight = FontWeight.SemiBold)
+                        }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                        allCompanies.forEach { company ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        if (company.id != selectedCompanyId) {
+                                            viewModel.switchCompany(company.id)
+                                        }
+                                        scope.launch { drawerState.close() }
+                                    }
+                                    .background(if (company.id == selectedCompanyId) VyaparBlue.copy(alpha = 0.08f) else Color.Transparent)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Filled.Store, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(22.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    company.name,
+                                    fontSize = 14.sp,
+                                    color = if (company.id == selectedCompanyId) VyaparBlue else TextPrimary,
+                                    fontWeight = if (company.id == selectedCompanyId) FontWeight.Bold else FontWeight.Normal,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                if (company.id == selectedCompanyId) {
+                                    Icon(Icons.Filled.Settings, contentDescription = "Selected", tint = VyaparBlue, modifier = Modifier.size(18.dp))
+                                }
+                            }
+                        }
+                        HorizontalDivider()
+                    } else {
+                        menuItems.forEach { item ->
                         Column {
                             Row(
                                 modifier = Modifier

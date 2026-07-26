@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -57,7 +58,6 @@ fun PartiesScreen(
     val totalReceivable = parties.filter { it.balance > 0 }.sumOf { it.balance }
     val filteredParties = parties.filter { it.name.contains(searchText, ignoreCase = true) || (it.phone ?: "").contains(searchText) }
     var showTransactionSheet by remember { mutableStateOf(false) }
-    var expandedPartyId by remember { mutableStateOf<Long?>(null) }
 
     if (showTransactionSheet) {
         TransactionTypeSheet(
@@ -126,7 +126,7 @@ fun PartiesScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = VyaparGreen, modifier = Modifier.size(20.dp))
+                            Text("\u2193", fontSize = 18.sp, color = VyaparGreen, fontWeight = FontWeight.Bold)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("You'll Get", fontSize = 14.sp, color = VyaparGreen, fontWeight = FontWeight.Medium)
                         }
@@ -142,11 +142,26 @@ fun PartiesScreen(
             }
 
             item {
-                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     val tabs = listOf("Parties", "Transactions", "Items")
                     tabs.forEachIndexed { index, title ->
                         val isSelected = selectedTab == index
-                        Box(modifier = Modifier.weight(1f).clickable { selectedTab = index }.background(if (isSelected) VyaparSelectedBg else Color.Transparent).padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { selectedTab = index }
+                                .background(
+                                    if (isSelected) VyaparRed.copy(alpha = 0.1f) else Color.Transparent,
+                                    RoundedCornerShape(50)
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = if (isSelected) VyaparRed else Color(0xFFE0E0E0),
+                                    shape = RoundedCornerShape(50)
+                                )
+                                .padding(vertical = 10.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             Text(title, fontSize = 13.sp, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium, color = if (isSelected) VyaparRed else VyaparTextSecondary)
                         }
                     }
@@ -183,17 +198,16 @@ fun PartiesScreen(
             }
 
             items(filteredParties) { party ->
-                Card(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp)
-                        .clickable { navController.navigate(Screen.PartyDetail.createRoute(party.id)) },
-                    shape = RoundedCornerShape(0.dp),
-                    colors = CardDefaults.cardColors(containerColor = VyaparWhite)
+                        .clickable { navController.navigate(Screen.PartyDetail.createRoute(party.id)) }
+                        .background(VyaparWhite)
+                        .padding(horizontal = 20.dp, vertical = 14.dp)
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
+                            Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             Text(dateFormat.format(Date(party.createdAt)), fontSize = 12.sp, color = VyaparTextSecondary)
                         }
                         Column(horizontalAlignment = Alignment.End) {
@@ -205,27 +219,9 @@ fun PartiesScreen(
                             )
                             Text("You'll Get", fontSize = 12.sp, color = VyaparGreen)
                         }
-                        Box {
-                            IconButton(onClick = { expandedPartyId = party.id }, modifier = Modifier.size(32.dp)) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "Actions", tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
-                            }
-                            DropdownMenu(
-                                expanded = expandedPartyId == party.id,
-                                onDismissRequest = { expandedPartyId = null }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Create Invoice") },
-                                    onClick = {
-                                        expandedPartyId = null
-                                        navController.navigate(Screen.CreateInvoice.createRoute(partyId = party.id, invoiceType = "sales"))
-                                    },
-                                    leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = VyaparBlue) }
-                                )
-                            }
-                        }
                     }
-                    HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
                 }
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp), color = VyaparDivider, thickness = 0.5.dp)
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
