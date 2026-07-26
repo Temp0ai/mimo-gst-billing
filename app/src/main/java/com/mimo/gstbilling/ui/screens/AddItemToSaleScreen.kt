@@ -139,11 +139,11 @@ fun AddItemToSaleScreen(
                 colors = fieldColors
             )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = { quantity = it },
-                    modifier = Modifier.weight(0.4f),
+                    modifier = Modifier.weight(0.45f),
                     label = { Text("Quantity", maxLines = 1) },
                     placeholder = { Text("1") },
                     shape = RoundedCornerShape(12.dp),
@@ -155,7 +155,7 @@ fun AddItemToSaleScreen(
                 ExposedDropdownMenuBox(
                     expanded = unitExpanded,
                     onExpandedChange = { unitExpanded = it },
-                    modifier = Modifier.weight(0.6f)
+                    modifier = Modifier.weight(0.55f)
                 ) {
                     OutlinedTextField(
                         value = selectedUnit,
@@ -181,7 +181,7 @@ fun AddItemToSaleScreen(
                 }
             }
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(0.dp)) {
                 OutlinedTextField(
                     value = rate,
                     onValueChange = { rate = it },
