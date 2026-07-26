@@ -531,5 +531,5 @@ fun InvoiceDetailScreen(
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
         }
-    )
+    })
 }
