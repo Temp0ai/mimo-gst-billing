@@ -34,6 +34,7 @@ fun AddItemToSaleScreen(
     var rate by remember { mutableStateOf("") }
     var taxIncluded by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
+    var taxExpanded by remember { mutableStateOf(false) }
     var selectedUnit by remember { mutableStateOf("Pcs") }
     val units = listOf("Pcs", "Kg", "Gm", "Ltr", "Mtr", "Sqm", "Box", "Pair", "Set", "Doz", "Btl", "Bag", "Roll", "Bundle", "Pack", "Nos")
     val fieldColors = OutlinedTextFieldDefaults.colors(
@@ -77,9 +78,8 @@ fun AddItemToSaleScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
                         .navigationBarsPadding(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(0.dp)
                 ) {
                     OutlinedButton(
                         onClick = {
@@ -92,10 +92,10 @@ fun AddItemToSaleScreen(
                                 quantity = ""
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(50),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFD0D0D0)),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextPrimary),
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(0.dp),
+                        border = androidx.compose.foundation.BorderStroke(0.dp, Color.Transparent),
+                        colors = ButtonDefaults.outlinedButtonColors(containerColor = Color(0xFFF5F6F6), contentColor = Primary),
                         enabled = itemName.isNotBlank() && (rate.toDoubleOrNull() ?: 0.0) > 0
                     ) {
                         Text("Save & New", fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
@@ -109,8 +109,8 @@ fun AddItemToSaleScreen(
                                 navController.popBackStack()
                             }
                         },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(50),
+                        modifier = Modifier.weight(1f).height(52.dp),
+                        shape = RoundedCornerShape(0.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = RedAccent),
                         enabled = itemName.isNotBlank() && (rate.toDoubleOrNull() ?: 0.0) > 0
                     ) {
@@ -185,7 +185,7 @@ fun AddItemToSaleScreen(
                 OutlinedTextField(
                     value = rate,
                     onValueChange = { rate = it },
-                    modifier = Modifier.weight(0.55f),
+                    modifier = Modifier.weight(0.45f),
                     label = { Text("Rate (Price/Unit)", maxLines = 1) },
                     placeholder = { Text("0.00") },
                     shape = RoundedCornerShape(12.dp),
@@ -194,47 +194,32 @@ fun AddItemToSaleScreen(
                     colors = fieldColors
                 )
 
-                Column(
-                    modifier = Modifier.weight(0.45f),
-                    verticalArrangement = Arrangement.Center
+                ExposedDropdownMenuBox(
+                    expanded = taxExpanded,
+                    onExpandedChange = { taxExpanded = it },
+                    modifier = Modifier.weight(0.55f)
                 ) {
-                    Row {
-                        FilterChip(
-                            selected = !taxIncluded,
-                            onClick = { taxIncluded = false },
-                            label = { Text("Without Tax", fontSize = 11.sp, maxLines = 1) },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Primary.copy(alpha = 0.12f),
-                                containerColor = Color.White,
-                                selectedLabelColor = Primary,
-                                labelColor = TextSecondary
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                borderColor = Color(0xFFD0D0D0),
-                                selectedBorderColor = Primary.copy(alpha = 0.4f),
-                                enabled = true,
-                                selected = !taxIncluded
-                            )
+                    OutlinedTextField(
+                        value = if (taxIncluded) "With Tax" else "Without Tax",
+                        onValueChange = {},
+                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        label = { Text("Tax") },
+                        shape = RoundedCornerShape(12.dp),
+                        readOnly = true,
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = taxExpanded) },
+                        colors = fieldColors
+                    )
+                    ExposedDropdownMenu(
+                        expanded = taxExpanded,
+                        onDismissRequest = { taxExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("With Tax") },
+                            onClick = { taxIncluded = true; taxExpanded = false }
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        FilterChip(
-                            selected = taxIncluded,
-                            onClick = { taxIncluded = true },
-                            label = { Text("With Tax", fontSize = 11.sp, maxLines = 1) },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Primary.copy(alpha = 0.12f),
-                                containerColor = Color.White,
-                                selectedLabelColor = Primary,
-                                labelColor = TextSecondary
-                            ),
-                            border = FilterChipDefaults.filterChipBorder(
-                                borderColor = Color(0xFFD0D0D0),
-                                selectedBorderColor = Primary.copy(alpha = 0.4f),
-                                enabled = true,
-                                selected = taxIncluded
-                            )
+                        DropdownMenuItem(
+                            text = { Text("Without Tax") },
+                            onClick = { taxIncluded = false; taxExpanded = false }
                         )
                     }
                 }
