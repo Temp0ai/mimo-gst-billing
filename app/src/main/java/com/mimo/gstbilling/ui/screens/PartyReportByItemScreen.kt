@@ -46,6 +46,15 @@ fun PartyReportByItemScreen(
 
     val totalAmount = invoices.sumOf { it.totalAmount }
 
+    val allInvoiceItems by viewModel.getAllInvoiceItems().collectAsState(initial = emptyList())
+    val itemMap = remember(invoices, allInvoiceItems) {
+        val invoiceNumberMap = invoices.associate { it.id to it.invoiceNumber }
+        allInvoiceItems.mapNotNull { item ->
+            val invoiceNumber = invoiceNumberMap[item.invoiceId] ?: return@mapNotNull null
+            invoiceNumber to item
+        }.groupBy { it.second.itemName }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -200,15 +209,6 @@ fun PartyReportByItemScreen(
                     }
                 }
             } else {
-                val allInvoiceItems by viewModel.getAllInvoiceItems().collectAsState(initial = emptyList())
-                val itemMap = remember(invoices, allInvoiceItems) {
-                    val invoiceNumberMap = invoices.associate { it.id to it.invoiceNumber }
-                    allInvoiceItems.mapNotNull { item ->
-                        val invoiceNumber = invoiceNumberMap[item.invoiceId] ?: return@mapNotNull null
-                        invoiceNumber to item
-                    }.groupBy { it.second.itemName }
-                }
-
                 items(itemMap.entries.toList()) { (itemName, itemEntries) ->
                     Card(
                         shape = RoundedCornerShape(12.dp),
