@@ -37,13 +37,13 @@ fun PartyGroupSalePurchaseReportScreen(
     var dateRangeText by remember { mutableStateOf("All Time") }
 
     val groups = remember(parties) {
-        listOf("All") + parties.map { it.groupName }.distinct().filter { it.isNotEmpty() }.sorted()
+        listOf("All") + parties.map { it.partyType }.distinct().filter { it.isNotEmpty() }.sorted()
     }
 
-    val filteredParties = if (selectedGroup == "All") parties else parties.filter { it.groupName == selectedGroup }
+    val filteredParties = if (selectedGroup == "All") parties else parties.filter { it.partyType == selectedGroup }
 
     val groupData = remember(filteredParties, invoices) {
-        filteredParties.groupBy { it.groupName.ifEmpty { "Ungrouped" } }.mapValues { (_, groupParties) ->
+        filteredParties.groupBy { it.partyType.ifEmpty { "Ungrouped" } }.mapValues { (_, groupParties) ->
             val partyIds = groupParties.map { it.id }
             val groupInvoices = invoices.filter { it.partyId in partyIds }
             val sales = groupInvoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
@@ -52,8 +52,8 @@ fun PartyGroupSalePurchaseReportScreen(
         }
     }
 
-    val totalSales = groupData.values.sumOf { it["sales"] ?: 0.0 }
-    val totalPurchases = groupData.values.sumOf { it["purchases"] ?: 0.0 }
+    val totalSales = groupData.values.sumOf { (it["sales"] as? Double) ?: 0.0 }
+    val totalPurchases = groupData.values.sumOf { (it["purchases"] as? Double) ?: 0.0 }
 
     Scaffold(
         topBar = {
@@ -127,7 +127,9 @@ fun PartyGroupSalePurchaseReportScreen(
                                     ),
                                     border = FilterChipDefaults.filterChipBorder(
                                         borderColor = VyaparFilterChipBorder,
-                                        selectedBorderColor = VyaparFilterChipSelectedBorder
+                                        selectedBorderColor = VyaparFilterChipSelectedBorder,
+                                        enabled = true,
+                                        selected = isSelected
                                     )
                                 )
                             }

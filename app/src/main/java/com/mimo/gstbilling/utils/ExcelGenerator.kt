@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Environment
 import androidx.core.content.FileProvider
 import com.mimo.gstbilling.data.local.entity.*
+import org.apache.poi.hssf.usermodel.HSSFCellStyle
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
 import org.apache.poi.ss.usermodel.*
 import org.apache.poi.ss.util.CellRangeAddress
@@ -16,8 +17,8 @@ import java.util.Locale
 
 object ExcelGenerator {
 
-    private val headerStyle: (Workbook) -> CellStyle = { workbook ->
-        workbook.createCellStyle().apply {
+    private val headerStyle: (Workbook) -> HSSFCellStyle = { workbook ->
+        (workbook.createCellStyle() as HSSFCellStyle).apply {
             fillForegroundColor = IndexedColors.DARK_BLUE.index
             fillPattern = FillPatternType.SOLID_FOREGROUND
             alignment = HorizontalAlignment.CENTER
@@ -34,22 +35,22 @@ object ExcelGenerator {
         }
     }
 
-    private val currencyFormat: (Workbook) -> CellStyle = { workbook ->
-        workbook.createCellStyle().apply {
+    private val currencyFormat: (Workbook) -> HSSFCellStyle = { workbook ->
+        (workbook.createCellStyle() as HSSFCellStyle).apply {
             dataFormat = workbook.createDataFormat().getFormat("#,##0.00")
             alignment = HorizontalAlignment.RIGHT
         }
     }
 
-    private val dateStyle: (Workbook) -> CellStyle = { workbook ->
-        workbook.createCellStyle().apply {
+    private val dateStyle: (Workbook) -> HSSFCellStyle = { workbook ->
+        (workbook.createCellStyle() as HSSFCellStyle).apply {
             dataFormat = workbook.createDataFormat().getFormat("dd/MM/yyyy")
             alignment = HorizontalAlignment.CENTER
         }
     }
 
-    private val titleStyle: (Workbook) -> CellStyle = { workbook ->
-        workbook.createCellStyle().apply {
+    private val titleStyle: (Workbook) -> HSSFCellStyle = { workbook ->
+        (workbook.createCellStyle() as HSSFCellStyle).apply {
             fillForegroundColor = IndexedColors.DARK_BLUE.index
             fillPattern = FillPatternType.SOLID_FOREGROUND
             alignment = HorizontalAlignment.CENTER

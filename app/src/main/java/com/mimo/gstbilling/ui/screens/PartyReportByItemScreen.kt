@@ -109,7 +109,9 @@ fun PartyReportByItemScreen(
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 borderColor = VyaparFilterChipBorder,
-                                selectedBorderColor = VyaparFilterChipSelectedBorder
+                                selectedBorderColor = VyaparFilterChipSelectedBorder,
+                                enabled = true,
+                                selected = selectedToggle == index
                             )
                         )
                     }
@@ -198,10 +200,13 @@ fun PartyReportByItemScreen(
                     }
                 }
             } else {
-                val itemMap = remember(invoices) {
-                    invoices.flatMap { inv ->
-                        inv.items.map { item -> inv.invoiceNumber to item }
-                    }.groupBy { it.second.name }
+                val allInvoiceItems by viewModel.getAllInvoiceItems().collectAsState(initial = emptyList())
+                val itemMap = remember(invoices, allInvoiceItems) {
+                    val invoiceNumberMap = invoices.associate { it.id to it.invoiceNumber }
+                    allInvoiceItems.mapNotNull { item ->
+                        val invoiceNumber = invoiceNumberMap[item.invoiceId] ?: return@mapNotNull null
+                        invoiceNumber to item
+                    }.groupBy { it.second.itemName }
                 }
 
                 items(itemMap.entries.toList()) { (itemName, itemEntries) ->

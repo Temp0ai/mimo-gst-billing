@@ -109,7 +109,9 @@ fun StockDetailReportScreen(
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 borderColor = VyaparFilterChipBorder,
-                                selectedBorderColor = VyaparFilterChipSelectedBorder
+                                selectedBorderColor = VyaparFilterChipSelectedBorder,
+                                enabled = true,
+                                selected = isSelected
                             )
                         )
                     }

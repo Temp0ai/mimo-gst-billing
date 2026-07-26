@@ -89,7 +89,7 @@ fun TrendingItemsScreen(
                             selectedContainerColor = Primary, selectedLabelColor = Color.White,
                             containerColor = Color.White, labelColor = TextPrimary
                         ),
-                        border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Primary)
+                        border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Primary, enabled = true, selected = sortBy == option)
                     )
                 }
             }

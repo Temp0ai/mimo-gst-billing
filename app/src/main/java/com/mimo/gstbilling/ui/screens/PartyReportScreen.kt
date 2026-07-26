@@ -120,7 +120,9 @@ fun PartyReportScreen(
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 borderColor = VyaparFilterChipBorder,
-                                selectedBorderColor = VyaparFilterChipSelectedBorder
+                                selectedBorderColor = VyaparFilterChipSelectedBorder,
+                                enabled = true,
+                                selected = isSelected
                             )
                         )
                     }
@@ -143,7 +145,9 @@ fun PartyReportScreen(
                             ),
                             border = FilterChipDefaults.filterChipBorder(
                                 borderColor = VyaparFilterChipBorder,
-                                selectedBorderColor = VyaparFilterChipSelectedBorder
+                                selectedBorderColor = VyaparFilterChipSelectedBorder,
+                                enabled = true,
+                                selected = isSelected
                             )
                         )
                     }

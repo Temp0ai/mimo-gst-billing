@@ -84,7 +84,7 @@ fun TransactionSelectScreen(
                                 selectedContainerColor = Primary, selectedLabelColor = Color.White,
                                 containerColor = Color.White, labelColor = TextPrimary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Primary),
+                            border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Primary, enabled = true, selected = isSale),
                             modifier = Modifier.weight(1f)
                         )
                         FilterChip(
@@ -94,7 +94,7 @@ fun TransactionSelectScreen(
                                 selectedContainerColor = Color(0xFF1B5E20), selectedLabelColor = Color.White,
                                 containerColor = Color.White, labelColor = TextPrimary
                             ),
-                            border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Color(0xFF1B5E20)),
+                            border = FilterChipDefaults.filterChipBorder(borderColor = Divider, selectedBorderColor = Color(0xFF1B5E20), enabled = true, selected = !isSale),
                             modifier = Modifier.weight(1f)
                         )
                     }
