@@ -320,7 +320,8 @@ fun InvoiceDetailScreen(
                 }
             }
         }
-    ) { paddingValues ->
+    },
+    content = { paddingValues ->
         if (invoice == null) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(paddingValues),
