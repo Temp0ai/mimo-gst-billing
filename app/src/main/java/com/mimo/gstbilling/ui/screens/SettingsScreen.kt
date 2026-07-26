@@ -108,7 +108,7 @@ fun SettingsScreen(navController: NavController) {
                         restoreState = true
                     }
                 },
-                onAddClick = { }
+                onAddClick = { navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales")) }
             )
         }
     ) { padding ->

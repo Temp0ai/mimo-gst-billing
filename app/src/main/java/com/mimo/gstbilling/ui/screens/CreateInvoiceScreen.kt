@@ -110,22 +110,23 @@ fun CreateInvoiceScreen(
     var showPhoneContacts by remember { mutableStateOf(false) }
     var ewayBillNo by remember { mutableStateOf("") }
 
+    val settingsPrefs = context.getSharedPreferences("invoice_settings", android.content.Context.MODE_PRIVATE)
     var showSettingsPanel by remember { mutableStateOf(false) }
-    var salePrefix by remember { mutableStateOf("a") }
-    var salePrefixEnabled by remember { mutableStateOf(true) }
-    var transactionSms by remember { mutableStateOf(true) }
-    var cashSaleDefault by remember { mutableStateOf(false) }
-    var showInvoiceNumber by remember { mutableStateOf(true) }
-    var showBillingName by remember { mutableStateOf(false) }
-    var showPoDetails by remember { mutableStateOf(false) }
-    var showTimeOnTransactions by remember { mutableStateOf(false) }
-    var allowInclusiveTax by remember { mutableStateOf(true) }
-    var showPurchasePrice by remember { mutableStateOf(false) }
-    var showLastSalePrice by remember { mutableStateOf(false) }
-    var freeItemQuantity by remember { mutableStateOf(false) }
-    var showCount by remember { mutableStateOf(false) }
-    var barcodeScanning by remember { mutableStateOf(false) }
-    var billingType by remember { mutableStateOf("full_sale") }
+    var salePrefix by remember { mutableStateOf(settingsPrefs.getString("sale_prefix", "INV") ?: "INV") }
+    var salePrefixEnabled by remember { mutableStateOf(settingsPrefs.getBoolean("sale_prefix_enabled", true)) }
+    var transactionSms by remember { mutableStateOf(settingsPrefs.getBoolean("transaction_sms", true)) }
+    var cashSaleDefault by remember { mutableStateOf(settingsPrefs.getBoolean("cash_sale_default", false)) }
+    var showInvoiceNumber by remember { mutableStateOf(settingsPrefs.getBoolean("show_invoice_number", true)) }
+    var showBillingName by remember { mutableStateOf(settingsPrefs.getBoolean("show_billing_name", false)) }
+    var showPoDetails by remember { mutableStateOf(settingsPrefs.getBoolean("show_po_details", false)) }
+    var showTimeOnTransactions by remember { mutableStateOf(settingsPrefs.getBoolean("show_time_on_transactions", false)) }
+    var allowInclusiveTax by remember { mutableStateOf(settingsPrefs.getBoolean("allow_inclusive_tax", true)) }
+    var showPurchasePrice by remember { mutableStateOf(settingsPrefs.getBoolean("show_purchase_price", false)) }
+    var showLastSalePrice by remember { mutableStateOf(settingsPrefs.getBoolean("show_last_sale_price", false)) }
+    var freeItemQuantity by remember { mutableStateOf(settingsPrefs.getBoolean("free_item_quantity", false)) }
+    var showCount by remember { mutableStateOf(settingsPrefs.getBoolean("show_count", false)) }
+    var barcodeScanning by remember { mutableStateOf(settingsPrefs.getBoolean("barcode_scanning", false)) }
+    var billingType by remember { mutableStateOf(settingsPrefs.getString("billing_type", "full_sale") ?: "full_sale") }
     var showMoreMenu by remember { mutableStateOf(false) }
     var showAdditionalFields by remember { mutableStateOf(false) }
     var showAdditionalCharges by remember { mutableStateOf(false) }
@@ -461,7 +462,7 @@ fun CreateInvoiceScreen(
                                         }
                                     }
                                 }
-                                Switch(checked = salePrefixEnabled, onCheckedChange = { salePrefixEnabled = it },
+                                Switch(checked = salePrefixEnabled, onCheckedChange = { salePrefixEnabled = it; settingsPrefs.edit().putBoolean("sale_prefix_enabled", it).apply() },
                                     colors = SwitchDefaults.colors(checkedTrackColor = Primary))
                             }
                         }
@@ -472,7 +473,7 @@ fun CreateInvoiceScreen(
                                     Text("Transaction SMS", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                     Text("Send an automatic SMS to your Customer with details of the Sale.", fontSize = 13.sp, color = TextSecondary)
                                 }
-                                Switch(checked = transactionSms, onCheckedChange = { transactionSms = it },
+                                Switch(checked = transactionSms, onCheckedChange = { transactionSms = it; settingsPrefs.edit().putBoolean("transaction_sms", it).apply() },
                                     colors = SwitchDefaults.colors(checkedTrackColor = Primary))
                             }
                         }
@@ -525,12 +526,12 @@ fun CreateInvoiceScreen(
                             Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
                                 Text("Billing Type", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { billingType = "full_sale" }) {
-                                    RadioButton(selected = billingType == "full_sale", onClick = { billingType = "full_sale" }, colors = RadioButtonDefaults.colors(selectedColor = Primary))
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { billingType = "full_sale"; settingsPrefs.edit().putString("billing_type", "full_sale").apply() }) {
+                                    RadioButton(selected = billingType == "full_sale", onClick = { billingType = "full_sale"; settingsPrefs.edit().putString("billing_type", "full_sale").apply() }, colors = RadioButtonDefaults.colors(selectedColor = Primary))
                                     Text("Full Sale", fontSize = 14.sp, color = TextPrimary)
                                 }
-                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { billingType = "mobile_pos" }) {
-                                    RadioButton(selected = billingType == "mobile_pos", onClick = { billingType = "mobile_pos" }, colors = RadioButtonDefaults.colors(selectedColor = Primary))
+                                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { billingType = "mobile_pos"; settingsPrefs.edit().putString("billing_type", "mobile_pos").apply() }) {
+                                    RadioButton(selected = billingType == "mobile_pos", onClick = { billingType = "mobile_pos"; settingsPrefs.edit().putString("billing_type", "mobile_pos").apply() }, colors = RadioButtonDefaults.colors(selectedColor = Primary))
                                     Text("Mobile POS", fontSize = 14.sp, color = TextPrimary)
                                 }
                             }

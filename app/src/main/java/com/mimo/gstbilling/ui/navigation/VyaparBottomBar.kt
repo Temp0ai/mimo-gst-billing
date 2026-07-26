@@ -150,8 +150,8 @@ fun VyaparBottomBar(
                 modifier = Modifier.weight(1f)
             )
             BottomTabItem(
-                icon = Icons.Filled.MoreHoriz,
-                label = "More",
+                icon = Icons.Filled.Settings,
+                label = "Settings",
                 isSelected = selectedTab == 4,
                 onClick = { onTabSelected(4) },
                 modifier = Modifier.weight(1f)
