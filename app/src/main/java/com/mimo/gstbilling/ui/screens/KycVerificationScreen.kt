@@ -20,12 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun KycVerificationScreen(
     navController: NavController
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var currentStep by remember { mutableIntStateOf(0) }
     var selectedDocType by remember { mutableStateOf("PAN") }
     var documentNumber by remember { mutableStateOf("") }
@@ -48,7 +52,8 @@ fun KycVerificationScreen(
                     navigationIconContentColor = TextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -166,7 +171,7 @@ fun KycVerificationScreen(
                     )
 
                     Button(
-                        onClick = { /* Upload document */ },
+                        onClick = { scope.launch { snackbarHostState.showSnackbar("Document upload coming soon") } },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary)

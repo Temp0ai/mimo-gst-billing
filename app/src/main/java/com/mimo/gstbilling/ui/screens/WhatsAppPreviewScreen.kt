@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.compose.ui.platform.LocalContext
 import com.mimo.gstbilling.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,6 +27,7 @@ import com.mimo.gstbilling.ui.theme.*
 fun WhatsAppPreviewScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
     val messageTemplate = """
 *Invoice from Mimo GST Billing*
 Invoice: INV-0006
@@ -105,7 +108,17 @@ Sent via Mimo GST Billing
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary)
                 ) { Text("Cancel", fontWeight = FontWeight.SemiBold) }
                 Button(
-                    onClick = { /* send via WhatsApp */ },
+                    onClick = {
+                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                            putExtra(Intent.EXTRA_TEXT, messageTemplate)
+                            type = "text/plain"
+                            setPackage("com.whatsapp")
+                        }
+                        try { context.startActivity(sendIntent) } catch (_: Exception) {
+                            val fallback = Intent(Intent.ACTION_SEND).apply { putExtra(Intent.EXTRA_TEXT, messageTemplate); type = "text/plain" }
+                            context.startActivity(Intent.createChooser(fallback, "Share via"))
+                        }
+                    },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))

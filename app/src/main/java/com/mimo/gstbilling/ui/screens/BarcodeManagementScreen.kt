@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,17 +14,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BarcodeManagementScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var itemName by remember { mutableStateOf("Laptop HP 15s") }
     var selectedFormat by remember { mutableStateOf("CODE128") }
     var formatExpanded by remember { mutableStateOf(false) }
@@ -48,7 +55,8 @@ fun BarcodeManagementScreen(
                     navigationIconContentColor = TextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -133,7 +141,13 @@ fun BarcodeManagementScreen(
                                         Text(itemName, fontWeight = FontWeight.SemiBold, color = TextPrimary, fontSize = 14.sp)
                                         Text("$selectedFormat: $barcode", fontSize = 12.sp, color = TextSecondary)
                                     }
-                                    IconButton(onClick = { /* share */ }) {
+                                    IconButton(onClick = {
+                                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(Intent.EXTRA_TEXT, "$selectedFormat: $barcode")
+                                        }
+                                        context.startActivity(Intent.createChooser(shareIntent, "Share Barcode"))
+                                    }) {
                                         Icon(Icons.Filled.Share, contentDescription = "Share", tint = Primary)
                                     }
                                 }
@@ -155,7 +169,7 @@ fun BarcodeManagementScreen(
                     Text("Generate", fontWeight = FontWeight.SemiBold)
                 }
                 Button(
-                    onClick = { /* print */ },
+                    onClick = { scope.launch { snackbarHostState.showSnackbar("Print feature coming soon") } },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)

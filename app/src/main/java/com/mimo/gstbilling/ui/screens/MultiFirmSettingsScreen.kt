@@ -17,15 +17,21 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MultiFirmSettingsScreen(
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var multiFirmEnabled by remember { mutableStateOf(true) }
     var sharedInvoices by remember { mutableStateOf(true) }
     var sharedItems by remember { mutableStateOf(false) }
@@ -52,7 +58,8 @@ fun MultiFirmSettingsScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary)
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg).verticalScroll(rememberScrollState()).padding(16.dp),
@@ -99,7 +106,7 @@ fun MultiFirmSettingsScreen(
                                     }
                                 }
                                 if (!firm.isPrimary) {
-                                    TextButton(onClick = { /* switch firm */ }) {
+                                    TextButton(onClick = { scope.launch { snackbarHostState.showSnackbar("Switch to firm ${firm.name}") } }) {
                                         Text("Switch", fontSize = 13.sp, color = Primary)
                                     }
                                 }
@@ -110,7 +117,7 @@ fun MultiFirmSettingsScreen(
                 }
 
                 Button(
-                    onClick = { /* add firm */ },
+                    onClick = { scope.launch { snackbarHostState.showSnackbar("Add new firm feature coming soon") } },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)

@@ -51,7 +51,7 @@ fun RemindersHubScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* notification settings */ }) {
+                    IconButton(onClick = { navController.navigate(Screen.NotificationSettings.route) }) {
                         Icon(Icons.Filled.Notifications, contentDescription = "Settings", tint = TextPrimary)
                     }
                 },
@@ -60,7 +60,7 @@ fun RemindersHubScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* add reminder */ },
+                onClick = { navController.navigate(Screen.InputReminderMessage.route) },
                 containerColor = Primary,
                 shape = RoundedCornerShape(50)
             ) {

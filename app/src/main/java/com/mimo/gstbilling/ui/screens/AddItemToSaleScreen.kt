@@ -61,7 +61,7 @@ fun AddItemToSaleScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Settings */ }) {
+                    IconButton(onClick = { navController.navigate(Screen.TransactionSettings.route) }) {
                         Icon(Icons.Filled.Settings, contentDescription = "Settings", tint = TextPrimary)
                     }
                 },

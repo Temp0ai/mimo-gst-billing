@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,8 @@ fun TransactionSelectScreen(
 ) {
     var isSale by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     data class Transaction(val type: String, val party: String, val amount: Double, val date: String)
 
@@ -53,16 +56,17 @@ fun TransactionSelectScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* filter */ }) {
+                    IconButton(onClick = { scope.launch { snackbarHostState.showSnackbar("Filter coming soon") } }) {
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary)
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* new transaction */ },
+                onClick = { navController.navigate(Screen.CreateInvoice.route) },
                 containerColor = Primary,
                 shape = RoundedCornerShape(50)
             ) {

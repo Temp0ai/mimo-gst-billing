@@ -18,12 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnitMappingScreen(
     navController: NavController
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     var unit1 by remember { mutableStateOf("") }
     var unit2 by remember { mutableStateOf("") }
     var expanded1 by remember { mutableStateOf(false) }
@@ -54,7 +58,8 @@ fun UnitMappingScreen(
                     navigationIconContentColor = TextPrimary
                 )
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -132,7 +137,7 @@ fun UnitMappingScreen(
                             Icon(Icons.Filled.Add, contentDescription = null); Spacer(modifier = Modifier.width(6.dp)); Text("Add Mapping")
                         }
                         OutlinedButton(
-                            onClick = { /* save */ },
+                            onClick = { scope.launch { snackbarHostState.showSnackbar("Unit mappings saved") } },
                             modifier = Modifier.weight(1f).height(48.dp),
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = Primary)
