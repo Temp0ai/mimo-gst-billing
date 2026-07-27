@@ -110,7 +110,6 @@ fun CreateInvoiceScreen(
     var showPhoneContacts by remember { mutableStateOf(false) }
     var ewayBillNo by remember { mutableStateOf("") }
 
-    val settingsPrefs = context.getSharedPreferences("invoice_settings", android.content.Context.MODE_PRIVATE)
     var showSettingsPanel by remember { mutableStateOf(false) }
     var salePrefix by remember { mutableStateOf(settingsPrefs.getString("sale_prefix", "INV") ?: "INV") }
     var salePrefixEnabled by remember { mutableStateOf(settingsPrefs.getBoolean("sale_prefix_enabled", true)) }
@@ -136,6 +135,7 @@ fun CreateInvoiceScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    val settingsPrefs = context.getSharedPreferences("invoice_settings", android.content.Context.MODE_PRIVATE)
     var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
     var allPhoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
 
