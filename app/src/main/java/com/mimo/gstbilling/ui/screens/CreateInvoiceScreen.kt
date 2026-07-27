@@ -95,6 +95,8 @@ fun CreateInvoiceScreen(
     viewModel: InvoiceViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val settingsPrefs = remember { context.getSharedPreferences("invoice_settings", android.content.Context.MODE_PRIVATE) }
     var partyName by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
     var invoiceNo by remember { mutableStateOf(uiState.invoiceNumber) }
@@ -102,7 +104,7 @@ fun CreateInvoiceScreen(
         val cal = java.util.Calendar.getInstance()
         mutableStateOf(String.format(java.util.Locale.US, "%02d/%02d/%04d", cal.get(java.util.Calendar.DAY_OF_MONTH), cal.get(java.util.Calendar.MONTH) + 1, cal.get(java.util.Calendar.YEAR)))
     }
-    var isCashSale by remember { mutableStateOf(false) }
+    var isCashSale by remember { mutableStateOf(settingsPrefs.getBoolean("cash_sale_default", false)) }
     var partySelected by remember { mutableStateOf(false) }
     var invoicePrefix by remember { mutableStateOf("INV") }
     var invoiceNumberPart by remember { mutableStateOf("0001") }
@@ -114,7 +116,6 @@ fun CreateInvoiceScreen(
     var salePrefix by remember { mutableStateOf(settingsPrefs.getString("sale_prefix", "INV") ?: "INV") }
     var salePrefixEnabled by remember { mutableStateOf(settingsPrefs.getBoolean("sale_prefix_enabled", true)) }
     var transactionSms by remember { mutableStateOf(settingsPrefs.getBoolean("transaction_sms", true)) }
-    var cashSaleDefault by remember { mutableStateOf(settingsPrefs.getBoolean("cash_sale_default", false)) }
     var showInvoiceNumber by remember { mutableStateOf(settingsPrefs.getBoolean("show_invoice_number", true)) }
     var showBillingName by remember { mutableStateOf(settingsPrefs.getBoolean("show_billing_name", false)) }
     var showPoDetails by remember { mutableStateOf(settingsPrefs.getBoolean("show_po_details", false)) }
@@ -134,8 +135,6 @@ fun CreateInvoiceScreen(
     val isPurchase = invoiceType == "purchase"
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-    val settingsPrefs = context.getSharedPreferences("invoice_settings", android.content.Context.MODE_PRIVATE)
     var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
     var allPhoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
 
