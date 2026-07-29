@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -645,17 +646,17 @@ private fun SummaryContent(reportData: Gstr1ReportData) {
                 Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                     Text("GSTR-1 Summary", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(12.dp))
-                    SummaryRow("Total Sales Invoices", "${reportData.totalInvoices}")
-                    SummaryRow("B2B Invoices", "${reportData.b2bCount}")
-                    SummaryRow("B2C Invoices", "${reportData.b2cCount}")
+                    Gstr1SummaryRow("Total Sales Invoices", "${reportData.totalInvoices}")
+                    Gstr1SummaryRow("B2B Invoices", "${reportData.b2bCount}")
+                    Gstr1SummaryRow("B2C Invoices", "${reportData.b2cCount}")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.White.copy(alpha = 0.2f))
-                    SummaryRow("Total Taxable Value", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue))
-                    SummaryRow("CGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalCgst))
-                    SummaryRow("SGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalSgst))
-                    SummaryRow("IGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalIgst))
+                    Gstr1SummaryRow("Total Taxable Value", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue))
+                    Gstr1SummaryRow("CGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalCgst))
+                    Gstr1SummaryRow("SGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalSgst))
+                    Gstr1SummaryRow("IGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalIgst))
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.White.copy(alpha = 0.2f))
-                    SummaryRow("Total Tax", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTax))
-                    SummaryRow(
+                    Gstr1SummaryRow("Total Tax", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTax))
+                    Gstr1SummaryRow(
                         "Invoice Value",
                         String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue + reportData.totalTax),
                         bold = true
@@ -681,7 +682,7 @@ private fun SummaryContent(reportData: Gstr1ReportData) {
 }
 
 @Composable
-private fun SummaryRow(label: String, value: String, bold: Boolean = false) {
+private fun Gstr1SummaryRow(label: String, value: String, bold: Boolean = false) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp)
         Text(

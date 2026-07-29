@@ -50,3 +50,11 @@ fun Gstr3bReportScreen(navController: NavController, viewModel: InvoiceViewModel
         }
     }
 }
+
+@Composable
+private fun ReportDetailRow(label: String, value: String, isBold: Boolean = false) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, fontSize = if (isBold) 14.sp else 13.sp, color = if (isBold) TextPrimary else TextSecondary)
+        Text(value, fontSize = if (isBold) 14.sp else 13.sp, fontWeight = if (isBold) FontWeight.Bold else FontWeight.Medium, color = TextPrimary)
+    }
+}

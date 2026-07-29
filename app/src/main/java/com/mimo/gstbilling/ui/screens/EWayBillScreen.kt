@@ -30,7 +30,7 @@ import com.mimo.gstbilling.ui.viewmodel.LedgerViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-private val IndianStates = listOf(
+private val EWayBillStates = listOf(
     "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
     "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
     "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
@@ -287,9 +287,10 @@ fun EWayBillScreen(
                                     expanded = showPlaceDropdown,
                                     onDismissRequest = { showPlaceDropdown = false }
                                 ) {
-                                    IndianStates.forEach { state ->
+                                    EWayBillStates.forEach { state ->
+                                        val itemText: @Composable () -> Unit = { Text(state) }
                                         DropdownMenuItem(
-                                            text = { Text(state) },
+                                            text = itemText,
                                             onClick = {
                                                 placeOfSupply = state
                                                 showPlaceDropdown = false
