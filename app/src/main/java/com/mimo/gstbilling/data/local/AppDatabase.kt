@@ -42,9 +42,10 @@ import com.mimo.gstbilling.data.local.entity.*
         AuditLogEntity::class,
         KycEntity::class,
         UnitMappingEntity::class,
-        OnlineOrderEntity::class
+        OnlineOrderEntity::class,
+        LedgerEntryEntity::class
     ],
-    version = 16,
+    version = 17,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -81,8 +82,36 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun kycDao(): KycDao
     abstract fun unitMappingDao(): UnitMappingDao
     abstract fun onlineOrderDao(): OnlineOrderDao
+    abstract fun ledgerDao(): LedgerDao
 
     companion object {
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `ledger_entries` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `partyId` INTEGER NOT NULL DEFAULT 0,
+                        `partyName` TEXT NOT NULL DEFAULT '',
+                        `date` INTEGER NOT NULL,
+                        `description` TEXT NOT NULL,
+                        `debit` REAL NOT NULL DEFAULT 0.0,
+                        `credit` REAL NOT NULL DEFAULT 0.0,
+                        `balance` REAL NOT NULL DEFAULT 0.0,
+                        `referenceType` TEXT NOT NULL DEFAULT '',
+                        `referenceId` INTEGER NOT NULL DEFAULT 0,
+                        `isReconciled` INTEGER NOT NULL DEFAULT 0,
+                        `reconciledWithId` INTEGER NOT NULL DEFAULT 0,
+                        `source` TEXT NOT NULL DEFAULT 'app',
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ledger_entries_companyId` ON `ledger_entries` (`companyId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ledger_entries_partyId` ON `ledger_entries` (`partyId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ledger_entries_date` ON `ledger_entries` (`date`)")
+            }
+        }
+
         val MIGRATION_15_16 = object : Migration(15, 16) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE `items` ADD COLUMN `isActive` INTEGER NOT NULL DEFAULT 1")

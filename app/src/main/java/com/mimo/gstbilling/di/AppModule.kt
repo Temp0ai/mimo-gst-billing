@@ -22,7 +22,7 @@ object AppModule {
             AppDatabase::class.java,
             "mimo_gst_billing_db"
         ).fallbackToDestructiveMigration()
-            .addMigrations(AppDatabase.MIGRATION_14_15, AppDatabase.MIGRATION_15_16)
+            .addMigrations(AppDatabase.MIGRATION_14_15, AppDatabase.MIGRATION_15_16, AppDatabase.MIGRATION_16_17)
             .build()
     }
 
@@ -59,4 +59,5 @@ object AppModule {
     @Provides fun provideKycDao(db: AppDatabase) = db.kycDao()
     @Provides fun provideUnitMappingDao(db: AppDatabase) = db.unitMappingDao()
     @Provides fun provideOnlineOrderDao(db: AppDatabase) = db.onlineOrderDao()
+    @Provides fun provideLedgerDao(db: AppDatabase) = db.ledgerDao()
 }
