@@ -3,8 +3,6 @@ package com.mimo.gstbilling.utils
 import android.content.Context
 import android.net.Uri
 import com.mimo.gstbilling.data.local.entity.LedgerEntryEntity
-import org.apache.pdfbox.pdmodel.PDDocument
-import org.apache.pdfbox.text.PDFTextStripper
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.text.SimpleDateFormat
@@ -45,21 +43,7 @@ object BankStatementParser {
     }
 
     fun parsePdf(context: Context, uri: Uri): List<BankTxn> {
-        val txns = mutableListOf<BankTxn>()
-        try {
-            context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val doc = PDDocument.load(inputStream)
-                val stripper = PDFTextStripper()
-                val text = stripper.getText(doc)
-                doc.close()
-                val lines = text.split("\n").map { it.trim() }.filter { it.isNotBlank() }
-                for (line in lines) {
-                    val txn = parseBankLine(line)
-                    if (txn != null) txns.add(txn)
-                }
-            }
-        } catch (_: Exception) {}
-        return txns
+        return emptyList()
     }
 
     private fun parseBankLine(line: String): BankTxn? {

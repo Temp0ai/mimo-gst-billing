@@ -81,7 +81,6 @@ dependencies {
 
     // PDF
     implementation("com.itextpdf:itext7-core:8.0.5")
-    implementation("com.tom-roush:pdfbox-android:2.0.27.0")
     implementation("com.opencsv:opencsv:5.9")
 
     // CameraX for barcode scanning
