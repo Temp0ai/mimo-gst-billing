@@ -113,7 +113,7 @@ fun Gstr1ReportScreen(
             val igst = items.sumOf { it.igstAmount }
             val isReturn = inv.invoiceType == "sale_return" || inv.invoiceType == "credit_note"
             Gstr1Row(
-                partyName = party?.name ?: inv.partyName ?: "Walk-in",
+                partyName = party?.name ?: "Walk-in",
                 gstin = partyGstinMap[inv.partyId] ?: "",
                 invoiceNo = inv.invoiceNumber,
                 invoiceDate = inv.invoiceDate,
@@ -148,7 +148,7 @@ fun Gstr1ReportScreen(
                 actions = {
                     IconButton(onClick = {
                         scope.launch {
-                            val file = generateGstr1Pdf(context, saleRows, saleReturnRows, months[selectedMonth(startMonth, startYear, endMonth, endYear)])
+                            val file = generateGstr1Pdf(context, saleRows, saleReturnRows, "${months[startMonth]} $startYear")
                             shareFile(context, file, "application/pdf", "Share GSTR-1 PDF")
                         }
                     }) {
@@ -245,8 +245,6 @@ fun Gstr1ReportScreen(
                 selectedTabIndex = Gstr1SaleTab.entries.indexOf(selectedTab),
                 containerColor = Color.White,
                 contentColor = Color(0xFFE53935),
-                edgePadding = 0.dp,
-                divider = { HorizontalDivider(color = Color(0xFFE0E0E0), thickness = 1.dp) },
                 indicator = { tabPositions ->
                     if (Gstr1SaleTab.entries.indexOf(selectedTab) < tabPositions.size) {
                         TabRowDefaults.SecondaryIndicator(
@@ -321,10 +319,6 @@ fun Gstr1ReportScreen(
             }
         }
     }
-}
-
-private fun selectedMonth(sm: Int, sy: Int, em: Int, ey: Int): String {
-    return ""
 }
 
 private fun generateGstr1Pdf(context: android.content.Context, saleRows: List<Gstr1Row>, returnRows: List<Gstr1Row>, period: String): File {
