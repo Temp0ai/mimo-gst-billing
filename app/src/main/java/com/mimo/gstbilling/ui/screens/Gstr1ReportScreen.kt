@@ -2,10 +2,13 @@ package com.mimo.gstbilling.ui.screens
 
 import android.content.Intent
 import android.os.Environment
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,49 +40,22 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
-private enum class Gstr1Tab(val label: String) {
-    B2B("B2B"),
-    B2C("B2C"),
-    HSN("HSN"),
-    CREDIT_NOTES("Credit Notes"),
-    SUMMARY("Summary")
+private enum class Gstr1SaleTab(val label: String) {
+    SALE("Sale"),
+    SALE_RETURN("Sale Return")
 }
 
-private data class B2BInvoice(
-    val invoice: InvoiceEntity,
-    val party: PartyEntity?,
-    val items: List<InvoiceItemEntity>
-)
-
-private data class B2CInvoice(
-    val invoice: InvoiceEntity,
-    val items: List<InvoiceItemEntity>
-)
-
-private data class HsnSummary(
-    val hsnCode: String,
-    val description: String,
-    val uqc: String,
-    val totalQuantity: Double,
+private data class Gstr1Row(
+    val partyName: String,
+    val gstin: String,
+    val invoiceNo: String,
+    val invoiceDate: Long,
     val taxableValue: Double,
-    val igstAmount: Double,
-    val cgstAmount: Double,
-    val sgstAmount: Double,
-    val cessAmount: Double
-)
-
-private data class Gstr1ReportData(
-    val b2bInvoices: List<B2BInvoice>,
-    val b2cInvoices: List<B2CInvoice>,
-    val hsnSummaries: List<HsnSummary>,
-    val totalInvoices: Int,
-    val totalTaxableValue: Double,
-    val totalCgst: Double,
-    val totalSgst: Double,
-    val totalIgst: Double,
-    val totalTax: Double,
-    val b2bCount: Int,
-    val b2cCount: Int
+    val cgst: Double,
+    val sgst: Double,
+    val igst: Double,
+    val totalValue: Double,
+    val isSaleReturn: Boolean
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -92,854 +69,435 @@ fun Gstr1ReportScreen(
     val invoices by viewModel.getInvoices().collectAsState(initial = emptyList())
     val parties by viewModel.getParties().collectAsState(initial = emptyList())
     val allInvoiceItems by viewModel.getAllInvoiceItems().collectAsState(initial = emptyList())
-    val company by produceState<com.mimo.gstbilling.data.local.entity.CompanyEntity?>(null) {
-        value = viewModel.getCompanyById(1L)
-    }
+
+    val months = listOf("January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December")
 
     val currentMonth = remember { Calendar.getInstance().get(Calendar.MONTH) }
     val currentYear = remember { Calendar.getInstance().get(Calendar.YEAR) }
-    var selectedMonth by remember { mutableIntStateOf(currentMonth) }
-    var selectedYear by remember { mutableIntStateOf(currentYear) }
+    var startMonth by remember { mutableIntStateOf(currentMonth) }
+    var startYear by remember { mutableIntStateOf(currentYear) }
+    var endMonth by remember { mutableIntStateOf(currentMonth) }
+    var endYear by remember { mutableIntStateOf(currentYear) }
+    var considerNonTaxExempted by remember { mutableStateOf(false) }
+    var selectedTab by remember { mutableStateOf(Gstr1SaleTab.SALE) }
+    var showStartMonthDropdown by remember { mutableStateOf(false) }
+    var showStartYearDropdown by remember { mutableStateOf(false) }
+    var showEndMonthDropdown by remember { mutableStateOf(false) }
+    var showEndYearDropdown by remember { mutableStateOf(false) }
+    var showMoreMenu by remember { mutableStateOf(false) }
 
-    val months = remember {
-        listOf("January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December")
+    val partyMap = remember(parties) { parties.associateBy { it.id } }
+    val partyGstinMap = remember(parties) { parties.associateBy({ it.id }, { it.gstin ?: "" }) }
+
+    val allRows = remember(invoices, partyMap, startMonth, startYear, endMonth, endYear, allInvoiceItems) {
+        val partyItemMap = allInvoiceItems.groupBy { it.invoiceId }
+        invoices.filter { inv ->
+            val cal = Calendar.getInstance().apply { timeInMillis = inv.invoiceDate }
+            val invMonth = cal.get(Calendar.MONTH)
+            val invYear = cal.get(Calendar.YEAR)
+            val inRange = when {
+                startYear == endYear -> invYear == startYear && invMonth in startMonth..endMonth
+                invYear == startYear -> invMonth >= startMonth
+                invYear == endYear -> invMonth <= endMonth
+                invYear in (startYear + 1) until endYear -> true
+                else -> false
+            }
+            inRange && (inv.invoiceType == "sales" || inv.invoiceType == "sale_return" || inv.invoiceType == "credit_note")
+        }.map { inv ->
+            val party = partyMap[inv.partyId]
+            val items = partyItemMap[inv.id] ?: emptyList()
+            val taxable = items.sumOf { it.taxableAmount }
+            val cgst = items.sumOf { it.cgstAmount }
+            val sgst = items.sumOf { it.sgstAmount }
+            val igst = items.sumOf { it.igstAmount }
+            val isReturn = inv.invoiceType == "sale_return" || inv.invoiceType == "credit_note"
+            Gstr1Row(
+                partyName = party?.name ?: inv.partyName ?: "Walk-in",
+                gstin = partyGstinMap[inv.partyId] ?: "",
+                invoiceNo = inv.invoiceNumber,
+                invoiceDate = inv.invoiceDate,
+                taxableValue = taxable,
+                cgst = cgst, sgst = sgst, igst = igst,
+                totalValue = inv.totalAmount,
+                isSaleReturn = isReturn
+            )
+        }.sortedBy { it.invoiceDate }
     }
-    val years = remember {
-        val cy = Calendar.getInstance().get(Calendar.YEAR)
-        (cy downTo cy - 5).toList()
+
+    val saleRows = remember(allRows) { allRows.filter { !it.isSaleReturn } }
+    val saleReturnRows = remember(allRows) { allRows.filter { it.isSaleReturn } }
+    val displayRows = if (selectedTab == Gstr1SaleTab.SALE) saleRows else saleReturnRows
+
+    val saleTotals = remember(saleRows) {
+        Triple(saleRows.sumOf { it.taxableValue }, saleRows.sumOf { it.cgst + it.sgst }, saleRows.sumOf { it.igst })
     }
-
-    var selectedTab by remember { mutableStateOf(Gstr1Tab.B2B) }
-    var showMonthDropdown by remember { mutableStateOf(false) }
-    var showYearDropdown by remember { mutableStateOf(false) }
-
-    val reportData = remember(invoices, parties, allInvoiceItems, selectedMonth, selectedYear) {
-        generateGstr1Data(invoices, parties, allInvoiceItems, selectedMonth, selectedYear)
+    val returnTotals = remember(saleReturnRows) {
+        Triple(saleReturnRows.sumOf { it.taxableValue }, saleReturnRows.sumOf { it.cgst + it.sgst }, saleReturnRows.sumOf { it.igst })
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("GSTR-1 Report", fontWeight = FontWeight.Bold) },
+                title = { Text("GSTR1 Report", fontWeight = FontWeight.Bold, fontSize = 20.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
+                actions = {
+                    IconButton(onClick = {
+                        scope.launch {
+                            val file = generateGstr1Pdf(context, saleRows, saleReturnRows, months[selectedMonth(startMonth, startYear, endMonth, endYear)])
+                            shareFile(context, file, "application/pdf", "Share GSTR-1 PDF")
+                        }
+                    }) {
+                        Box(modifier = Modifier.background(Color(0xFFE53935), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 3.dp)) {
+                            Text("Pdf", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        }
+                    }
+                    IconButton(onClick = {
+                        scope.launch {
+                            val file = generateGstr1Excel(context, saleRows, saleReturnRows, months, startMonth, startYear, endMonth, endYear)
+                            shareFile(context, file, "application/vnd.ms-excel", "Share GSTR-1 Excel")
+                        }
+                    }) {
+                        Box(modifier = Modifier.background(Color(0xFF4CAF50), RoundedCornerShape(4.dp)).padding(horizontal = 6.dp, vertical = 3.dp)) {
+                            Text("xls", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                        }
+                    }
+                    Box {
+                        IconButton(onClick = { showMoreMenu = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextPrimary)
+                        }
+                        DropdownMenu(expanded = showMoreMenu, onDismissRequest = { showMoreMenu = false }) {
+                            DropdownMenuItem(
+                                text = { Text("Share with CA") },
+                                onClick = {
+                                    showMoreMenu = false
+                                    scope.launch {
+                                        val file = generateGstr1Excel(context, saleRows, saleReturnRows, months, startMonth, startYear, endMonth, endYear)
+                                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                            putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${context.packageName}.provider", file))
+                                            putExtra(Intent.EXTRA_TEXT, "GSTR-1 Report ${months[startMonth]} $startYear to ${months[endMonth]} $endYear")
+                                            type = "application/vnd.ms-excel"
+                                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        }
+                                        context.startActivity(Intent.createChooser(sendIntent, "Share with CA"))
+                                    }
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Download as JSON") },
+                                onClick = {
+                                    showMoreMenu = false
+                                    scope.launch {
+                                        val file = generateGstr1Json(context, saleRows, saleReturnRows)
+                                        shareFile(context, file, "application/json", "Download GSTR-1 JSON")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = VyaparWhite,
-                    titleContentColor = VyaparTextPrimary,
-                    navigationIconContentColor = VyaparTextPrimary
+                    containerColor = Color.White,
+                    titleContentColor = Color(0xFF1A1A1A),
+                    navigationIconContentColor = Color(0xFF1A1A1A)
                 )
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .background(VyaparBackground)
+            modifier = Modifier.fillMaxSize().padding(padding).background(Color(0xFFF5F6F6))
         ) {
-            // Period Selector
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Period", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextPrimary)
+            Column(modifier = Modifier.fillMaxWidth().background(Color.White).padding(horizontal = 16.dp, vertical = 12.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Filled.CalendarToday, contentDescription = null, tint = Color(0xFFE53935), modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("${months[startMonth]} $startYear", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A),
+                        modifier = Modifier.clickable { showStartMonthDropdown = true })
+                    Text("  To  ", fontSize = 14.sp, color = Color(0xFF888888))
+                    Text("${months[endMonth]} $endYear", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF1A1A1A),
+                        modifier = Modifier.clickable { showEndMonthDropdown = true })
 
-                    // Month Dropdown
-                    Box(modifier = Modifier.weight(1f)) {
-                        OutlinedCard(
-                            onClick = { showMonthDropdown = true },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.outlinedCardColors(containerColor = VyaparWhite),
-                            border = CardDefaults.outlinedCardBorder()
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(months[selectedMonth], fontSize = 13.sp, color = VyaparTextPrimary)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
-                            }
-                        }
-                        DropdownMenu(expanded = showMonthDropdown, onDismissRequest = { showMonthDropdown = false }) {
-                            months.forEachIndexed { index, month ->
-                                DropdownMenuItem(
-                                    text = { Text(month, fontSize = 13.sp) },
-                                    onClick = {
-                                        selectedMonth = index
-                                        showMonthDropdown = false
-                                    }
-                                )
-                            }
+                    DropdownMenu(expanded = showStartMonthDropdown, onDismissRequest = { showStartMonthDropdown = false }) {
+                        months.forEachIndexed { idx, m ->
+                            DropdownMenuItem(text = { Text(m) }, onClick = { startMonth = idx; showStartMonthDropdown = false })
                         }
                     }
-
-                    // Year Dropdown
-                    Box(modifier = Modifier.weight(1f)) {
-                        OutlinedCard(
-                            onClick = { showYearDropdown = true },
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.outlinedCardColors(containerColor = VyaparWhite),
-                            border = CardDefaults.outlinedCardBorder()
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("$selectedYear", fontSize = 13.sp, color = VyaparTextPrimary)
-                                Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(18.dp))
-                            }
-                        }
-                        DropdownMenu(expanded = showYearDropdown, onDismissRequest = { showYearDropdown = false }) {
-                            years.forEach { year ->
-                                DropdownMenuItem(
-                                    text = { Text("$year", fontSize = 13.sp) },
-                                    onClick = {
-                                        selectedYear = year
-                                        showYearDropdown = false
-                                    }
-                                )
-                            }
+                    DropdownMenu(expanded = showEndMonthDropdown, onDismissRequest = { showEndMonthDropdown = false }) {
+                        months.forEachIndexed { idx, m ->
+                            DropdownMenuItem(text = { Text(m) }, onClick = { endMonth = idx; showEndMonthDropdown = false })
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { considerNonTaxExempted = !considerNonTaxExempted }) {
+                    Checkbox(checked = considerNonTaxExempted, onCheckedChange = { considerNonTaxExempted = it },
+                        colors = CheckboxDefaults.colors(checkedColor = Color(0xFFE53935)))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Consider non tax transactions as exempted", fontSize = 13.sp, color = Color(0xFF555555))
+                }
             }
 
-            // Summary Cards
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                SummaryMiniCard(
-                    title = "Total Invoices",
-                    value = "${reportData.totalInvoices}",
-                    color = VyaparBlue,
-                    modifier = Modifier.weight(1f)
-                )
-                SummaryMiniCard(
-                    title = "B2B",
-                    value = "${reportData.b2bCount}",
-                    color = VyaparGreen,
-                    modifier = Modifier.weight(1f)
-                )
-                SummaryMiniCard(
-                    title = "B2C",
-                    value = "${reportData.b2cCount}",
-                    color = VyaparOrange,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Tax Summary Cards
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = VyaparBlue)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Taxable Value", color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue),
-                            color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp
+            TabRow(
+                selectedTabIndex = Gstr1SaleTab.entries.indexOf(selectedTab),
+                containerColor = Color.White,
+                contentColor = Color(0xFFE53935),
+                edgePadding = 0.dp,
+                divider = { HorizontalDivider(color = Color(0xFFE0E0E0), thickness = 1.dp) },
+                indicator = { tabPositions ->
+                    if (Gstr1SaleTab.entries.indexOf(selectedTab) < tabPositions.size) {
+                        TabRowDefaults.SecondaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[Gstr1SaleTab.entries.indexOf(selectedTab)]),
+                            height = 3.dp,
+                            color = Color(0xFFE53935)
                         )
                     }
                 }
-                Card(
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = VyaparGreen)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text("Total Tax", color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.2f", reportData.totalTax),
-                            color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // CGST + SGST + IGST row
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                MiniStatCard("CGST", reportData.totalCgst, Modifier.weight(1f))
-                MiniStatCard("SGST", reportData.totalSgst, Modifier.weight(1f))
-                MiniStatCard("IGST", reportData.totalIgst, Modifier.weight(1f))
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Section Tabs
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                ScrollableTabRow(
-                    selectedTabIndex = Gstr1Tab.entries.indexOf(selectedTab),
-                    containerColor = Color.Transparent,
-                    contentColor = VyaparBlue,
-                    edgePadding = 4.dp,
-                    divider = {},
-                    indicator = { tabPositions ->
-                        if (Gstr1Tab.entries.indexOf(selectedTab) < tabPositions.size) {
-                            TabRowDefaults.SecondaryIndicator(
-                                modifier = Modifier.tabIndicatorOffset(tabPositions[Gstr1Tab.entries.indexOf(selectedTab)]),
-                                height = 3.dp,
-                                color = VyaparBlue
+                Gstr1SaleTab.entries.forEach { tab ->
+                    Tab(
+                        selected = selectedTab == tab,
+                        onClick = { selectedTab = tab },
+                        text = {
+                            Text(
+                                tab.label,
+                                fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Medium,
+                                color = if (selectedTab == tab) Color(0xFFE53935) else Color(0xFF888888),
+                                fontSize = 14.sp
                             )
                         }
+                    )
+                }
+            }
+
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().background(Color(0xFFF0F0F0)).padding(horizontal = 0.dp, vertical = 10.dp)) {
+                        Text("GSTIN/UIN No.", modifier = Modifier.weight(0.30f).padding(start = 12.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF555555))
+                        Text("Party Name", modifier = Modifier.weight(0.40f), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF555555))
+                        Text("No.", modifier = Modifier.weight(0.30f).padding(end = 12.dp), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF555555), textAlign = TextAlign.End)
                     }
-                ) {
-                    Gstr1Tab.entries.forEach { tab ->
-                        Tab(
-                            selected = selectedTab == tab,
-                            onClick = { selectedTab = tab },
-                            text = {
-                                Text(
-                                    tab.label,
-                                    fontSize = 12.sp,
-                                    fontWeight = if (selectedTab == tab) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (selectedTab == tab) VyaparBlue else VyaparTextSecondary
-                                )
+                }
+
+                if (displayRows.isEmpty()) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
+                            Text("No invoices found for this period", fontSize = 14.sp, color = Color(0xFF999999))
+                        }
+                    }
+                } else {
+                    itemsIndexed(displayRows) { index, row ->
+                        val bgColor = if (index % 2 == 0) Color.White else Color(0xFFF8F9FA)
+                        Row(modifier = Modifier.fillMaxWidth().background(bgColor).padding(horizontal = 0.dp, vertical = 12.dp)) {
+                            Text(row.gstin.ifBlank { "" }, modifier = Modifier.weight(0.30f).padding(start = 12.dp), fontSize = 12.sp, color = Color(0xFF333333), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            Text(row.partyName, modifier = Modifier.weight(0.40f), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = Color(0xFF1A1A1A), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            Text(row.invoiceNo, modifier = Modifier.weight(0.30f).padding(end = 12.dp), fontSize = 12.sp, color = Color(0xFF333333), textAlign = TextAlign.End)
+                        }
+                    }
+                }
+
+                item {
+                    Row(modifier = Modifier.fillMaxWidth().background(Color(0xFFE8F5E9)).padding(horizontal = 0.dp, vertical = 12.dp)) {
+                        Text("Totals", modifier = Modifier.weight(0.30f).padding(start = 12.dp), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                        Text("", modifier = Modifier.weight(0.40f))
+                        Column(modifier = Modifier.weight(0.30f).padding(end = 12.dp), horizontalAlignment = Alignment.End) {
+                            if (selectedTab == Gstr1SaleTab.SALE) {
+                                Text(String.format(Locale.US, "\u20B9%,.2f", saleTotals.first), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                                Text("CGST+SGST: ${String.format(Locale.US, "\u20B9%,.2f", saleTotals.second)}", fontSize = 10.sp, color = Color(0xFF555555))
+                                Text("IGST: ${String.format(Locale.US, "\u20B9%,.2f", saleTotals.third)}", fontSize = 10.sp, color = Color(0xFF555555))
+                            } else {
+                                Text(String.format(Locale.US, "\u20B9%,.2f", returnTotals.first), fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                                Text("CGST+SGST: ${String.format(Locale.US, "\u20B9%,.2f", returnTotals.second)}", fontSize = 10.sp, color = Color(0xFF555555))
+                                Text("IGST: ${String.format(Locale.US, "\u20B9%,.2f", returnTotals.third)}", fontSize = 10.sp, color = Color(0xFF555555))
                             }
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Tab Content
-            when (selectedTab) {
-                Gstr1Tab.B2B -> B2BContent(reportData.b2bInvoices)
-                Gstr1Tab.B2C -> B2CContent(reportData.b2cInvoices)
-                Gstr1Tab.HSN -> HSNContent(reportData.hsnSummaries)
-                Gstr1Tab.CREDIT_NOTES -> CreditNotesContent()
-                Gstr1Tab.SUMMARY -> SummaryContent(reportData)
-            }
-
-            // Action Buttons
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = {
-                        scope.launch {
-                            val file = generateGstr1Json(context, reportData, company, selectedMonth, selectedYear)
-                            shareFile(context, file, "application/json", "Share GSTR-1 JSON")
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)
-                ) {
-                    Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Download JSON", fontWeight = FontWeight.Medium)
-                }
-
-                Button(
-                    onClick = {
-                        scope.launch {
-                            val file = generateGstr1Excel(context, reportData, selectedMonth, selectedYear)
-                            shareFile(context, file, "application/vnd.ms-excel", "Share GSTR-1 Excel")
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = VyaparGreen)
-                ) {
-                    Icon(Icons.Filled.TableChart, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Download Excel", fontWeight = FontWeight.Medium)
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        navController.navigate("eway_bill")
-                    },
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = VyaparBlue)
-                ) {
-                    Icon(Icons.Filled.LocalShipping, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Generate E-Way Bill", fontWeight = FontWeight.Medium)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SummaryMiniCard(title: String, value: String, color: Color, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f))
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(title, fontSize = 11.sp, color = color.copy(alpha = 0.7f))
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
-        }
-    }
-}
-
-@Composable
-private fun MiniStatCard(label: String, amount: Double, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-    ) {
-        Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, fontSize = 11.sp, color = VyaparTextSecondary)
-            Text(
-                String.format(Locale.US, "\u20B9%,.2f", amount),
-                fontSize = 13.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary
-            )
-        }
-    }
-}
-
-@Composable
-private fun B2BContent(b2bInvoices: List<B2BInvoice>) {
-    if (b2bInvoices.isEmpty()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-            Text("No B2B invoices for this period", color = VyaparTextSecondary)
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("GSTIN", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(1.2f))
-                Text("Inv No", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(1f))
-                Text("Taxable", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(1f))
-                Text("CGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-                Text("SGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-                Text("IGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-            }
-        }
-
-        items(b2bInvoices) { b2b ->
-            Card(
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            b2b.party?.gstin ?: "N/A",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = VyaparTextPrimary,
-                            modifier = Modifier.weight(1.2f),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(b2b.invoice.invoiceNumber, fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(1f))
-                        Text(
-                            String.format(Locale.US, "%.2f", b2b.invoice.taxableAmount),
-                            fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(1f)
-                        )
-                        Text(
-                            String.format(Locale.US, "%.2f", b2b.invoice.cgstTotal),
-                            fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f)
-                        )
-                        Text(
-                            String.format(Locale.US, "%.2f", b2b.invoice.sgstTotal),
-                            fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f)
-                        )
-                        Text(
-                            String.format(Locale.US, "%.2f", b2b.invoice.igstTotal),
-                            fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        b2b.party?.name ?: "Unknown Party",
-                        fontSize = 11.sp,
-                        color = VyaparTextSecondary
-                    )
-                    Text(
-                        "Date: ${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(b2b.invoice.invoiceDate))} | Items: ${b2b.items.size}",
-                        fontSize = 11.sp,
-                        color = VyaparTextSecondary
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun B2CContent(b2cInvoices: List<B2CInvoice>) {
-    if (b2cInvoices.isEmpty()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-            Text("No B2C invoices for this period", color = VyaparTextSecondary)
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(b2cInvoices) { b2c ->
-            Card(
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(b2c.invoice.invoiceNumber, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = VyaparTextPrimary)
-                        Text(
-                            String.format(Locale.US, "\u20B9%,.2f", b2c.invoice.totalAmount),
-                            fontWeight = FontWeight.Bold, fontSize = 13.sp, color = VyaparBlue
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "Date: ${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(b2c.invoice.invoiceDate))}",
-                        fontSize = 12.sp, color = VyaparTextSecondary
-                    )
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("Taxable: ${String.format(Locale.US, "%.2f", b2c.invoice.taxableAmount)}", fontSize = 11.sp, color = VyaparTextSecondary)
-                        Text("CGST: ${String.format(Locale.US, "%.2f", b2c.invoice.cgstTotal)}", fontSize = 11.sp, color = VyaparTextSecondary)
-                        Text("SGST: ${String.format(Locale.US, "%.2f", b2c.invoice.sgstTotal)}", fontSize = 11.sp, color = VyaparTextSecondary)
-                    }
-                    if (b2c.invoice.igstTotal > 0) {
-                        Text("IGST: ${String.format(Locale.US, "%.2f", b2c.invoice.igstTotal)}", fontSize = 11.sp, color = VyaparTextSecondary)
                     }
                 }
+
+                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
     }
 }
 
-@Composable
-private fun HSNContent(hsnSummaries: List<HsnSummary>) {
-    if (hsnSummaries.isEmpty()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-            Text("No HSN data for this period", color = VyaparTextSecondary)
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("HSN", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(1f))
-                Text("Qty", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.7f))
-                Text("Taxable", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(1f))
-                Text("CGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-                Text("SGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-                Text("IGST", fontSize = 10.sp, color = VyaparTextSecondary, modifier = Modifier.weight(0.8f))
-            }
-        }
-
-        items(hsnSummaries) { hsn ->
-            Card(
-                shape = RoundedCornerShape(10.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(hsn.hsnCode, fontWeight = FontWeight.Medium, fontSize = 13.sp, color = VyaparTextPrimary)
-                            Text(hsn.description, fontSize = 11.sp, color = VyaparTextSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                        Text(String.format(Locale.US, "%.1f", hsn.totalQuantity), fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.7f))
-                    }
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text(String.format(Locale.US, "%.2f", hsn.taxableValue), fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(1f))
-                        Text(String.format(Locale.US, "%.2f", hsn.cgstAmount), fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f))
-                        Text(String.format(Locale.US, "%.2f", hsn.sgstAmount), fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f))
-                        Text(String.format(Locale.US, "%.2f", hsn.igstAmount), fontSize = 12.sp, color = VyaparTextPrimary, modifier = Modifier.weight(0.8f))
-                    }
-                }
-            }
-        }
-    }
+private fun selectedMonth(sm: Int, sy: Int, em: Int, ey: Int): String {
+    return ""
 }
 
-@Composable
-private fun CreditNotesContent() {
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                Icons.Filled.Receipt,
-                contentDescription = null,
-                modifier = Modifier.size(48.dp),
-                tint = VyaparTextSecondary.copy(alpha = 0.4f)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Credit/Debit Notes", color = VyaparTextSecondary, fontSize = 14.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("No credit or debit notes for this period", color = VyaparTextSecondary.copy(alpha = 0.6f), fontSize = 12.sp)
-        }
-    }
-}
-
-@Composable
-private fun SummaryContent(reportData: Gstr1ReportData) {
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item {
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparBlue)
-            ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text("GSTR-1 Summary", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Gstr1SummaryRow("Total Sales Invoices", "${reportData.totalInvoices}")
-                    Gstr1SummaryRow("B2B Invoices", "${reportData.b2bCount}")
-                    Gstr1SummaryRow("B2C Invoices", "${reportData.b2cCount}")
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.White.copy(alpha = 0.2f))
-                    Gstr1SummaryRow("Total Taxable Value", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue))
-                    Gstr1SummaryRow("CGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalCgst))
-                    Gstr1SummaryRow("SGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalSgst))
-                    Gstr1SummaryRow("IGST", String.format(Locale.US, "\u20B9%,.2f", reportData.totalIgst))
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Color.White.copy(alpha = 0.2f))
-                    Gstr1SummaryRow("Total Tax", String.format(Locale.US, "\u20B9%,.2f", reportData.totalTax))
-                    Gstr1SummaryRow(
-                        "Invoice Value",
-                        String.format(Locale.US, "\u20B9%,.2f", reportData.totalTaxableValue + reportData.totalTax),
-                        bold = true
-                    )
-                }
-            }
-        }
-
-        item {
-            Card(
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = VyaparWhite)
-            ) {
-                Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text("HSN Summary", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = VyaparTextPrimary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("Total HSN Codes: ${reportData.hsnSummaries.size}", fontSize = 13.sp, color = VyaparTextSecondary)
-                    Text("Unique items with different HSN codes reported in GSTR-1", fontSize = 12.sp, color = VyaparTextSecondary)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Gstr1SummaryRow(label: String, value: String, bold: Boolean = false) {
-    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, color = Color.White.copy(alpha = 0.7f), fontSize = 13.sp)
-        Text(
-            value,
-            color = Color.White,
-            fontWeight = if (bold) FontWeight.Bold else FontWeight.Medium,
-            fontSize = if (bold) 16.sp else 13.sp
-        )
-    }
-}
-
-private fun generateGstr1Data(
-    invoices: List<InvoiceEntity>,
-    parties: List<PartyEntity>,
-    allInvoiceItems: List<InvoiceItemEntity>,
-    selectedMonth: Int,
-    selectedYear: Int
-): Gstr1ReportData {
-    val partyMap = parties.associateBy { it.id }
-    val calendar = Calendar.getInstance()
-
-    val filteredInvoices = invoices.filter { invoice ->
-        calendar.timeInMillis = invoice.invoiceDate
-        calendar.get(Calendar.MONTH) == selectedMonth &&
-            calendar.get(Calendar.YEAR) == selectedYear &&
-            invoice.invoiceType == "sales"
-    }
-
-    val b2bList = mutableListOf<B2BInvoice>()
-    val b2cList = mutableListOf<B2CInvoice>()
-
-    filteredInvoices.forEach { invoice ->
-        val party = partyMap[invoice.partyId]
-        val items = allInvoiceItems.filter { it.invoiceId == invoice.id }
-        if (!party?.gstin.isNullOrBlank()) {
-            b2bList.add(B2BInvoice(invoice, party, items))
-        } else {
-            b2cList.add(B2CInvoice(invoice, items))
-        }
-    }
-
-    val allItems = filteredInvoices.flatMap { inv ->
-        allInvoiceItems.filter { it.invoiceId == inv.id }
-    }
-
-    val hsnMap = mutableMapOf<String, HsnSummary>()
-    allItems.forEach { item ->
-        val code = item.hsnCode ?: "0000"
-        val existing = hsnMap[code]
-        if (existing == null) {
-            hsnMap[code] = HsnSummary(
-                hsnCode = code,
-                description = item.itemName,
-                uqc = item.unit,
-                totalQuantity = item.quantity,
-                taxableValue = item.taxableAmount,
-                igstAmount = item.igstAmount,
-                cgstAmount = item.cgstAmount,
-                sgstAmount = item.sgstAmount,
-                cessAmount = 0.0
-            )
-        } else {
-            hsnMap[code] = existing.copy(
-                totalQuantity = existing.totalQuantity + item.quantity,
-                taxableValue = existing.taxableValue + item.taxableAmount,
-                igstAmount = existing.igstAmount + item.igstAmount,
-                cgstAmount = existing.cgstAmount + item.cgstAmount,
-                sgstAmount = existing.sgstAmount + item.sgstAmount
-            )
-        }
-    }
-
-    return Gstr1ReportData(
-        b2bInvoices = b2bList,
-        b2cInvoices = b2cList,
-        hsnSummaries = hsnMap.values.sortedByDescending { it.taxableValue },
-        totalInvoices = filteredInvoices.size,
-        totalTaxableValue = filteredInvoices.sumOf { it.taxableAmount },
-        totalCgst = filteredInvoices.sumOf { it.cgstTotal },
-        totalSgst = filteredInvoices.sumOf { it.sgstTotal },
-        totalIgst = filteredInvoices.sumOf { it.igstTotal },
-        totalTax = filteredInvoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal },
-        b2bCount = b2bList.size,
-        b2cCount = b2cList.size
-    )
-}
-
-private fun generateGstr1Json(
-    context: android.content.Context,
-    data: Gstr1ReportData,
-    company: com.mimo.gstbilling.data.local.entity.CompanyEntity?,
-    month: Int,
-    year: Int
-): File {
-    val fp = String.format("%02d%04d", month + 1, year)
-    val root = JSONObject()
-    root.put("gstin", company?.gstin ?: "")
-    root.put("fp", fp)
-
-    val b2bArray = JSONArray()
-    data.b2bInvoices.forEach { b2b ->
-        val invObj = JSONObject()
-        invObj.put("inum", b2b.invoice.invoiceNumber)
-        invObj.put("dt", SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date(b2b.invoice.invoiceDate)))
-        invObj.put("val", b2b.invoice.totalAmount)
-        invObj.put("pos", company?.stateCode ?: "")
-        invObj.put("rev", "N")
-        invObj.put("typ", "R")
-
-        val itemsArray = JSONArray()
-        b2b.items.forEach { item ->
-            val itemObj = JSONObject()
-            itemObj.put("num", 1)
-            itemObj.put("prdgslcd", item.hsnCode ?: "")
-            itemObj.put("itm", item.itemName)
-            itemObj.put("qty", item.quantity)
-            itemObj.put("uqc", item.unit)
-            itemObj.put("txval", item.taxableAmount)
-            itemObj.put("camt", item.cgstAmount)
-            itemObj.put("samt", item.sgstAmount)
-            itemObj.put("iamt", item.igstAmount)
-            itemObj.put("csamt", 0.0)
-            itemsArray.put(itemObj)
-        }
-        invObj.put("itms", itemsArray)
-
-        val docObj = JSONObject()
-        docObj.put("gstin", b2b.party?.gstin ?: "")
-        docObj.put("inv", JSONArray().put(invObj))
-        b2bArray.put(docObj)
-    }
-    root.put("b2b", b2bArray)
-
-    val b2csArray = JSONArray()
-    data.b2cInvoices.forEach { b2c ->
-        b2c.items.forEach { item ->
-            val b2csObj = JSONObject()
-            b2csObj.put("ty", "OE")
-            b2csObj.put("txval", item.taxableAmount)
-            b2csObj.put("camt", item.cgstAmount)
-            b2csObj.put("samt", item.sgstAmount)
-            b2csObj.put("iamt", item.igstAmount)
-            b2csObj.put("csamt", 0.0)
-            b2csObj.put("dt", SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date(b2c.invoice.invoiceDate)))
-            b2csArray.put(b2csObj)
-        }
-    }
-    root.put("b2cs", b2csArray)
-
-    val hsnArray = JSONArray()
-    data.hsnSummaries.forEach { hsn ->
-        val hsnObj = JSONObject()
-        hsnObj.put("hsn_cd", hsn.hsnCode)
-        hsnObj.put("desc", hsn.description)
-        hsnObj.put("uqc", hsn.uqc)
-        hsnObj.put("qty", hsn.totalQuantity)
-        hsnObj.put("txval", hsn.taxableValue)
-        hsnObj.put("iamt", hsn.igstAmount)
-        hsnObj.put("camt", hsn.cgstAmount)
-        hsnObj.put("samt", hsn.sgstAmount)
-        hsnObj.put("csamt", hsn.cessAmount)
-        hsnArray.put(hsnObj)
-    }
-    root.put("hsn", hsnArray)
-
-    root.put("cdn", JSONArray())
-
-    val fileName = "GSTR1_${company?.gstin ?: "data"}_${String.format("%02d%04d", month + 1, year)}.json"
+private fun generateGstr1Pdf(context: android.content.Context, saleRows: List<Gstr1Row>, returnRows: List<Gstr1Row>, period: String): File {
     val dir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "GSTR1")
     dir.mkdirs()
-    val file = File(dir, fileName)
-    file.writeText(root.toString(2))
+    val file = File(dir, "GSTR1_Report.pdf")
+    val doc = android.graphics.pdf.PdfDocument()
+    val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(595, 842, 1).create()
+    val page = doc.startPage(pageInfo)
+    val canvas = page.canvas
+    val paint = android.graphics.Paint().apply { textSize = 12f; color = android.graphics.Color.BLACK }
+    val boldPaint = android.graphics.Paint().apply { textSize = 14f; color = android.graphics.Color.BLACK; isFakeBoldText = true }
+    var y = 40f
+
+    canvas.drawText("GSTR-1 Report", 40f, y, boldPaint.apply { textSize = 18f })
+    y += 30f
+    canvas.drawText("Sale Invoices: ${saleRows.size}  |  Sale Returns: ${returnRows.size}", 40f, y, paint)
+    y += 25f
+    canvas.drawLine(40f, y, 555f, y, paint.apply { strokeWidth = 1f; color = android.graphics.Color.GRAY })
+    y += 20f
+
+    paint.textSize = 10f
+    canvas.drawText("GSTIN/UIN No.", 40f, y, paint.apply { isFakeBoldText = true })
+    canvas.drawText("Party Name", 200f, y, paint)
+    canvas.drawText("No.", 380f, y, paint)
+    canvas.drawText("Taxable", 440f, y, paint)
+    canvas.drawText("Total", 510f, y, paint)
+    y += 15f
+    canvas.drawLine(40f, y, 555f, y, paint.apply { color = android.graphics.Color.LTGRAY })
+    y += 12f
+
+    fun drawRows(rows: List<Gstr1Row>) {
+        paint.isFakeBoldText = false
+        paint.textSize = 9f
+        for (row in rows) {
+            if (y > 780f) return
+            canvas.drawText(row.gstin.take(16), 40f, y, paint)
+            canvas.drawText(row.partyName.take(20), 200f, y, paint)
+            canvas.drawText(row.invoiceNo, 380f, y, paint)
+            canvas.drawText(String.format(Locale.US, "%.2f", row.taxableValue), 440f, y, paint)
+            canvas.drawText(String.format(Locale.US, "%.2f", row.totalValue), 510f, y, paint)
+            y += 14f
+        }
+    }
+
+    if (saleRows.isNotEmpty()) {
+        paint.textSize = 12f; paint.isFakeBoldText = true; paint.color = android.graphics.Color.parseColor("#E53935")
+        canvas.drawText("SALE INVOICES", 40f, y, paint); y += 16f
+        paint.color = android.graphics.Color.BLACK
+        drawRows(saleRows)
+    }
+    if (returnRows.isNotEmpty()) {
+        y += 10f
+        paint.textSize = 12f; paint.isFakeBoldText = true; paint.color = android.graphics.Color.parseColor("#E53935")
+        canvas.drawText("SALE RETURNS", 40f, y, paint); y += 16f
+        paint.color = android.graphics.Color.BLACK
+        drawRows(returnRows)
+    }
+
+    doc.finishPage(page)
+    doc.writeTo(file.outputStream())
+    doc.close()
     return file
 }
 
-private fun generateGstr1Excel(
-    context: android.content.Context,
-    data: Gstr1ReportData,
-    month: Int,
-    year: Int
-): File {
-    val sb = StringBuilder()
-    sb.appendLine("GSTR-1 Report - ${String.format("%02d/%04d", month + 1, year)}")
-    sb.appendLine()
-
-    sb.appendLine("=== B2B INVOICES ===")
-    sb.appendLine("GSTIN,Invoice No,Date,Taxable Value,CGST,SGST,IGST,Total")
-    data.b2bInvoices.forEach { b2b ->
-        sb.appendLine(
-            "${b2b.party?.gstin ?: "N/A"}," +
-            "${b2b.invoice.invoiceNumber}," +
-            "${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(b2b.invoice.invoiceDate))}," +
-            "${String.format(Locale.US, "%.2f", b2b.invoice.taxableAmount)}," +
-            "${String.format(Locale.US, "%.2f", b2b.invoice.cgstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2b.invoice.sgstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2b.invoice.igstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2b.invoice.totalAmount)}"
-        )
-    }
-    sb.appendLine()
-
-    sb.appendLine("=== B2C INVOICES ===")
-    sb.appendLine("Invoice No,Date,Taxable Value,CGST,SGST,IGST,Total")
-    data.b2cInvoices.forEach { b2c ->
-        sb.appendLine(
-            "${b2c.invoice.invoiceNumber}," +
-            "${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(b2c.invoice.invoiceDate))}," +
-            "${String.format(Locale.US, "%.2f", b2c.invoice.taxableAmount)}," +
-            "${String.format(Locale.US, "%.2f", b2c.invoice.cgstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2c.invoice.sgstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2c.invoice.igstTotal)}," +
-            "${String.format(Locale.US, "%.2f", b2c.invoice.totalAmount)}"
-        )
-    }
-    sb.appendLine()
-
-    sb.appendLine("=== HSN SUMMARY ===")
-    sb.appendLine("HSN Code,Description,UQC,Quantity,Taxable Value,CGST,SGST,IGST")
-    data.hsnSummaries.forEach { hsn ->
-        sb.appendLine(
-            "${hsn.hsnCode}," +
-            "${hsn.description}," +
-            "${hsn.uqc}," +
-            "${String.format(Locale.US, "%.1f", hsn.totalQuantity)}," +
-            "${String.format(Locale.US, "%.2f", hsn.taxableValue)}," +
-            "${String.format(Locale.US, "%.2f", hsn.cgstAmount)}," +
-            "${String.format(Locale.US, "%.2f", hsn.sgstAmount)}," +
-            "${String.format(Locale.US, "%.2f", hsn.igstAmount)}"
-        )
-    }
-    sb.appendLine()
-
-    sb.appendLine("=== SUMMARY ===")
-    sb.appendLine("Total Invoices,${data.totalInvoices}")
-    sb.appendLine("B2B Count,${data.b2bCount}")
-    sb.appendLine("B2C Count,${data.b2cCount}")
-    sb.appendLine("Total Taxable Value,${String.format(Locale.US, "%.2f", data.totalTaxableValue)}")
-    sb.appendLine("CGST,${String.format(Locale.US, "%.2f", data.totalCgst)}")
-    sb.appendLine("SGST,${String.format(Locale.US, "%.2f", data.totalSgst)}")
-    sb.appendLine("IGST,${String.format(Locale.US, "%.2f", data.totalIgst)}")
-    sb.appendLine("Total Tax,${String.format(Locale.US, "%.2f", data.totalTax)}")
-    sb.appendLine("Invoice Value,${String.format(Locale.US, "%.2f", data.totalTaxableValue + data.totalTax)}")
-
-    val fileName = "GSTR1_Report_${String.format("%02d%04d", month + 1, year)}.csv"
+private fun generateGstr1Excel(context: android.content.Context, saleRows: List<Gstr1Row>, returnRows: List<Gstr1Row>, months: List<String>, sm: Int, sy: Int, em: Int, ey: Int): File {
     val dir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "GSTR1")
     dir.mkdirs()
-    val file = File(dir, fileName)
+    val file = File(dir, "GSTR1_Report.xls")
+    val sb = StringBuilder()
+    sb.appendLine("GSTR-1 Report - ${months[sm]} $sy to ${months[em]} $ey")
+    sb.appendLine()
+    sb.appendLine("=== SALE INVOICES ===")
+    sb.appendLine("GSTIN/UIN No.,Party Name,Invoice No,Date,Taxable Value,CGST,SGST,IGST,Total")
+    for (row in saleRows) {
+        sb.appendLine("${row.gstin},${row.partyName},${row.invoiceNo},${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(row.invoiceDate))},${String.format(Locale.US, "%.2f", row.taxableValue)},${String.format(Locale.US, "%.2f", row.cgst)},${String.format(Locale.US, "%.2f", row.sgst)},${String.format(Locale.US, "%.2f", row.igst)},${String.format(Locale.US, "%.2f", row.totalValue)}")
+    }
+    sb.appendLine("TOTAL,,,,${String.format(Locale.US, "%.2f", saleRows.sumOf { it.taxableValue })},${String.format(Locale.US, "%.2f", saleRows.sumOf { it.cgst })},${String.format(Locale.US, "%.2f", saleRows.sumOf { it.sgst })},${String.format(Locale.US, "%.2f", saleRows.sumOf { it.igst })},${String.format(Locale.US, "%.2f", saleRows.sumOf { it.totalValue })}")
+    sb.appendLine()
+    sb.appendLine("=== SALE RETURNS ===")
+    sb.appendLine("GSTIN/UIN No.,Party Name,Invoice No,Date,Taxable Value,CGST,SGST,IGST,Total")
+    for (row in returnRows) {
+        sb.appendLine("${row.gstin},${row.partyName},${row.invoiceNo},${SimpleDateFormat("dd/MM/yyyy", Locale.US).format(Date(row.invoiceDate))},${String.format(Locale.US, "%.2f", row.taxableValue)},${String.format(Locale.US, "%.2f", row.cgst)},${String.format(Locale.US, "%.2f", row.sgst)},${String.format(Locale.US, "%.2f", row.igst)},${String.format(Locale.US, "%.2f", row.totalValue)}")
+    }
+    sb.appendLine("TOTAL,,,,${String.format(Locale.US, "%.2f", returnRows.sumOf { it.taxableValue })},${String.format(Locale.US, "%.2f", returnRows.sumOf { it.cgst })},${String.format(Locale.US, "%.2f", returnRows.sumOf { it.sgst })},${String.format(Locale.US, "%.2f", returnRows.sumOf { it.igst })},${String.format(Locale.US, "%.2f", returnRows.sumOf { it.totalValue })}")
     file.writeText(sb.toString())
     return file
 }
 
+private fun generateGstr1Json(context: android.content.Context, saleRows: List<Gstr1Row>, returnRows: List<Gstr1Row>): File {
+    val dir = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "GSTR1")
+    dir.mkdirs()
+    val file = File(dir, "GSTR1_Upload.json")
+    val root = JSONObject()
+
+    val b2b = JSONArray()
+    val grouped = saleRows.filter { it.gstin.isNotBlank() }.groupBy { it.gstin }
+    for ((gstin, rows) in grouped) {
+        val invList = JSONArray()
+        for (row in rows) {
+            val inv = JSONObject()
+            inv.put("inum", row.invoiceNo)
+            inv.put("idt", SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date(row.invoiceDate)))
+            inv.put("val", String.format(Locale.US, "%.2f", row.totalValue))
+            inv.put("pos", "")
+            inv.put("typ", "R")
+            val itms = JSONArray()
+            val item = JSONObject()
+            item.put("num", 1)
+            item.put("itm_det", JSONObject().apply {
+                put("rt", 18.0)
+                put("qty", "1.00")
+                put("txval", String.format(Locale.US, "%.2f", row.taxableValue))
+                put("iamt", String.format(Locale.US, "%.2f", row.igst))
+                put("camt", String.format(Locale.US, "%.2f", row.cgst))
+                put("samt", String.format(Locale.US, "%.2f", row.sgst))
+                put("csamt", 0)
+            })
+            itms.put(item)
+            inv.put("itms", itms)
+            invList.put(inv)
+        }
+        val b2bEntry = JSONObject()
+        b2bEntry.put("gstin", gstin)
+        b2bEntry.put("b2b", invList)
+        b2b.put(b2bEntry)
+    }
+    root.put("b2b", b2b)
+
+    val b2cs = JSONArray()
+    for (row in saleRows.filter { it.gstin.isBlank() }) {
+        val entry = JSONObject()
+        entry.put("typ", "OE")
+        entry.put("pos", "")
+        entry.put("txval", String.format(Locale.US, "%.2f", row.taxableValue))
+        entry.put("iamt", String.format(Locale.US, "%.2f", row.igst))
+        entry.put("camt", String.format(Locale.US, "%.2f", row.cgst))
+        entry.put("samt", String.format(Locale.US, "%.2f", row.sgst))
+        entry.put("csamt", 0)
+        b2cs.put(entry)
+    }
+    root.put("b2cs", b2cs)
+
+    val cdn = JSONArray()
+    for (row in returnRows) {
+        val note = JSONObject()
+        note.put("nt_num", row.invoiceNo)
+        note.put("nt_dt", SimpleDateFormat("dd-MM-yyyy", Locale.US).format(Date(row.invoiceDate)))
+        note.put("ntty", "C")
+        note.put("val", String.format(Locale.US, "%.2f", row.totalValue))
+        val itms = JSONArray()
+        val item = JSONObject()
+        item.put("num", 1)
+        item.put("itm_det", JSONObject().apply {
+            put("rt", 18.0)
+            put("txval", String.format(Locale.US, "%.2f", row.taxableValue))
+            put("iamt", String.format(Locale.US, "%.2f", row.igst))
+            put("camt", String.format(Locale.US, "%.2f", row.cgst))
+            put("samt", String.format(Locale.US, "%.2f", row.sgst))
+            put("csamt", 0)
+        })
+        itms.put(item)
+        note.put("itms", itms)
+        cdn.put(note)
+    }
+    root.put("cdn", cdn)
+
+    file.writeText(root.toString(2))
+    return file
+}
+
 private fun shareFile(context: android.content.Context, file: File, mimeType: String, title: String) {
-    val uri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        file
-    )
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     val sendIntent = Intent(Intent.ACTION_SEND).apply {
         putExtra(Intent.EXTRA_STREAM, uri)
         type = mimeType

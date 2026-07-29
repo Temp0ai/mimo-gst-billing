@@ -138,6 +138,15 @@ fun CreateInvoiceScreen(
     var phoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
     var allPhoneContacts by remember { mutableStateOf<List<PhoneContact>>(emptyList()) }
 
+    LaunchedEffect(uiState.partyId, uiState.partyName, uiState.partyPhone) {
+        if (uiState.partyId > 0L) {
+            partyName = uiState.partyName
+            phone = uiState.partyPhone
+            customerSearchQuery = uiState.partyName
+            partySelected = true
+        }
+    }
+
     if (preselectedPartyId != null) {
         LaunchedEffect(preselectedPartyId, uiState.allParties) {
             if (uiState.allParties.isNotEmpty() && !partySelected) {
@@ -378,7 +387,7 @@ fun CreateInvoiceScreen(
                         Row(modifier = Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                             Icon(Icons.Filled.Add, contentDescription = null, tint = Primary, modifier = Modifier.size(20.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("+ Add Items", fontWeight = FontWeight.Bold, color = Primary, fontSize = 14.sp)
+                            Text("Add Items", fontWeight = FontWeight.Bold, color = Primary, fontSize = 14.sp)
                             Spacer(modifier = Modifier.width(4.dp))
                             Text("(Optional)", color = TextSecondary, fontSize = 12.sp)
                         }
