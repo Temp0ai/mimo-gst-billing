@@ -230,4 +230,8 @@ sealed class Screen(val route: String) {
     object LoanExpense : Screen("loan_expense")
     object CashBook : Screen("cash_book")
     object BankReconciliationDetail : Screen("bank_reconciliation_detail")
+    object OcrScan : Screen("ocr_scan")
+    object SmartCategory : Screen("smart_category")
+    object NlCommand : Screen("nl_command")
+    object SmartSearch : Screen("smart_search")
 }

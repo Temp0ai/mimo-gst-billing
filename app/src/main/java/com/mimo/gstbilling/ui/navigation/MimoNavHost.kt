@@ -135,7 +135,6 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.LoanStatement.route) { LoanStatementScreen(navController) }
         composable(Screen.Gstr1Filing.route) { Gstr1FilingScreen(navController) }
         composable(Screen.Gstr3bFiling.route) { Gstr3bFilingScreen(navController) }
-        composable(Screen.EWayBill.route) { EWayBillScreen(navController) }
         composable(Screen.ItemSettings.route) { ItemSettingsScreen(navController) }
         composable(Screen.BusinessCardDesigner.route) { BusinessCardDesignerScreen(navController) }
         composable(Screen.PartySettings.route) { PartySettingsScreen(navController) }
@@ -275,5 +274,9 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.LoanExpense.route) { LoanExpenseScreen(navController) }
         composable(Screen.CashBook.route) { CashBookScreen(navController) }
         composable(Screen.BankReconciliationDetail.route) { BankReconciliationDetailScreen(navController) }
+        composable(Screen.SmartCategory.route) { SmartCategoryScreen(navController) }
+        composable(Screen.OcrScan.route) { OcrScanScreen(navController) }
+        composable(Screen.NlCommand.route) { NlCommandScreen(navController) }
+        composable(Screen.SmartSearch.route) { SmartSearchScreen(navController) }
     }
 }
