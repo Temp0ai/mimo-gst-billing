@@ -94,7 +94,6 @@ dependencies {
 
     // ML Kit Text Recognition (OCR)
     implementation("com.google.mlkit:text-recognition:16.0.0")
-    implementation("com.google.mlkit:text-recognition-devices:16.0.0")
 
     // QR Code Generation
     implementation("com.google.zxing:core:3.5.3")
