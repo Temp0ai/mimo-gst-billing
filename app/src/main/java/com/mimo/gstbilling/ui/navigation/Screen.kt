@@ -234,4 +234,5 @@ sealed class Screen(val route: String) {
     object SmartCategory : Screen("smart_category")
     object NlCommand : Screen("nl_command")
     object SmartSearch : Screen("smart_search")
+    object SmartReconciliation : Screen("smart_reconciliation")
 }

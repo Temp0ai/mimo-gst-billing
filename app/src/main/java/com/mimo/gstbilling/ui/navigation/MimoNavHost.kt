@@ -278,5 +278,6 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.OcrScan.route) { OcrScanScreen(navController) }
         composable(Screen.NlCommand.route) { NlCommandScreen(navController) }
         composable(Screen.SmartSearch.route) { SmartSearchScreen(navController) }
+        composable(Screen.SmartReconciliation.route) { SmartReconciliationScreen(navController) }
     }
 }
