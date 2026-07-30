@@ -126,7 +126,7 @@ fun NlCommandScreen(
                             when (parsedResult.command) {
                                 CommandType.CREATE_INVOICE -> {
                                     val party = parsedResult.params["party"] ?: ""
-                                    navController.navigate(Screen.CreateInvoice.createRoute("sales"))
+                                    navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
                                 }
                                 CommandType.CREATE_EXPENSE -> {
                                     navController.navigate(Screen.Expenses.route)
