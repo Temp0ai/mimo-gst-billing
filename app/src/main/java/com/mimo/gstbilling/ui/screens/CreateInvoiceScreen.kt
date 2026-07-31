@@ -130,6 +130,8 @@ fun CreateInvoiceScreen(
     var showMoreMenu by remember { mutableStateOf(false) }
     var showAdditionalFields by remember { mutableStateOf(false) }
     var showAdditionalCharges by remember { mutableStateOf(false) }
+    var showTermsDialog by remember { mutableStateOf(false) }
+    var termsText by remember { mutableStateOf("") }
 
     LaunchedEffect(invoiceType) { viewModel.setInvoiceType(invoiceType) }
     val isPurchase = invoiceType == "purchase"
@@ -230,6 +232,35 @@ fun CreateInvoiceScreen(
         )
     }
 
+    if (showTermsDialog) {
+        AlertDialog(
+            onDismissRequest = { showTermsDialog = false },
+            title = { Text("Terms & Conditions", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+            text = {
+                OutlinedTextField(
+                    value = termsText,
+                    onValueChange = { termsText = it },
+                    label = { Text("Enter terms & conditions") },
+                    placeholder = { Text("e.g. Payment due within 30 days...") },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 150.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Color(0xFFE0E0E0))
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showTermsDialog = false
+                    scope.launch { snackbarHostState.showSnackbar("Terms saved") }
+                }, shape = RoundedCornerShape(8.dp), colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTermsDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
             topBar = {
@@ -292,7 +323,7 @@ fun CreateInvoiceScreen(
                                             })
                                 DropdownMenuItem(text = { Text("Terms & Conditions") }, onClick = {
                                                 showMoreMenu = false
-                                                scope.launch { snackbarHostState.showSnackbar("Terms & Conditions feature coming soon") }
+                                                showTermsDialog = true
                                             })
                             }
                         }

@@ -96,6 +96,8 @@ fun DashboardScreen(
     var itemSearchQuery by remember { mutableStateOf("") }
     var showPartyOptionsMenu by remember { mutableStateOf(false) }
     var showTransactionFilterDialog by remember { mutableStateOf(false) }
+    var transactionFilterType by remember { mutableStateOf("all") }
+    var itemFilterType by remember { mutableStateOf("all") }
     var showInvoiceOptionsMenu by remember { mutableStateOf(false) }
     var showItemFilterDialog by remember { mutableStateOf(false) }
     var showItemOptionsMenu by remember { mutableStateOf(false) }
@@ -238,7 +240,7 @@ fun DashboardScreen(
                                                 when (item.title) {
                                                     "Parties" -> navController.navigate(Screen.Parties.route)
                                                     "Items" -> navController.navigate(Screen.Items.route)
-                                                    "Business Dashboard" -> navController.navigate(Screen.Dashboard.route)
+                                                    "Business Dashboard" -> navController.navigate(Screen.AnalyticsDashboard.route)
                                                     "Reports" -> navController.navigate(Screen.Reports.route)
                                                     "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
                                                     "Expense" -> navController.navigate(Screen.Expenses.route)
@@ -311,7 +313,13 @@ fun DashboardScreen(
                                                         "Import Data" -> navController.navigate(Screen.ImportData.route)
                                                         "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
                                                         "FAQs" -> navController.navigate(Screen.About.route)
-                                                        "Contact Support" -> navController.navigate(Screen.About.route)
+                                                        "Contact Support" -> {
+                                                            val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
+                                                                data = android.net.Uri.parse("mailto:support@mimogstbilling.com")
+                                                                putExtra(android.content.Intent.EXTRA_SUBJECT, "Support Request - Mimo GST Billing")
+                                                            }
+                                                            context.startActivity(emailIntent)
+                                                        }
                                                     }
                                                 }
                                                 .padding(start = 52.dp, end = 16.dp, top = 10.dp, bottom = 10.dp),
@@ -401,7 +409,7 @@ fun DashboardScreen(
                     ) {
                         // You'll Get Card
                         Card(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(Screen.DayBookReport.route) },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -436,7 +444,7 @@ fun DashboardScreen(
                         }
                         // Sale (Month) Card
                         Card(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f).clickable { navController.navigate(Screen.DayBookReport.route) },
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = VyaparWhite),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -570,13 +578,13 @@ fun DashboardScreen(
                                     Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                                 }
                                 DropdownMenu(expanded = showPartyOptionsMenu, onDismissRequest = { showPartyOptionsMenu = false }) {
-                                    DropdownMenuItem(text = { Text("Edit Party") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.AddParty.route) })
+                                    DropdownMenuItem(text = { Text("Edit Party") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.EditParty.createRoute(partyBalance.party.id)) })
                                     DropdownMenuItem(text = { Text("WhatsApp") }, onClick = {
                                         showPartyOptionsMenu = false
                                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; setPackage("com.whatsapp") }
                                         context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
                                     })
-                                    DropdownMenuItem(text = { Text("View Statement") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.Parties.route) })
+                                    DropdownMenuItem(text = { Text("View Statement") }, onClick = { showPartyOptionsMenu = false; android.widget.Toast.makeText(context, "Tap a party to view their statement", android.widget.Toast.LENGTH_SHORT).show() })
                                 }
                             }
                         }
@@ -626,15 +634,42 @@ fun DashboardScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Spacer(modifier = Modifier.height(3.dp))
-                                        val dateStr = try {
-                                            val invoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id }
-                                            if (invoices.isNotEmpty()) {
-                                                val sdf = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US)
-                                                sdf.format(java.util.Date(invoices.maxByOrNull { it.invoiceDate }?.invoiceDate ?: System.currentTimeMillis()))
-                                            } else ""
-                                        } catch (_: Exception) { "" }
-                                        if (dateStr.isNotBlank()) {
-                                            Text(dateStr, fontSize = 13.sp, color = VyaparTextSecondary)
+                                        val partyInvoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id }
+                                        val avgQuarterly = remember(partyInvoices) {
+                                            if (partyInvoices.isEmpty()) 0.0
+                                            else {
+                                                val cal = java.util.Calendar.getInstance()
+                                                val now = System.currentTimeMillis()
+                                                cal.timeInMillis = now
+                                                val currentYear = cal.get(java.util.Calendar.YEAR)
+                                                val currentQuarter = cal.get(java.util.Calendar.MONTH) / 3
+                                                val quarterStart = java.util.Calendar.getInstance().apply {
+                                                    set(currentYear, currentQuarter * 3, 1, 0, 0, 0)
+                                                    set(java.util.Calendar.MILLISECOND, 0)
+                                                }.timeInMillis
+                                                val quarterInvoices = partyInvoices.filter { it.invoiceDate >= quarterStart }
+                                                val totalInQuarter = quarterInvoices.sumOf { it.totalAmount }
+                                                val monthsElapsed = (currentQuarter * 3) + cal.get(java.util.Calendar.DAY_OF_MONTH) / 30.0 + 1
+                                                if (monthsElapsed > 0) totalInQuarter / (monthsElapsed / 3.0) else totalInQuarter
+                                            }
+                                        }
+                                        if (avgQuarterly > 0) {
+                                            Text(
+                                                "Avg/Quarter: ${String.format(java.util.Locale.US, "\u20B9%,.0f", avgQuarterly)}",
+                                                fontSize = 12.sp,
+                                                color = VyaparBlue,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                        } else {
+                                            val dateStr = try {
+                                                if (partyInvoices.isNotEmpty()) {
+                                                    val sdf = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US)
+                                                    sdf.format(java.util.Date(partyInvoices.maxByOrNull { it.invoiceDate }?.invoiceDate ?: System.currentTimeMillis()))
+                                                } else ""
+                                            } catch (_: Exception) { "" }
+                                            if (dateStr.isNotBlank()) {
+                                                Text(dateStr, fontSize = 13.sp, color = VyaparTextSecondary)
+                                            }
                                         }
                                     }
                                     Column(horizontalAlignment = Alignment.End) {
@@ -686,7 +721,14 @@ fun DashboardScreen(
                         }
                     }
 
-                    if (data.recentInvoices.isEmpty()) {
+                    val filteredInvoices = when(transactionFilterType) {
+                        "sales" -> data.recentInvoices.filter { it.invoiceType == "sales" }
+                        "purchases" -> data.recentInvoices.filter { it.invoiceType == "purchase" }
+                        "expenses" -> emptyList()
+                        else -> data.recentInvoices
+                    }
+
+                    if (filteredInvoices.isEmpty()) {
                         item {
                             Column(
                                 modifier = Modifier.fillMaxWidth().padding(40.dp),
@@ -700,7 +742,7 @@ fun DashboardScreen(
                             }
                         }
                     } else {
-                        items(data.recentInvoices) { invoice ->
+                        items(filteredInvoices) { invoice ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -809,7 +851,13 @@ fun DashboardScreen(
                                                     val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, shareText); setPackage("com.whatsapp") }
                                                     context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
                                                 })
-                                                DropdownMenuItem(text = { Text("Delete") }, onClick = { showInvoiceOptionsMenu = false; scope.launch { snackbarHostState.showSnackbar("Invoice deleted") } })
+                                                DropdownMenuItem(text = { Text("Delete", color = RedAccent) }, onClick = {
+                                                    showInvoiceOptionsMenu = false
+                                                    scope.launch {
+                                                        viewModel.deleteInvoice(invoice.id)
+                                                        snackbarHostState.showSnackbar("Invoice deleted")
+                                                    }
+                                                })
                                             }
                                         }
                                     }
@@ -853,13 +901,24 @@ fun DashboardScreen(
                                     Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                                 }
                                 DropdownMenu(expanded = showItemOptionsMenu, onDismissRequest = { showItemOptionsMenu = false }) {
-                                    DropdownMenuItem(text = { Text("Edit Item") }, onClick = { showItemOptionsMenu = false; navController.navigate(Screen.AddItem.route) })
+                                    DropdownMenuItem(text = { Text("Edit Item") }, onClick = { showItemOptionsMenu = false; navController.navigate(Screen.AddItem.route); android.widget.Toast.makeText(context, "Create a new item to edit details", android.widget.Toast.LENGTH_SHORT).show() })
                                     DropdownMenuItem(text = { Text("Share") }, onClick = {
                                         showItemOptionsMenu = false
-                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; setPackage("com.whatsapp") }
+                                        val shareText = data.recentItems.joinToString("\n") { "${it.name} - ₹${String.format(Locale.US, "%,.2f", it.salePrice)} (${String.format(Locale.US, "%.1f", it.stockQuantity)} in stock)" }
+                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                            type = "text/plain"
+                                            putExtra(android.content.Intent.EXTRA_TEXT, shareText)
+                                            setPackage("com.whatsapp")
+                                        }
                                         context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
                                     })
-                                    DropdownMenuItem(text = { Text("Delete") }, onClick = { showItemOptionsMenu = false; scope.launch { snackbarHostState.showSnackbar("Item deleted") } })
+                                    DropdownMenuItem(text = { Text("Delete", color = RedAccent) }, onClick = {
+                                        showItemOptionsMenu = false
+                                        scope.launch {
+                                            viewModel.deleteItem(item.id)
+                                            snackbarHostState.showSnackbar("Item deleted")
+                                        }
+                                    })
                                 }
                             }
                         }
@@ -869,7 +928,7 @@ fun DashboardScreen(
                     if (showManufacturingBanner) {
                     item {
                         Card(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                            modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Screen.Manufacturing.route) }.padding(horizontal = 16.dp, vertical = 4.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = VyaparInfoBackground)
                         ) {
@@ -899,12 +958,16 @@ fun DashboardScreen(
                     }
 
                     // Items List
-                    val filteredItems = if (itemSearchQuery.isEmpty()) {
-                        data.recentItems
-                    } else {
-                        data.recentItems.filter {
+                    val filteredItems = data.recentItems.let { items ->
+                        val searchFiltered = if (itemSearchQuery.isEmpty()) items else items.filter {
                             it.name.contains(itemSearchQuery, ignoreCase = true) ||
                             it.hsnCode?.contains(itemSearchQuery, ignoreCase = true) == true
+                        }
+                        when(itemFilterType) {
+                            "in_stock" -> searchFiltered.filter { it.stockQuantity > 10 }
+                            "low_stock" -> searchFiltered.filter { it.stockQuantity in 1.0..10.0 }
+                            "out_of_stock" -> searchFiltered.filter { it.stockQuantity <= 0 }
+                            else -> searchFiltered
                         }
                     }
 
@@ -1004,9 +1067,10 @@ fun DashboardScreen(
             onDismiss = { showTransactionSheet = false },
             onSelect = { transactionType ->
                 when (transactionType) {
-                    "sale_invoice", "sale_order", "estimate", "mobile_pos" -> {
+                    "sale_invoice", "estimate", "mobile_pos" -> {
                         navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "sales"))
                     }
+                    "sale_order" -> navController.navigate(Screen.CreateOrder.createRoute(orderType = "sale"))
                     "credit_note" -> navController.navigate(Screen.CreditNote.route)
                     "delivery_challan" -> navController.navigate(Screen.DeliveryChallan.route)
                     "payment_in" -> navController.navigate(Screen.CashBank.route)
@@ -1029,7 +1093,16 @@ fun DashboardScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("All", "Sales", "Purchases", "Payments", "Expenses").forEach { type ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { showTransactionFilterDialog = false; scope.launch { snackbarHostState.showSnackbar("Filtered: $type") } }.padding(vertical = 8.dp),
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                transactionFilterType = when (type) {
+                                    "Sales" -> "sales"
+                                    "Purchases" -> "purchases"
+                                    "Expenses" -> "expenses"
+                                    "Payments" -> "payments"
+                                    else -> "all"
+                                }
+                                showTransactionFilterDialog = false
+                            }.padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Filled.Circle, contentDescription = null, tint = Primary, modifier = Modifier.size(8.dp))
@@ -1051,7 +1124,15 @@ fun DashboardScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("All Items", "In Stock", "Low Stock", "Out of Stock", "With Tax", "Without Tax").forEach { type ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().clickable { showItemFilterDialog = false; scope.launch { snackbarHostState.showSnackbar("Filtered: $type") } }.padding(vertical = 8.dp),
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                itemFilterType = when (type) {
+                                    "In Stock" -> "in_stock"
+                                    "Low Stock" -> "low_stock"
+                                    "Out of Stock" -> "out_of_stock"
+                                    else -> "all"
+                                }
+                                showItemFilterDialog = false
+                            }.padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(Icons.Filled.Circle, contentDescription = null, tint = Primary, modifier = Modifier.size(8.dp))

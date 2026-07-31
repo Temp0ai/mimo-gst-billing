@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import kotlinx.coroutines.launch
 
@@ -117,7 +118,7 @@ fun MultiFirmSettingsScreen(
                 }
 
                 Button(
-                    onClick = { scope.launch { snackbarHostState.showSnackbar("Add new firm feature coming soon") } },
+                    onClick = { navController.navigate(Screen.CompanySwitch.route) },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)

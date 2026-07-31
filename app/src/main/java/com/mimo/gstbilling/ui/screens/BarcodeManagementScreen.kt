@@ -169,14 +169,24 @@ fun BarcodeManagementScreen(
                     Text("Generate", fontWeight = FontWeight.SemiBold)
                 }
                 Button(
-                    onClick = { scope.launch { snackbarHostState.showSnackbar("Print feature coming soon") } },
+                    onClick = {
+                        if (barcodes.isNotEmpty()) {
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(Intent.EXTRA_TEXT, "Barcode: ${barcodes.last()} (${itemName})")
+                            }
+                            context.startActivity(Intent.createChooser(intent, "Share Barcode"))
+                        } else {
+                            scope.launch { snackbarHostState.showSnackbar("Generate a barcode first") }
+                        }
+                    },
                     modifier = Modifier.weight(1f).height(52.dp),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Primary)
                 ) {
-                    Icon(Icons.Filled.Print, contentDescription = null)
+                    Icon(Icons.Filled.Share, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Print", fontWeight = FontWeight.Bold)
+                    Text("Share", fontWeight = FontWeight.Bold)
                 }
             }
 

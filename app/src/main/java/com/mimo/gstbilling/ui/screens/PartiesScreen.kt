@@ -209,7 +209,30 @@ fun PartiesScreen(
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(dateFormat.format(Date(party.createdAt)), fontSize = 12.sp, color = VyaparTextSecondary)
+                            val partyInvoices = remember { invoices.filter { it.partyId == party.id } }
+                            val avgQuarterly = remember(partyInvoices) {
+                                if (partyInvoices.isEmpty()) 0.0
+                                else {
+                                    val cal = java.util.Calendar.getInstance()
+                                    val now = System.currentTimeMillis()
+                                    cal.timeInMillis = now
+                                    val currentYear = cal.get(java.util.Calendar.YEAR)
+                                    val currentQuarter = cal.get(java.util.Calendar.MONTH) / 3
+                                    val quarterStart = java.util.Calendar.getInstance().apply {
+                                        set(currentYear, currentQuarter * 3, 1, 0, 0, 0)
+                                        set(java.util.Calendar.MILLISECOND, 0)
+                                    }.timeInMillis
+                                    val quarterInvoices = partyInvoices.filter { it.invoiceDate >= quarterStart }
+                                    val totalInQuarter = quarterInvoices.sumOf { it.totalAmount }
+                                    val monthsElapsed = (currentQuarter * 3) + cal.get(java.util.Calendar.DAY_OF_MONTH) / 30.0 + 1
+                                    if (monthsElapsed > 0) totalInQuarter / (monthsElapsed / 3.0) else totalInQuarter
+                                }
+                            }
+                            if (avgQuarterly > 0) {
+                                Text("Avg/Quarter: ${String.format(Locale.US, "\u20B9%,.0f", avgQuarterly)}", fontSize = 12.sp, color = VyaparBlue, fontWeight = FontWeight.Medium)
+                            } else {
+                                Text(dateFormat.format(Date(party.createdAt)), fontSize = 12.sp, color = VyaparTextSecondary)
+                            }
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(

@@ -222,10 +222,28 @@ fun PrintSettingsScreen(navController: NavController) {
             OutlinedButton(
                 onClick = { scope.launch {
                     try {
-                        val pdfFile = java.io.File(context.cacheDir, "test_invoice.pdf")
-                        val outputStream = pdfFile.outputStream()
-                        outputStream.write("Test Invoice\nMimo GST Billing\nDate: ${java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date())}\n\nThis is a test print page.\n".toByteArray())
-                        outputStream.close()
+                        val pageWidth = 595
+                        val pageHeight = 842
+                        val doc = android.graphics.pdf.PdfDocument()
+                        val pageInfo = android.graphics.pdf.PdfDocument.PageInfo.Builder(pageWidth, pageHeight, 1).create()
+                        val page = doc.startPage(pageInfo)
+                        val canvas = page.canvas
+                        val titlePaint = android.graphics.Paint().apply { textSize = 24f; isFakeBoldText = true; color = android.graphics.Color.BLACK }
+                        val bodyPaint = android.graphics.Paint().apply { textSize = 14f; color = android.graphics.Color.DKGRAY }
+                        val lightPaint = android.graphics.Paint().apply { textSize = 11f; color = android.graphics.Color.GRAY }
+                        canvas.drawText("Mimo GST Billing", 40f, 60f, titlePaint)
+                        canvas.drawText("Print Test Page", 40f, 90f, bodyPaint)
+                        canvas.drawText("Date: ${java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.US).format(java.util.Date())}", 40f, 120f, bodyPaint)
+                        canvas.drawLine(40f, 140f, 555f, 140f, android.graphics.Paint().apply { color = android.graphics.Color.LTGRAY; strokeWidth = 1f })
+                        canvas.drawText("Format: $printFormat", 40f, 170f, bodyPaint)
+                        canvas.drawText("Paper: $paperSize  |  Orientation: $orientation", 40f, 195f, bodyPaint)
+                        canvas.drawText("Copies: $showCopies", 40f, 220f, bodyPaint)
+                        canvas.drawText("This is a test print page to verify your printer settings.", 40f, 260f, bodyPaint)
+                        canvas.drawText("If you can see this, your print configuration is working correctly.", 40f, 285f, bodyPaint)
+                        doc.finishPage(page)
+                        val pdfFile = java.io.File(context.cacheDir, "test_print.pdf")
+                        doc.writeTo(pdfFile.outputStream())
+                        doc.close()
                         val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", pdfFile)
                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                             type = "application/pdf"
@@ -234,7 +252,7 @@ fun PrintSettingsScreen(navController: NavController) {
                         }
                         context.startActivity(android.content.Intent.createChooser(intent, "Print Test Page"))
                     } catch (e: Exception) {
-                        snackbarHostState.showSnackbar("Unable to generate test page")
+                        snackbarHostState.showSnackbar("Unable to generate test page: ${e.message}")
                     }
                 } },
                 modifier = Modifier

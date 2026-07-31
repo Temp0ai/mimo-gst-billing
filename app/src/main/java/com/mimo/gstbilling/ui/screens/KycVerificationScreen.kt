@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 import kotlinx.coroutines.launch
@@ -35,7 +37,15 @@ fun KycVerificationScreen(
     var documentNumber by remember { mutableStateOf("") }
     var docStatus by remember { mutableStateOf("pending") }
     var expanded by remember { mutableStateOf(false) }
+    var documentUri by remember { mutableStateOf<android.net.Uri?>(null) }
     val docTypes = listOf("PAN", "GSTIN", "Aadhaar", "Bank Account")
+
+    val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            documentUri = uri
+            scope.launch { snackbarHostState.showSnackbar("Document uploaded successfully") }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -171,14 +181,14 @@ fun KycVerificationScreen(
                     )
 
                     Button(
-                        onClick = { scope.launch { snackbarHostState.showSnackbar("Document upload coming soon") } },
+                        onClick = { filePicker.launch(arrayOf("image/*", "application/pdf")) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(containerColor = Primary)
                     ) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Upload Document")
+                        Text(if (documentUri != null) "Document Selected" else "Upload Document")
                     }
 
                     Row(

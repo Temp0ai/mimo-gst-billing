@@ -66,6 +66,20 @@ class DashboardViewModel @Inject constructor(
         loadDashboardData()
     }
 
+    fun deleteInvoice(invoiceId: Long) {
+        viewModelScope.launch {
+            invoiceDao.getInvoiceById(invoiceId)?.let { invoiceDao.deleteInvoice(it) }
+            refresh()
+        }
+    }
+
+    fun deleteItem(itemId: Long) {
+        viewModelScope.launch {
+            itemDao.getItemById(itemId)?.let { itemDao.deleteItem(it) }
+            refresh()
+        }
+    }
+
     private fun loadDashboardData() {
         viewModelScope.launch {
             companyDao.getSelectedCompany().collect { company ->

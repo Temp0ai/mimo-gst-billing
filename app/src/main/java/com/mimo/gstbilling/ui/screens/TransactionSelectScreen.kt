@@ -28,6 +28,11 @@ fun TransactionSelectScreen(
 ) {
     var isSale by remember { mutableStateOf(true) }
     var searchQuery by remember { mutableStateOf("") }
+    var showFilterDialog by remember { mutableStateOf(false) }
+    var filterMinAmount by remember { mutableStateOf("") }
+    var filterMaxAmount by remember { mutableStateOf("") }
+    var filterDateFrom by remember { mutableStateOf("") }
+    var filterDateTo by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -57,7 +62,7 @@ fun TransactionSelectScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { scope.launch { snackbarHostState.showSnackbar("Filter coming soon") } }) {
+                    IconButton(onClick = { showFilterDialog = true }) {
                         Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = TextPrimary)
                     }
                 },
@@ -150,5 +155,54 @@ fun TransactionSelectScreen(
 
             Spacer(modifier = Modifier.height(72.dp))
         }
+    }
+
+    if (showFilterDialog) {
+        AlertDialog(
+            onDismissRequest = { showFilterDialog = false },
+            title = { Text("Filter Transactions", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    OutlinedTextField(
+                        value = filterMinAmount, onValueChange = { filterMinAmount = it },
+                        label = { Text("Min Amount") }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Divider)
+                    )
+                    OutlinedTextField(
+                        value = filterMaxAmount, onValueChange = { filterMaxAmount = it },
+                        label = { Text("Max Amount") }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Divider)
+                    )
+                    OutlinedTextField(
+                        value = filterDateFrom, onValueChange = { filterDateFrom = it },
+                        label = { Text("Date From (DD/MM/YYYY)") }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Divider)
+                    )
+                    OutlinedTextField(
+                        value = filterDateTo, onValueChange = { filterDateTo = it },
+                        label = { Text("Date To (DD/MM/YYYY)") }, modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Primary, unfocusedBorderColor = Divider)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showFilterDialog = false
+                    scope.launch { snackbarHostState.showSnackbar("Filters applied") }
+                }, colors = ButtonDefaults.buttonColors(containerColor = Primary)) {
+                    Text("Apply")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    filterMinAmount = ""; filterMaxAmount = ""; filterDateFrom = ""; filterDateTo = ""
+                    showFilterDialog = false
+                }) { Text("Clear") }
+            }
+        )
     }
 }
