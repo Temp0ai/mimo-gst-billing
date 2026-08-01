@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.graphics.pdf.PdfDocument
+import android.net.Uri
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -669,8 +670,22 @@ object PdfGenerator {
         context.startActivity(Intent.createChooser(intent, "Share Invoice"))
     }
 
-    fun sharePdfToWhatsApp(context: Context, file: File) {
+    fun sharePdfToWhatsApp(context: Context, file: File, phoneNumber: String? = null) {
         val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val cleanPhone = phoneNumber?.replace("[^0-9+]".toRegex(), "")
+        if (!cleanPhone.isNullOrBlank() && cleanPhone.length >= 10) {
+            val intent = Intent(Intent.ACTION_SEND).apply {
+                type = "application/pdf"
+                putExtra(Intent.EXTRA_STREAM, uri)
+                putExtra("jid", "$cleanPhone@s.whatsapp.net")
+                setPackage("com.whatsapp")
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            try {
+                context.startActivity(intent)
+                return
+            } catch (_: Exception) { }
+        }
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "application/pdf"
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -681,6 +696,46 @@ object PdfGenerator {
             context.startActivity(intent)
         } catch (e: Exception) {
             sharePdf(context, file)
+        }
+    }
+
+    fun sharePdfViaEmail(context: Context, file: File, emailAddress: String?, subject: String = "Invoice") {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            if (!emailAddress.isNullOrBlank()) {
+                putExtra(Intent.EXTRA_EMAIL, arrayOf(emailAddress))
+            }
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(intent, "Send Invoice via Email"))
+    }
+
+    fun shareTextToWhatsApp(context: Context, text: String, phoneNumber: String? = null) {
+        val cleanPhone = phoneNumber?.replace("[^0-9+]".toRegex(), "")
+        if (!cleanPhone.isNullOrBlank() && cleanPhone.length >= 10) {
+            val url = "https://wa.me/$cleanPhone?text=${Uri.encode(text)}"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            try {
+                context.startActivity(intent)
+                return
+            } catch (_: Exception) { }
+        }
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, text)
+            setPackage("com.whatsapp")
+        }
+        try {
+            context.startActivity(intent)
+        } catch (_: Exception) {
+            val fallback = Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+            }
+            context.startActivity(Intent.createChooser(fallback, "Share"))
         }
     }
 

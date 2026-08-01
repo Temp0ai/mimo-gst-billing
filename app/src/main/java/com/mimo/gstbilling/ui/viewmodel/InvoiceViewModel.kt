@@ -15,6 +15,7 @@ data class InvoiceUiState(
     val partyId: Long = 0L,
     val partyName: String = "",
     val partyPhone: String = "",
+    val partyEmail: String = "",
     val invoiceNumber: String = "",
     val invoiceDate: Long = System.currentTimeMillis(),
     val items: List<InvoiceItemModel> = emptyList(),
@@ -97,7 +98,7 @@ class InvoiceViewModel @Inject constructor(
     fun setParty(partyId: Long, name: String, phone: String) {
         viewModelScope.launch {
             val party = partyDao.getPartyById(partyId)
-            _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone, partyBalance = party?.balance ?: 0.0) }
+            _uiState.update { it.copy(partyId = partyId, partyName = name, partyPhone = phone, partyEmail = party?.email ?: "", partyBalance = party?.balance ?: 0.0) }
         }
     }
 

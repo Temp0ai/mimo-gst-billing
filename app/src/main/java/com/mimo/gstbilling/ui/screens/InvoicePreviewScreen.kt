@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -113,14 +114,32 @@ fun InvoicePreviewScreen(
                                 context, inv, invoiceItems, company, party,
                                 isThermal = false, templateStyle = selectedStyle
                             )
-                            PdfGenerator.sharePdf(context, file)
+                            PdfGenerator.sharePdfToWhatsApp(context, file, party?.phone)
                         }
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
                 ) {
-                    Text("Share PDF", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+                Button(
+                    onClick = {
+                        invoice?.let { inv ->
+                            val file = PdfGenerator.generateInvoicePdf(
+                                context, inv, invoiceItems, company, party,
+                                isThermal = false, templateStyle = selectedStyle
+                            )
+                            PdfGenerator.sharePdfViaEmail(context, file, party?.email, "Invoice #${inv.invoiceNumber}")
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                ) {
+                    Icon(Icons.Filled.Email, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
                 Button(
                     onClick = {
@@ -136,7 +155,7 @@ fun InvoicePreviewScreen(
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)
                 ) {
-                    Text("Print", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Print", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
             }
         }

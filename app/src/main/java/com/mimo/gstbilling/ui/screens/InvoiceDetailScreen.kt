@@ -269,7 +269,7 @@ fun InvoiceDetailScreen(
                             val format = PdfGenerator.getPrintFormat(context)
                             val isThermal = PdfGenerator.isThermal(format)
                             val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
-                            PdfGenerator.sharePdfToWhatsApp(context, file)
+                            PdfGenerator.sharePdfToWhatsApp(context, file, party?.phone)
                         }
                     },
                     modifier = Modifier.weight(1f),
@@ -277,6 +277,23 @@ fun InvoiceDetailScreen(
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
                 ) {
                     Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                }
+                Button(
+                    onClick = {
+                        invoice?.let { inv ->
+                            val format = PdfGenerator.getPrintFormat(context)
+                            val isThermal = PdfGenerator.isThermal(format)
+                            val file = PdfGenerator.generateInvoicePdf(context, inv, invoiceItems, null, party, isThermal = isThermal)
+                            PdfGenerator.sharePdfViaEmail(context, file, party?.email, "Invoice #${inv.invoiceNumber}")
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))
+                ) {
+                    Icon(Icons.Filled.Email, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
                 Button(
                     onClick = {
@@ -294,31 +311,6 @@ fun InvoiceDetailScreen(
                     Icon(Icons.Filled.Print, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Print", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                }
-                Button(
-                    onClick = {
-                        invoice?.let { inv ->
-                            val message = buildString {
-                                append("Hi ${partyName},\n")
-                                append("Invoice #${inv.invoiceNumber}\n")
-                                append("Date: ${dateFormat.format(Date(inv.invoiceDate))}\n\n")
-                                invoiceItems.forEach { item ->
-                                    append("• ${item.itemName}: ₹${String.format(Locale.US, "%,.2f", item.totalAmount)}\n")
-                                }
-                                append("\nTotal: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount)}\n")
-                                append("Balance: ₹${String.format(Locale.US, "%,.2f", inv.totalAmount - inv.amountPaid)}\n\n")
-                                append("Please make payment at your earliest. Thank you!")
-                            }
-                            val encoded = Uri.encode(message)
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/?text=$encoded"))
-                            context.startActivity(intent)
-                        }
-                    },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF08BD7C))
-                ) {
-                    Text("Reminder", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                 }
             }
         }

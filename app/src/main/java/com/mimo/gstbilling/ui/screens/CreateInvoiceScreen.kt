@@ -206,12 +206,24 @@ fun CreateInvoiceScreen(
                         Button(onClick = {
                             showPostSaveDialog = false; scope.launch {
                                 val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
-                                if (inv != null) { val items = viewModel.getItemsForInvoice(inv.id); val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false); PdfGenerator.sharePdf(context, file) }
+                                if (inv != null) { val items = viewModel.getItemsForInvoice(inv.id); val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false); PdfGenerator.sharePdfToWhatsApp(context, file, uiState.partyPhone) }
                                 viewModel.resetState(); navController.popBackStack()
                             }
                         }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))) {
                             Text("WhatsApp", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
                         }
+                        Button(onClick = {
+                            showPostSaveDialog = false; scope.launch {
+                                val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
+                                if (inv != null) { val items = viewModel.getItemsForInvoice(inv.id); val file = PdfGenerator.generateInvoicePdf(context, inv, items, null, isThermal = false); PdfGenerator.sharePdfViaEmail(context, file, uiState.partyEmail, "Invoice #${inv.invoiceNumber}") }
+                                viewModel.resetState(); navController.popBackStack()
+                            }
+                        }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1976D2))) {
+                            Text("Email", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = {
                             showPostSaveDialog = false; scope.launch {
                                 val inv = viewModel.getInvoiceByIdDirect(savedInvoiceId!!)
