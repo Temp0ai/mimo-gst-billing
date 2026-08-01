@@ -315,9 +315,9 @@ fun DashboardScreen(
                                                         "FAQs" -> navController.navigate(Screen.About.route)
                                                         "Contact Support" -> {
                                                             val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
-                                                                data = android.net.Uri.parse("mailto:support@mimogstbilling.com")
                                                                 putExtra(android.content.Intent.EXTRA_SUBJECT, "Support Request - Mimo GST Billing")
                                                             }
+                                                            emailIntent.data = android.net.Uri.parse("mailto:support@mimogstbilling.com")
                                                             context.startActivity(emailIntent)
                                                         }
                                                     }
@@ -573,20 +573,6 @@ fun DashboardScreen(
                                     .clickable { navController.navigate(Screen.AddParty.route) }
                                     .padding(horizontal = 8.dp, vertical = 4.dp)
                             )
-                            Box {
-                                IconButton(onClick = { showPartyOptionsMenu = true }) {
-                                    Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
-                                }
-                                DropdownMenu(expanded = showPartyOptionsMenu, onDismissRequest = { showPartyOptionsMenu = false }) {
-                                    DropdownMenuItem(text = { Text("Edit Party") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.EditParty.createRoute(partyBalance.party.id)) })
-                                    DropdownMenuItem(text = { Text("WhatsApp") }, onClick = {
-                                        showPartyOptionsMenu = false
-                                        val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; setPackage("com.whatsapp") }
-                                        context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
-                                    })
-                                    DropdownMenuItem(text = { Text("View Statement") }, onClick = { showPartyOptionsMenu = false; android.widget.Toast.makeText(context, "Tap a party to view their statement", android.widget.Toast.LENGTH_SHORT).show() })
-                                }
-                            }
                         }
                     }
 
@@ -685,6 +671,23 @@ fun DashboardScreen(
                                             fontSize = 12.sp,
                                             color = if (partyBalance.isReceivable) VyaparGreen else VyaparRed
                                         )
+                                    }
+                                    Box {
+                                        IconButton(onClick = { showPartyOptionsMenu = true }) {
+                                            Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
+                                        }
+                                        DropdownMenu(expanded = showPartyOptionsMenu, onDismissRequest = { showPartyOptionsMenu = false }) {
+                                            DropdownMenuItem(text = { Text("Edit Party") }, onClick = { showPartyOptionsMenu = false; navController.navigate(Screen.EditParty.createRoute(partyBalance.party.id)) })
+                                            DropdownMenuItem(text = { Text("WhatsApp") }, onClick = {
+                                                showPartyOptionsMenu = false
+                                                val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply { type = "text/plain"; putExtra(android.content.Intent.EXTRA_TEXT, "Hello ${partyBalance.party.name}!"); setPackage("com.whatsapp") }
+                                                context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                                            })
+                                            DropdownMenuItem(text = { Text("View Statement") }, onClick = {
+                                                showPartyOptionsMenu = false
+                                                navController.navigate(Screen.PartyStatement.createRoute(partyBalance.party.id))
+                                            })
+                                        }
                                     }
                                 }
                                 HorizontalDivider(color = VyaparDivider, thickness = 0.5.dp)
@@ -985,11 +988,11 @@ fun DashboardScreen(
                             }
                         }
                     } else {
-                        items(filteredItems) { item ->
+                        items(filteredItems) { itemEntity ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { navController.navigate(Screen.ItemDetail.createRoute(item.id)) }
+                                    .clickable { navController.navigate(Screen.ItemDetail.createRoute(itemEntity.id)) }
                                     .padding(horizontal = 16.dp, vertical = 0.dp)
                             ) {
                                 Row(
@@ -998,7 +1001,7 @@ fun DashboardScreen(
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            item.name,
+                                            itemEntity.name,
                                             fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = VyaparTextPrimary,
@@ -1007,7 +1010,7 @@ fun DashboardScreen(
                                         )
                                     }
                                     IconButton(onClick = {
-                                        val shareText = "${item.name} - ₹${String.format(Locale.US, "%,.2f", item.salePrice)}"
+                                        val shareText = "${itemEntity.name} - ₹${String.format(Locale.US, "%,.2f", itemEntity.salePrice)}"
                                         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
                                             type = "text/plain"
                                             putExtra(android.content.Intent.EXTRA_TEXT, shareText)
@@ -1025,7 +1028,7 @@ fun DashboardScreen(
                                     Column {
                                         Text("Sale Price", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
-                                            String.format(Locale.US, "\u20B9%,.2f", item.salePrice),
+                                            String.format(Locale.US, "\u20B9%,.2f", itemEntity.salePrice),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = VyaparTextPrimary
@@ -1034,7 +1037,7 @@ fun DashboardScreen(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text("Purchase Price", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
-                                            String.format(Locale.US, "\u20B9%,.2f", item.purchasePrice),
+                                            String.format(Locale.US, "\u20B9%,.2f", itemEntity.purchasePrice),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = VyaparTextPrimary
@@ -1043,10 +1046,10 @@ fun DashboardScreen(
                                     Column(horizontalAlignment = Alignment.End) {
                                         Text("In Stock", fontSize = 12.sp, color = VyaparTextSecondary)
                                         Text(
-                                            String.format(Locale.US, "%.1f", item.stockQuantity),
+                                            String.format(Locale.US, "%.1f", itemEntity.stockQuantity),
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (item.stockQuantity < 0) VyaparRed else VyaparTextPrimary
+                                            color = if (itemEntity.stockQuantity < 0) VyaparRed else VyaparTextPrimary
                                         )
                                     }
                                 }
