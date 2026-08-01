@@ -299,7 +299,7 @@ fun GstinVerifyScreen(
 }
 
 @Composable
-private fun GstinGstinDetailRow(label: String, value: String) {
+private fun GstinDetailRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
