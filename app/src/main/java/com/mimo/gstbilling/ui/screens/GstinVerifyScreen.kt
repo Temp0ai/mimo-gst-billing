@@ -1,6 +1,7 @@
 package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -258,23 +259,23 @@ fun GstinVerifyScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Recent Verifications", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = VyaparTextPrimary)
                 Spacer(modifier = Modifier.height(8.dp))
-                recentVerifications.take(5).forEach { res ->
+                recentVerifications.take(5).forEach { recentRes ->
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        onClick = {
-                            gstinInput = res.gstin
-                            result = res
-                        }
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.padding(12.dp)
+                                .clickable {
+                                    gstinInput = recentRes.gstin
+                                    result = recentRes
+                                },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             val dotColor = when {
-                                res.isFullyValid && res.isLive == true -> VyaparGreen
-                                res.isFullyValid -> Color(0xFFFF9800)
+                                recentRes.isFullyValid && recentRes.isLive == true -> VyaparGreen
+                                recentRes.isFullyValid -> Color(0xFFFF9800)
                                 else -> VyaparRed
                             }
                             Box(
@@ -285,8 +286,8 @@ fun GstinVerifyScreen(
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(res.gstin, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextPrimary)
-                                Text(res.displayStatus, fontSize = 12.sp, color = VyaparTextSecondary)
+                                Text(recentRes.gstin, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparTextPrimary)
+                                Text(recentRes.displayStatus, fontSize = 12.sp, color = VyaparTextSecondary)
                             }
                             Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = VyaparTextSecondary, modifier = Modifier.size(20.dp))
                         }
