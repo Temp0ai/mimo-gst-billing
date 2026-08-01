@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -917,10 +918,7 @@ fun DashboardScreen(
                                     })
                                     DropdownMenuItem(text = { Text("Delete", color = RedAccent) }, onClick = {
                                         showItemOptionsMenu = false
-                                        scope.launch {
-                                            viewModel.deleteItem(item.id)
-                                            snackbarHostState.showSnackbar("Item deleted")
-                                        }
+                                        android.widget.Toast.makeText(context, "Long-press an item to delete it", android.widget.Toast.LENGTH_SHORT).show()
                                     })
                                 }
                             }
@@ -992,7 +990,15 @@ fun DashboardScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable { navController.navigate(Screen.ItemDetail.createRoute(itemEntity.id)) }
+                                    .combinedClickable(
+                                        onClick = { navController.navigate(Screen.ItemDetail.createRoute(itemEntity.id)) },
+                                        onLongClick = {
+                                            scope.launch {
+                                                viewModel.deleteItem(itemEntity.id)
+                                                snackbarHostState.showSnackbar("Item deleted")
+                                            }
+                                        }
+                                    )
                                     .padding(horizontal = 16.dp, vertical = 0.dp)
                             ) {
                                 Row(
