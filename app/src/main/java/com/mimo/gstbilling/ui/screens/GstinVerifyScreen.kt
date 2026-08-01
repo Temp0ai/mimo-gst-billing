@@ -225,16 +225,16 @@ fun GstinVerifyScreen(
                         HorizontalDivider(color = VyaparDivider)
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        DetailRow("GSTIN", res.gstin)
-                        res.stateName?.let { DetailRow("State", "${res.stateCode} - $it") }
-                        res.entityType?.let { DetailRow("Entity Type", it) }
-                        res.panNumber.takeIf { it.isNotEmpty() }?.let { DetailRow("PAN", it) }
+                        GstinDetailRow("GSTIN", res.gstin)
+                        res.stateName?.let { GstinDetailRow("State", "${res.stateCode} - $it") }
+                        res.entityType?.let { GstinDetailRow("Entity Type", it) }
+                        res.panNumber.takeIf { it.isNotEmpty() }?.let { GstinDetailRow("PAN", it) }
 
                         if (verifyOnline) {
-                            res.businessName?.let { DetailRow("Business Name", it) }
-                            res.registrationDate?.let { DetailRow("Registration Date", it) }
-                            res.status?.let { DetailRow("GST Status", it) }
-                            res.isLive?.let { DetailRow("Active", if (it) "Yes" else "No") }
+                            res.businessName?.let { GstinDetailRow("Business Name", it) }
+                            res.registrationDate?.let { GstinDetailRow("Registration Date", it) }
+                            res.status?.let { GstinDetailRow("GST Status", it) }
+                            res.isLive?.let { GstinDetailRow("Active", if (it) "Yes" else "No") }
                         }
 
                         if (res.errorMessage != null && res.isFullyValid) {
@@ -299,7 +299,7 @@ fun GstinVerifyScreen(
 }
 
 @Composable
-private fun DetailRow(label: String, value: String) {
+private fun GstinGstinDetailRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween

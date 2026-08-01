@@ -22,8 +22,6 @@ import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.PartyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
