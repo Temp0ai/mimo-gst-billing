@@ -32,6 +32,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 import com.mimo.gstbilling.data.local.entity.ItemVariantEntity
+import com.mimo.gstbilling.utils.HsnDatabase
 import java.io.File
 
 data class VariantFormState(
@@ -58,6 +59,10 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
     var isService by remember { mutableStateOf(false) }
     var showGstMenu by remember { mutableStateOf(false) }
     var showUnitMenu by remember { mutableStateOf(false) }
+    var showHsnSuggestions by remember { mutableStateOf(false) }
+    val hsnSuggestions = remember(itemName) {
+        if (itemName.length >= 2) HsnDatabase.suggestForItem(itemName) else emptyList()
+    }
     val gstOptions = listOf("0", "5", "12", "18", "28")
     val unitOptions = listOf("NOS", "PCS", "KG", "GM", "M", "FT", "L", "ML", "BOX", "SET", "PAIR")
 
@@ -159,7 +164,64 @@ fun AddItemScreen(navController: NavController, viewModel: ItemViewModel = hiltV
             Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VyaparWhite)) {
                 Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(value = itemName, onValueChange = { itemName = it }, label = { Text("Item Name *", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Inventory, contentDescription = null, tint = VyaparBlue) })
-                    OutlinedTextField(value = hsnCode, onValueChange = { hsnCode = it }, label = { Text("HSN Code", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp), singleLine = true, leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = VyaparBlue) })
+
+                    Box {
+                        OutlinedTextField(
+                            value = hsnCode,
+                            onValueChange = { hsnCode = it },
+                            label = { Text("HSN Code", fontSize = 14.sp) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            singleLine = true,
+                            leadingIcon = { Icon(Icons.Filled.Code, contentDescription = null, tint = VyaparBlue) },
+                            trailingIcon = {
+                                if (hsnSuggestions.isNotEmpty() && hsnCode.isEmpty()) {
+                                    IconButton(onClick = { showHsnSuggestions = !showHsnSuggestions }) {
+                                        Icon(Icons.Filled.Lightbulb, contentDescription = "Suggestions", tint = VyaparBlue)
+                                    }
+                                }
+                            }
+                        )
+                        if (hsnSuggestions.isNotEmpty() && (showHsnSuggestions || hsnCode.isEmpty()) && itemName.length >= 2) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth().padding(top = 56.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White)
+                            ) {
+                                Column(modifier = Modifier.padding(8.dp)) {
+                                    Text(
+                                        "HSN Suggestions",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = VyaparBlue,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                    hsnSuggestions.take(5).forEach { entry ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth()
+                                                .clickable {
+                                                    hsnCode = entry.code
+                                                    gstRate = entry.taxRate.toInt().toString()
+                                                    showHsnSuggestions = false
+                                                }
+                                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Column(modifier = Modifier.weight(1f)) {
+                                                Text(entry.code, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary)
+                                                Text(entry.description.take(40), fontSize = 11.sp, color = VyaparTextSecondary, maxLines = 1)
+                                            }
+                                            Column(horizontalAlignment = Alignment.End) {
+                                                Text("${entry.taxRate.toInt()}%", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = VyaparBlue)
+                                                Text(entry.category, fontSize = 10.sp, color = VyaparTextSecondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     ExposedDropdownMenuBox(expanded = showGstMenu, onExpandedChange = { showGstMenu = it }) {
                         OutlinedTextField(value = "$gstRate%", onValueChange = {}, readOnly = true, label = { Text("GST Rate", fontSize = 14.sp) }, modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable), shape = RoundedCornerShape(10.dp), trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = showGstMenu) }, leadingIcon = { Icon(Icons.Filled.Note, contentDescription = null, tint = VyaparBlue) })

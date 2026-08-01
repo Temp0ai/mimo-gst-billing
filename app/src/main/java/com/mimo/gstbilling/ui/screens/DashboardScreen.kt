@@ -3,6 +3,7 @@ package com.mimo.gstbilling.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -75,7 +76,7 @@ data class DrawerMenuItem(
     val hasAddIcon: Boolean = false
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun DashboardScreen(
     navController: NavController,
@@ -116,7 +117,7 @@ fun DashboardScreen(
         DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.Store, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
         DrawerMenuItem("Settings", Icons.Filled.Settings),
-        DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
+        DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("GSTIN Verify", "Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
         DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
         DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Contact Support")),
@@ -309,6 +310,7 @@ fun DashboardScreen(
                                                         "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
                                                         "Backup to e-mail" -> navController.navigate(Screen.ExportData.route)
                                                         "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                        "GSTIN Verify" -> navController.navigate(Screen.GstinVerify.createRoute())
                                                         "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
                                                         "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
                                                         "Import Data" -> navController.navigate(Screen.ImportData.route)

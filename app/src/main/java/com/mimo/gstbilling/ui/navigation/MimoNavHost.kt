@@ -276,6 +276,13 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.BankReconciliationDetail.route) { BankReconciliationDetailScreen(navController) }
         composable(Screen.SmartCategory.route) { SmartCategoryScreen(navController) }
         composable(Screen.OcrScan.route) { OcrScanScreen(navController) }
+        composable(
+            Screen.GstinVerify.route,
+            arguments = listOf(navArgument("gstin") { defaultValue = "" })
+        ) { backStackEntry ->
+            val gstin = backStackEntry.arguments?.getString("gstin") ?: ""
+            GstinVerifyScreen(onBack = { navController.popBackStack() }, preFilledGstin = gstin)
+        }
         composable(Screen.NlCommand.route) { NlCommandScreen(navController) }
         composable(Screen.SmartSearch.route) { SmartSearchScreen(navController) }
         composable(Screen.SmartReconciliation.route) { SmartReconciliationScreen(navController) }
