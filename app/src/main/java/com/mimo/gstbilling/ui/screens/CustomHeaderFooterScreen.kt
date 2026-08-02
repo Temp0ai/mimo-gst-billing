@@ -1,9 +1,9 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,13 +23,14 @@ import com.mimo.gstbilling.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomHeaderFooterScreen(navController: NavController) {
-    var headerText by remember { mutableStateOf("TAX INVOICE") }
-    var footerText by remember { mutableStateOf("Thank you for your business!") }
-    var showHeaderPreview by remember { mutableStateOf(false) }
-    var includeBankDetails by remember { mutableStateOf(true) }
-    var includeTerms by remember { mutableStateOf(true) }
-    var includeSignature by remember { mutableStateOf(true) }
-    var customNote by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("invoice_settings", Context.MODE_PRIVATE) }
+    var headerText by remember { mutableStateOf(prefs.getString("invoice_header", "TAX INVOICE") ?: "TAX INVOICE") }
+    var footerText by remember { mutableStateOf(prefs.getString("invoice_footer", "Thank you for your business!") ?: "Thank you for your business!") }
+    var includeBankDetails by remember { mutableStateOf(prefs.getBoolean("invoice_show_bank_details", true)) }
+    var includeTerms by remember { mutableStateOf(prefs.getBoolean("invoice_show_terms", true)) }
+    var includeSignature by remember { mutableStateOf(prefs.getBoolean("invoice_show_signature", true)) }
+    var customNote by remember { mutableStateOf(prefs.getString("invoice_custom_note", "") ?: "") }
 
     Scaffold(
         topBar = {
@@ -85,7 +87,17 @@ fun CustomHeaderFooterScreen(navController: NavController) {
                 }
             }
             item {
-                Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+                Button(onClick = {
+                    prefs.edit().apply {
+                        putString("invoice_header", headerText)
+                        putString("invoice_footer", footerText)
+                        putBoolean("invoice_show_bank_details", includeBankDetails)
+                        putBoolean("invoice_show_terms", includeTerms)
+                        putBoolean("invoice_show_signature", includeSignature)
+                        putString("invoice_custom_note", customNote)
+                    }.apply()
+                    navController.popBackStack()
+                }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                     Text("Save Settings", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }

@@ -300,5 +300,12 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.LearningHub.route) { LearningHubScreen(navController) }
         composable(Screen.Onboarding.route) { OnboardingScreen(onComplete = { navController.popBackStack() }) }
         composable(Screen.ThemeSwitcher.route) { ThemeSwitcherScreen(navController) }
+        composable(Screen.AiDashboard.route) { AiDashboardScreen(navController) }
+        composable(Screen.AiSmartReminders.route) { AiSmartRemindersScreen(navController) }
+        composable(Screen.AiCashFlow.route) { AiCashFlowScreen(navController) }
+        composable(Screen.AiTaxAdvisor.route) { AiTaxAdvisorScreen(navController) }
+        composable(Screen.AiInsights.route) { AiInsightsScreen(navController) }
+        composable(Screen.AiDuplicates.route) { AiDuplicatesScreen(navController) }
+        composable(Screen.AiAnomalies.route) { AiAnomaliesScreen(navController) }
     }
 }

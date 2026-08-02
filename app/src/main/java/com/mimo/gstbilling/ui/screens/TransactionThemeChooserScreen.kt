@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,9 @@ data class InvoiceTheme(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionThemeChooserScreen(navController: NavController) {
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("invoice_settings", Context.MODE_PRIVATE) }
+    var selectedTheme by remember { mutableStateOf(prefs.getString("invoice_theme", "classic") ?: "classic") }
     val themes = listOf(
         InvoiceTheme("classic", "Classic Blue", Color(0xFF1976D2), Color(0xFFBBDEFB), "Standard"),
         InvoiceTheme("modern", "Modern Green", Color(0xFF388E3C), Color(0xFFC8E6C9), "Bold"),
@@ -38,7 +43,6 @@ fun TransactionThemeChooserScreen(navController: NavController) {
         InvoiceTheme("premium", "Premium Gold", Color(0xFFF57F17), Color(0xFFFFF9C4), "Luxury"),
         InvoiceTheme("ocean", "Ocean Teal", Color(0xFF00796B), Color(0xFFB2DFDB), "Fresh")
     )
-    var selectedTheme by remember { mutableStateOf("classic") }
 
     Scaffold(
         topBar = {
@@ -84,7 +88,10 @@ fun TransactionThemeChooserScreen(navController: NavController) {
                     }
                 }
             }
-            Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+            Button(onClick = {
+                prefs.edit().putString("invoice_theme", selectedTheme).apply()
+                navController.popBackStack()
+            }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                 Text("Apply Theme", fontWeight = FontWeight.Bold, color = Color.White)
             }
             Spacer(modifier = Modifier.height(16.dp))

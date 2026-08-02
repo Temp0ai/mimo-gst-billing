@@ -252,4 +252,11 @@ sealed class Screen(val route: String) {
     object LearningHub : Screen("learning_hub")
     object Onboarding : Screen("onboarding")
     object ThemeSwitcher : Screen("theme_switcher")
+    object AiDashboard : Screen("ai_dashboard")
+    object AiSmartReminders : Screen("ai_smart_reminders")
+    object AiCashFlow : Screen("ai_cash_flow")
+    object AiTaxAdvisor : Screen("ai_tax_advisor")
+    object AiInsights : Screen("ai_insights")
+    object AiDuplicates : Screen("ai_duplicates")
+    object AiAnomalies : Screen("ai_anomalies")
 }

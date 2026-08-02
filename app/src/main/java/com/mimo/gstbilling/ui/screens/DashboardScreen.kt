@@ -110,6 +110,7 @@ fun DashboardScreen(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement", "Party Review", "Bulk Send")),
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Items", "Raw Materials")),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
+        DrawerMenuItem("AI Dashboard", Icons.Filled.AutoAwesome, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection")),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
@@ -332,6 +333,13 @@ fun DashboardScreen(
                                                         "Learning Hub" -> navController.navigate(Screen.LearningHub.route)
                                                         "Getting Started" -> navController.navigate(Screen.Onboarding.route)
                                                         "Greeting Cards" -> navController.navigate(Screen.GreetingOfferCards.route)
+                                                        "AI Overview" -> navController.navigate(Screen.AiDashboard.route)
+                                                        "Smart Reminders" -> navController.navigate(Screen.AiSmartReminders.route)
+                                                        "Cash Flow Forecast" -> navController.navigate(Screen.AiCashFlow.route)
+                                                        "Tax Advisor" -> navController.navigate(Screen.AiTaxAdvisor.route)
+                                                        "Business Insights" -> navController.navigate(Screen.AiInsights.route)
+                                                        "Duplicate Check" -> navController.navigate(Screen.AiDuplicates.route)
+                                                        "Anomaly Detection" -> navController.navigate(Screen.AiAnomalies.route)
                                                         "Contact Support" -> {
                                                             val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
                                                                 putExtra(android.content.Intent.EXTRA_SUBJECT, "Support Request - Mimo GST Billing")

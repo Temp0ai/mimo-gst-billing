@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,14 +24,16 @@ import com.mimo.gstbilling.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AutoSyncSettingsScreen(navController: NavController) {
-    var autoSync by remember { mutableStateOf(true) }
-    var syncInterval by remember { mutableIntStateOf(15) }
-    var syncOnWifiOnly by remember { mutableStateOf(false) }
-    var syncInvoices by remember { mutableStateOf(true) }
-    var syncParties by remember { mutableStateOf(true) }
-    var syncItems by remember { mutableStateOf(true) }
-    var syncExpenses by remember { mutableStateOf(true) }
-    var lastSyncTime by remember { mutableStateOf("2 minutes ago") }
+    val context = LocalContext.current
+    val prefs = remember { context.getSharedPreferences("mimo_prefs", Context.MODE_PRIVATE) }
+    var autoSync by remember { mutableStateOf(prefs.getBoolean("auto_sync_enabled", true)) }
+    var syncInterval by remember { mutableIntStateOf(prefs.getInt("auto_sync_interval", 15)) }
+    var syncOnWifiOnly by remember { mutableStateOf(prefs.getBoolean("auto_sync_wifi_only", false)) }
+    var syncInvoices by remember { mutableStateOf(prefs.getBoolean("auto_sync_invoices", true)) }
+    var syncParties by remember { mutableStateOf(prefs.getBoolean("auto_sync_parties", true)) }
+    var syncItems by remember { mutableStateOf(prefs.getBoolean("auto_sync_items", true)) }
+    var syncExpenses by remember { mutableStateOf(prefs.getBoolean("auto_sync_expenses", true)) }
+    var lastSyncTime by remember { mutableStateOf(prefs.getString("auto_sync_last_time", "Never") ?: "Never") }
 
     Scaffold(
         topBar = {
@@ -80,7 +84,18 @@ fun AutoSyncSettingsScreen(navController: NavController) {
                     }
                 }
             }
-            Button(onClick = { navController.popBackStack() }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+            Button(onClick = {
+                prefs.edit().apply {
+                    putBoolean("auto_sync_enabled", autoSync)
+                    putInt("auto_sync_interval", syncInterval)
+                    putBoolean("auto_sync_wifi_only", syncOnWifiOnly)
+                    putBoolean("auto_sync_invoices", syncInvoices)
+                    putBoolean("auto_sync_parties", syncParties)
+                    putBoolean("auto_sync_items", syncItems)
+                    putBoolean("auto_sync_expenses", syncExpenses)
+                }.apply()
+                navController.popBackStack()
+            }, modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(12.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                 Text("Save Settings", fontWeight = FontWeight.Bold, color = Color.White)
             }
             Spacer(modifier = Modifier.height(16.dp))
