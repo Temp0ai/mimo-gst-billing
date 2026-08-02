@@ -2,17 +2,20 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
 import com.mimo.gstbilling.data.local.entity.PartyEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PartyViewModel @Inject constructor(
-    private val partyDao: PartyDao
+    private val partyDao: PartyDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _parties = MutableStateFlow<List<PartyEntity>>(emptyList())
@@ -23,6 +26,10 @@ class PartyViewModel @Inject constructor(
 
     private val _saveSuccess = MutableStateFlow(false)
     val saveSuccess: StateFlow<Boolean> = _saveSuccess
+
+    private suspend fun getCurrentCompanyId(): Long {
+        return companyDao.getSelectedCompany().first()?.id ?: 1L
+    }
 
     fun loadParties(companyId: Long) {
         viewModelScope.launch {
@@ -51,6 +58,34 @@ class PartyViewModel @Inject constructor(
         viewModelScope.launch {
             val party = PartyEntity(
                 companyId = companyId,
+                name = name,
+                phone = phone,
+                email = email,
+                gstin = gstin,
+                address = address,
+                state = state,
+                stateCode = null,
+                balance = 0.0,
+                partyType = partyType
+            )
+            partyDao.insertParty(party)
+            _saveSuccess.value = true
+        }
+    }
+
+    fun addPartyAuto(
+        name: String,
+        phone: String?,
+        email: String?,
+        gstin: String?,
+        address: String?,
+        state: String?,
+        partyType: String
+    ) {
+        viewModelScope.launch {
+            val cId = getCurrentCompanyId()
+            val party = PartyEntity(
+                companyId = cId,
                 name = name,
                 phone = phone,
                 email = email,

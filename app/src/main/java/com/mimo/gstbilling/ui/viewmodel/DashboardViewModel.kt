@@ -61,11 +61,6 @@ class DashboardViewModel @Inject constructor(
         loadDashboardData()
     }
 
-    fun refresh() {
-        _isLoading.value = true
-        loadDashboardData()
-    }
-
     fun deleteInvoice(invoiceId: Long) {
         viewModelScope.launch {
             invoiceDao.getInvoiceById(invoiceId)?.let { invoiceDao.deleteInvoice(it) }
@@ -140,6 +135,69 @@ class DashboardViewModel @Inject constructor(
                 )
                 _isLoading.value = false
             }
+        }
+    }
+
+    fun refresh() {
+        _isLoading.value = true
+        viewModelScope.launch {
+            val company = companyDao.getSelectedCompany().first()
+            val cId = company?.id ?: 1L
+            val companyName = company?.name ?: "My Business"
+            val companyEmail = company?.email ?: ""
+
+            val parties = partyDao.getPartiesByCompany(cId).first()
+            val invoices = invoiceDao.getInvoicesByCompany(cId).first()
+            val items = itemDao.getItemsByCompany(cId).first()
+
+            val totalSales = invoiceDao.getTotalSales(cId) ?: 0.0
+            val totalPurchases = invoiceDao.getTotalPurchases(cId) ?: 0.0
+            val pendingReceivables = invoiceDao.getPendingReceivables(cId) ?: 0.0
+            val pendingPayables = invoiceDao.getPendingPayables(cId) ?: 0.0
+            val totalExpenses = expenseDao.getTotalExpenses(cId) ?: 0.0
+            val totalTax = (invoiceDao.getTotalTax(cId, "sales") ?: 0.0) +
+                    (invoiceDao.getTotalTax(cId, "purchase") ?: 0.0)
+
+            val todayStart = getTodayStart()
+            val todaySales = invoices.filter {
+                it.invoiceType == "sales" && it.invoiceDate >= todayStart
+            }.sumOf { it.totalAmount }
+
+            val partyBalances = parties.map { party ->
+                val partyInvoices = invoices.filter { it.partyId == party.id }
+                val receivable = partyInvoices
+                    .filter { it.invoiceType == "sales" && it.paymentStatus != "paid" }
+                    .sumOf { it.totalAmount - it.amountPaid }
+                val payable = partyInvoices
+                    .filter { it.invoiceType == "purchase" && it.paymentStatus != "paid" }
+                    .sumOf { it.totalAmount - it.amountPaid }
+                val balance = receivable - payable
+                PartyBalance(
+                    party = party,
+                    balance = balance,
+                    isReceivable = balance >= 0
+                )
+            }.sortedByDescending { kotlin.math.abs(it.balance) }
+
+            val recentInvoices = invoices.take(5)
+            val recentItems = items.take(10)
+
+            _data.value = DashboardData(
+                companyName = companyName,
+                companyEmail = companyEmail,
+                selectedCompanyId = cId,
+                totalSales = totalSales,
+                totalPurchases = totalPurchases,
+                pendingReceivables = pendingReceivables,
+                pendingPayables = pendingPayables,
+                totalExpenses = totalExpenses,
+                totalTax = totalTax,
+                todaySales = todaySales,
+                recentParties = partyBalances,
+                recentInvoices = recentInvoices,
+                recentItems = recentItems
+            )
+            _isLoading.value = false
         }
     }
 

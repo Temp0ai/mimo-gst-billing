@@ -231,8 +231,8 @@ sealed class Screen(val route: String) {
     object CashBook : Screen("cash_book")
     object BankReconciliationDetail : Screen("bank_reconciliation_detail")
     object OcrScan : Screen("ocr_scan")
-    object GstinVerify : Screen("gstin_verify/{gstin}") {
-        fun createRoute(gstin: String = "") = "gstin_verify/$gstin"
+    object GstinVerify : Screen("gstin_verify?gstin={gstin}") {
+        fun createRoute(gstin: String = "") = "gstin_verify?gstin=$gstin"
     }
     object SmartCategory : Screen("smart_category")
     object NlCommand : Screen("nl_command")

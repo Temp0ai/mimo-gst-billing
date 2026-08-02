@@ -45,16 +45,12 @@ fun PartiesScreen(
     navController: NavController,
     viewModel: InvoiceViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val parties = uiState.allParties
     val invoices by viewModel.getInvoices("sales").collectAsState(initial = emptyList())
-    val parties = remember { mutableStateListOf<com.mimo.gstbilling.data.local.entity.PartyEntity>() }
     var searchText by remember { mutableStateOf("") }
     var selectedTab by remember { mutableIntStateOf(0) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
-
-    LaunchedEffect(Unit) {
-        parties.clear()
-        parties.addAll(viewModel.getAllParties())
-    }
 
     val totalReceivable = parties.filter { it.balance > 0 }.sumOf { it.balance }
     val filteredParties = parties.filter { it.name.contains(searchText, ignoreCase = true) || (it.phone ?: "").contains(searchText) }

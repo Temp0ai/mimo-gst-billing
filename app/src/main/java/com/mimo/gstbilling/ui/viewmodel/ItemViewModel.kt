@@ -46,13 +46,18 @@ class ItemViewModel @Inject constructor(
     val serviceCount: StateFlow<Int> = _serviceCount.asStateFlow()
 
     init {
-        loadAllItems()
-        loadCounts()
+        viewModelScope.launch {
+            _cachedCompanyId = getCurrentCompanyId()
+            loadAllItems()
+            loadCounts()
+        }
     }
+
+    private var _cachedCompanyId: Long = 1L
 
     private fun loadAllItems() {
         viewModelScope.launch {
-            val cId = getCurrentCompanyId()
+            val cId = _cachedCompanyId
             combine(
                 itemDao.getItemsByCompany(cId),
                 itemDao.getProductsByCompany(cId),
@@ -69,10 +74,18 @@ class ItemViewModel @Inject constructor(
 
     private fun loadCounts() {
         viewModelScope.launch {
-            val cId = getCurrentCompanyId()
+            val cId = _cachedCompanyId
             _itemCount.value = itemDao.getItemCount(cId)
             _lowStockCount.value = itemDao.getLowStockCount(cId)
             _serviceCount.value = itemDao.getServiceCount(cId)
+        }
+    }
+
+    fun refreshItems() {
+        viewModelScope.launch {
+            _cachedCompanyId = getCurrentCompanyId()
+            loadAllItems()
+            loadCounts()
         }
     }
 
@@ -89,7 +102,7 @@ class ItemViewModel @Inject constructor(
         imageUri: String? = null
     ) {
         viewModelScope.launch {
-            val cId = getCurrentCompanyId()
+            val cId = _cachedCompanyId
             val item = ItemEntity(
                 companyId = cId,
                 name = name,
@@ -105,6 +118,7 @@ class ItemViewModel @Inject constructor(
             )
             itemDao.insertItem(item)
             loadCounts()
+            loadAllItems()
         }
     }
 
@@ -122,7 +136,7 @@ class ItemViewModel @Inject constructor(
         imageUri: String? = null
     ) {
         viewModelScope.launch {
-            val cId = getCurrentCompanyId()
+            val cId = _cachedCompanyId
             val item = ItemEntity(
                 companyId = cId,
                 name = name,
@@ -148,6 +162,10 @@ class ItemViewModel @Inject constructor(
                     )
                 )
             }
+            loadCounts()
+            loadAllItems()
+        }
+    }
             loadCounts()
         }
     }
