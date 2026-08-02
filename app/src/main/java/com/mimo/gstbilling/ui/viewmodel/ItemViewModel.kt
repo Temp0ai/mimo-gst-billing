@@ -166,9 +166,6 @@ class ItemViewModel @Inject constructor(
             loadAllItems()
         }
     }
-            loadCounts()
-        }
-    }
 
     fun updateItem(item: ItemEntity) {
         viewModelScope.launch {
