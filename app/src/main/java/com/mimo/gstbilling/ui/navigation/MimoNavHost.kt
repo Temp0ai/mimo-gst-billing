@@ -286,5 +286,19 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.NlCommand.route) { NlCommandScreen(navController) }
         composable(Screen.SmartSearch.route) { SmartSearchScreen(navController) }
         composable(Screen.SmartReconciliation.route) { SmartReconciliationScreen(navController) }
+        composable(Screen.RawMaterial.route) { RawMaterialScreen(navController) }
+        composable(Screen.Estimate.route) { EstimateScreen(navController) }
+        composable(Screen.OtherIncomeReport.route) { OtherIncomeReportScreen(navController) }
+        composable(Screen.PartiesForReview.route) { PartiesForReviewScreen(navController) }
+        composable(Screen.Vat201Return.route) { Vat201ReturnScreen(navController) }
+        composable(Screen.CustomHeaderFooter.route) { CustomHeaderFooterScreen(navController) }
+        composable(Screen.TransactionThemeChooser.route) { TransactionThemeChooserScreen(navController) }
+        composable(Screen.AdditionalItemColumns.route) { AdditionalItemColumnsScreen(navController) }
+        composable(Screen.AutoSyncSettings.route) { AutoSyncSettingsScreen(navController) }
+        composable(Screen.GroupPartyBulkSend.route) { GroupPartyBulkSendScreen(navController) }
+        composable(Screen.GreetingOfferCards.route) { GreetingOfferCardsScreen(navController) }
+        composable(Screen.LearningHub.route) { LearningHubScreen(navController) }
+        composable(Screen.Onboarding.route) { OnboardingScreen(onComplete = { navController.popBackStack() }) }
+        composable(Screen.ThemeSwitcher.route) { ThemeSwitcherScreen(navController) }
     }
 }
