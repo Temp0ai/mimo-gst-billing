@@ -17,30 +17,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mimo.gstbilling.data.local.entity.EstimateEntity
 import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.viewmodel.EstimateViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class Estimate(
-    val id: Long = 0,
-    val estimateNumber: String,
-    val partyName: String,
-    val amount: Double,
-    val date: Long,
-    val validUntil: Long,
-    val status: String = "pending"
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EstimateScreen(navController: NavController) {
+fun EstimateScreen(navController: NavController, viewModel: EstimateViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
-    var estimates by remember { mutableStateOf(listOf(
-        Estimate(1, "EST-001", "Raj Industries", 25000.0, System.currentTimeMillis() - 86400000 * 5, System.currentTimeMillis() + 86400000 * 25, "pending"),
-        Estimate(2, "EST-002", "Sharma Traders", 48500.0, System.currentTimeMillis() - 86400000 * 2, System.currentTimeMillis() + 86400000 * 28, "accepted"),
-        Estimate(3, "EST-003", "Patel Electronics", 12000.0, System.currentTimeMillis() - 86400000 * 10, System.currentTimeMillis() - 86400000 * 1, "expired")
-    )) }
 
     Scaffold(
         topBar = {
@@ -51,7 +40,7 @@ fun EstimateScreen(navController: NavController) {
             )
         }
     ) { padding ->
-        if (estimates.isEmpty()) {
+        if (uiState.estimates.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Filled.Description, contentDescription = null, modifier = Modifier.size(80.dp), tint = VyaparTextSecondary.copy(alpha = 0.5f))
@@ -62,7 +51,7 @@ fun EstimateScreen(navController: NavController) {
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                items(estimates) { estimate ->
+                items(uiState.estimates) { estimate ->
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp),
                         shape = RoundedCornerShape(12.dp),
@@ -92,8 +81,8 @@ fun EstimateScreen(navController: NavController) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (estimate.status == "pending") {
-                                    AssistChip(onClick = { estimates = estimates.map { if (it.id == estimate.id) it.copy(status = "accepted") else it } }, label = { Text("Convert to Invoice", fontSize = 11.sp) }, leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, modifier = Modifier.size(16.dp)) })
-                                    AssistChip(onClick = { estimates = estimates.map { if (it.id == estimate.id) it.copy(status = "rejected") else it } }, label = { Text("Reject", fontSize = 11.sp) }, leadingIcon = { Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(16.dp)) })
+                                    AssistChip(onClick = { viewModel.updateEstimateStatus(estimate.id, "accepted") }, label = { Text("Convert to Invoice", fontSize = 11.sp) }, leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, modifier = Modifier.size(16.dp)) })
+                                    AssistChip(onClick = { viewModel.updateEstimateStatus(estimate.id, "rejected") }, label = { Text("Reject", fontSize = 11.sp) }, leadingIcon = { Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(16.dp)) })
                                 }
                             }
                         }

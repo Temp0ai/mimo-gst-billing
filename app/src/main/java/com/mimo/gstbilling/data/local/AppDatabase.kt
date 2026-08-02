@@ -43,9 +43,12 @@ import com.mimo.gstbilling.data.local.entity.*
         KycEntity::class,
         UnitMappingEntity::class,
         OnlineOrderEntity::class,
-        LedgerEntryEntity::class
+        LedgerEntryEntity::class,
+        RawMaterialEntity::class,
+        EstimateEntity::class,
+        OtherIncomeEntity::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -83,8 +86,61 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun unitMappingDao(): UnitMappingDao
     abstract fun onlineOrderDao(): OnlineOrderDao
     abstract fun ledgerDao(): LedgerDao
+    abstract fun rawMaterialDao(): RawMaterialDao
+    abstract fun estimateDao(): EstimateDao
+    abstract fun otherIncomeDao(): OtherIncomeDao
 
     companion object {
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `raw_materials` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `unit` TEXT NOT NULL,
+                        `stockQty` REAL NOT NULL,
+                        `costPerUnit` REAL NOT NULL,
+                        `hsnCode` TEXT,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_raw_materials_companyId` ON `raw_materials` (`companyId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `estimates` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `estimateNumber` TEXT NOT NULL,
+                        `partyId` INTEGER NOT NULL,
+                        `partyName` TEXT NOT NULL,
+                        `amount` REAL NOT NULL,
+                        `date` INTEGER NOT NULL,
+                        `validUntil` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL DEFAULT 'pending',
+                        `notes` TEXT,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_estimates_companyId` ON `estimates` (`companyId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_estimates_partyId` ON `estimates` (`partyId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `other_income` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `source` TEXT NOT NULL,
+                        `amount` REAL NOT NULL,
+                        `date` INTEGER NOT NULL,
+                        `description` TEXT,
+                        `referenceNumber` TEXT,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_other_income_companyId` ON `other_income` (`companyId`)")
+            }
+        }
+
         val MIGRATION_16_17 = object : Migration(16, 17) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("""

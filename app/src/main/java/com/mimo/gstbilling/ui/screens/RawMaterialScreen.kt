@@ -17,30 +17,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mimo.gstbilling.data.local.entity.RawMaterialEntity
 import com.mimo.gstbilling.ui.theme.*
-
-data class RawMaterial(
-    val id: Long = 0,
-    val name: String,
-    val unit: String,
-    val stockQty: Double,
-    val costPerUnit: Double,
-    val hsnCode: String? = null
-)
+import com.mimo.gstbilling.ui.viewmodel.RawMaterialViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RawMaterialScreen(navController: NavController) {
-    var materials by remember { mutableStateOf(listOf(
-        RawMaterial(1, "Steel Rods", "kg", 500.0, 45.0, "7214"),
-        RawMaterial(2, "Copper Wire", "meter", 200.0, 120.0, "7408"),
-        RawMaterial(3, "Plastic Granules", "kg", 1000.0, 28.0, "3901"),
-        RawMaterial(4, "Aluminum Sheets", "kg", 150.0, 180.0, "7606"),
-        RawMaterial(5, "Rubber Gaskets", "piece", 5000.0, 5.0, "4016")
-    )) }
+fun RawMaterialScreen(navController: NavController, viewModel: RawMaterialViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    var editMaterial by remember { mutableStateOf<RawMaterial?>(null) }
+    var editMaterial by remember { mutableStateOf<RawMaterialEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -57,7 +45,7 @@ fun RawMaterialScreen(navController: NavController) {
             }
         }
     ) { padding ->
-        if (materials.isEmpty()) {
+        if (uiState.materials.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Filled.Inventory, contentDescription = null, modifier = Modifier.size(80.dp), tint = VyaparTextSecondary.copy(alpha = 0.5f))
@@ -69,7 +57,7 @@ fun RawMaterialScreen(navController: NavController) {
         } else {
             LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                items(materials) { material ->
+                items(uiState.materials) { material ->
                     Card(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 6.dp).clickable { editMaterial = material; showDialog = true },
                         shape = RoundedCornerShape(12.dp),
@@ -118,12 +106,14 @@ fun RawMaterialScreen(navController: NavController) {
             confirmButton = {
                 TextButton(onClick = {
                     if (name.isNotBlank()) {
-                        val newMaterial = RawMaterial(
-                            id = editMaterial?.id ?: (materials.maxOfOrNull { it.id } ?: 0) + 1,
-                            name = name, unit = unit, stockQty = stockQty.toDoubleOrNull() ?: 0.0,
-                            costPerUnit = costPerUnit.toDoubleOrNull() ?: 0.0, hsnCode = hsnCode.ifBlank { null }
-                        )
-                        materials = if (editMaterial != null) materials.map { if (it.id == editMaterial?.id) newMaterial else it } else materials + newMaterial
+                        if (editMaterial != null) {
+                            viewModel.updateMaterial(editMaterial!!.copy(
+                                name = name, unit = unit, stockQty = stockQty.toDoubleOrNull() ?: 0.0,
+                                costPerUnit = costPerUnit.toDoubleOrNull() ?: 0.0, hsnCode = hsnCode.ifBlank { null }
+                            ))
+                        } else {
+                            viewModel.addMaterial(name, unit, stockQty.toDoubleOrNull() ?: 0.0, costPerUnit.toDoubleOrNull() ?: 0.0, hsnCode.ifBlank { null })
+                        }
                         showDialog = false
                     }
                 }) { Text("Save") }

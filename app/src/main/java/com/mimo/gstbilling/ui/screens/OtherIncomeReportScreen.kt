@@ -16,28 +16,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.viewmodel.OtherIncomeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class OtherIncome(
-    val id: Long, val name: String, val amount: Double, val date: Long, val category: String
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OtherIncomeReportScreen(navController: NavController) {
+fun OtherIncomeReportScreen(navController: NavController, viewModel: OtherIncomeViewModel = hiltViewModel()) {
+    val uiState by viewModel.uiState.collectAsState()
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
-    val incomes = remember { listOf(
-        OtherIncome(1, "Commission Received", 5000.0, System.currentTimeMillis() - 86400000 * 3, "Commission"),
-        OtherIncome(2, "Rent Income", 15000.0, System.currentTimeMillis() - 86400000 * 10, "Rent"),
-        OtherIncome(3, "Interest Earned", 2500.0, System.currentTimeMillis() - 86400000 * 15, "Interest"),
-        OtherIncome(4, "Sale of Scrap", 3200.0, System.currentTimeMillis() - 86400000 * 7, "Scrap"),
-        OtherIncome(5, "Discount Received", 1800.0, System.currentTimeMillis() - 86400000 * 20, "Discount")
-    ) }
-    val totalIncome = incomes.sumOf { it.amount }
-    val grouped = incomes.groupBy { it.category }
+    val grouped = uiState.incomeList.groupBy { it.source }
 
     Scaffold(
         topBar = {
@@ -51,8 +42,8 @@ fun OtherIncomeReportScreen(navController: NavController) {
                 Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                     Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("Total Other Income", fontSize = 14.sp, color = VyaparTextSecondary)
-                        Text("₹${String.format("%,.2f", totalIncome)}", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = VyaparGreen)
-                        Text("${incomes.size} entries", fontSize = 12.sp, color = VyaparTextSecondary)
+                        Text("₹${String.format("%,.2f", uiState.totalIncome)}", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = VyaparGreen)
+                        Text("${uiState.incomeList.size} entries", fontSize = 12.sp, color = VyaparTextSecondary)
                     }
                 }
             }
@@ -67,7 +58,7 @@ fun OtherIncomeReportScreen(navController: NavController) {
                                 Icon(Icons.Filled.TrendingUp, contentDescription = null, tint = VyaparGreen, modifier = Modifier.size(20.dp))
                             }
                             Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) { Text(income.name, fontWeight = FontWeight.Medium, fontSize = 14.sp); Text(dateFormat.format(Date(income.date)), fontSize = 12.sp, color = VyaparTextSecondary) }
+                            Column(modifier = Modifier.weight(1f)) { Text(income.source, fontWeight = FontWeight.Medium, fontSize = 14.sp); Text(dateFormat.format(Date(income.date)), fontSize = 12.sp, color = VyaparTextSecondary) }
                             Text("₹${String.format("%,.2f", income.amount)}", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = VyaparGreen)
                         }
                     }
