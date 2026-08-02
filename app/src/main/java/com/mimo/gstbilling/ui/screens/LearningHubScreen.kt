@@ -51,14 +51,12 @@ fun LearningHubScreen(navController: NavController) {
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                item {
-                    LazyRow(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(categories) { category ->
-                            FilterChip(selected = selectedCategory == category, onClick = { selectedCategory = category }, label = { Text(category, fontSize = 12.sp) })
-                        }
-                    }
+            LazyRow(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(categories) { category ->
+                    FilterChip(selected = selectedCategory == category, onClick = { selectedCategory = category }, label = { Text(category, fontSize = 12.sp) })
                 }
+            }
+            LazyColumn(modifier = Modifier.weight(1f)) {
                 items(filtered) { item ->
                     Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable { }, shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
                         Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

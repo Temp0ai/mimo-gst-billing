@@ -33,11 +33,11 @@ data class RawMaterial(
 @Composable
 fun RawMaterialScreen(navController: NavController) {
     var materials by remember { mutableStateOf(listOf(
-        RawMaterial(1, "Steel Rods", "kg", 500, 45.0, "7214"),
-        RawMaterial(2, "Copper Wire", "meter", 200, 120.0, "7408"),
-        RawMaterial(3, "Plastic Granules", "kg", 1000, 28.0, "3901"),
-        RawMaterial(4, "Aluminum Sheets", "kg", 150, 180.0, "7606"),
-        RawMaterial(5, "Rubber Gaskets", "piece", 5000, 5.0, "4016")
+        RawMaterial(1, "Steel Rods", "kg", 500.0, 45.0, "7214"),
+        RawMaterial(2, "Copper Wire", "meter", 200.0, 120.0, "7408"),
+        RawMaterial(3, "Plastic Granules", "kg", 1000.0, 28.0, "3901"),
+        RawMaterial(4, "Aluminum Sheets", "kg", 150.0, 180.0, "7606"),
+        RawMaterial(5, "Rubber Gaskets", "piece", 5000.0, 5.0, "4016")
     )) }
     var showDialog by remember { mutableStateOf(false) }
     var editMaterial by remember { mutableStateOf<RawMaterial?>(null) }
