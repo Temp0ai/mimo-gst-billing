@@ -616,12 +616,20 @@ fun DashboardScreen(
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
                                             partyBalance.party.name,
-                                            fontSize = 17.sp,
+                                            fontSize = 16.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = VyaparTextPrimary,
-                                            maxLines = 2,
+                                            maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
+                                        if (!partyBalance.party.phone.isNullOrBlank()) {
+                                            Text(
+                                                partyBalance.party.phone,
+                                                fontSize = 13.sp,
+                                                color = VyaparTextSecondary,
+                                                maxLines = 1
+                                            )
+                                        }
                                         Spacer(modifier = Modifier.height(3.dp))
                                         val partyInvoices = data.recentInvoices.filter { it.partyId == partyBalance.party.id }
                                         val avgQuarterly = remember(partyInvoices) {

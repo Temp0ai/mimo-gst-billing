@@ -205,6 +205,9 @@ fun PartiesScreen(
                     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(party.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = VyaparTextPrimary, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            if (!party.phone.isNullOrBlank()) {
+                                Text(party.phone, fontSize = 13.sp, color = VyaparTextSecondary, maxLines = 1)
+                            }
                             val partyInvoices = remember { invoices.filter { it.partyId == party.id } }
                             val avgQuarterly = remember(partyInvoices) {
                                 if (partyInvoices.isEmpty()) 0.0
@@ -232,12 +235,16 @@ fun PartiesScreen(
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                String.format(Locale.US, "\u20B9%,.2f", party.balance),
+                                String.format(Locale.US, "\u20B9%,.2f", kotlin.math.abs(party.balance)),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VyaparGreen
+                                color = if (party.balance >= 0) VyaparGreen else VyaparRed
                             )
-                            Text("You'll Get", fontSize = 12.sp, color = VyaparGreen)
+                            Text(
+                                if (party.balance >= 0) "You'll Get" else "You'll Give",
+                                fontSize = 12.sp,
+                                color = if (party.balance >= 0) VyaparGreen else VyaparRed
+                            )
                         }
                     }
                 }
