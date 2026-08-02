@@ -107,20 +107,20 @@ fun DashboardScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     val menuItems = listOf(
-        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement")),
-        DrawerMenuItem("Items", Icons.Filled.FormatListBulleted),
+        DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement", "Party Review", "Bulk Send")),
+        DrawerMenuItem("Items", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Items", "Raw Materials")),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
-        DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Credit Notes")),
+        DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
         DrawerMenuItem("Delivery Challans", Icons.Filled.LocalShipping),
         DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.Store, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
-        DrawerMenuItem("Settings", Icons.Filled.Settings),
-        DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("GSTIN Verify", "Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
-        DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Backup to phone", "Backup to e-mail", "Restore backup")),
+        DrawerMenuItem("Settings", Icons.Filled.Settings, hasExpand = true, subItems = listOf("App Settings", "Custom Header/Footer", "Transaction Theme", "Item Columns", "Theme Switcher")),
+        DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("GSTIN Verify", "Other Income Report", "VAT 201 Return", "Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
+        DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Auto Sync", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
-        DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Contact Support")),
+        DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Learning Hub", "Getting Started", "Greeting Cards", "Contact Support")),
     )
 
     ModalNavigationDrawer(
@@ -295,27 +295,43 @@ fun DashboardScreen(
                                                         "All Parties" -> navController.navigate(Screen.Parties.route)
                                                         "Party Groups" -> navController.navigate(Screen.PartyGroups.route)
                                                         "Party Statement" -> navController.navigate(Screen.Parties.route)
+                                                        "Party Review" -> navController.navigate(Screen.PartiesForReview.route)
+                                                        "Bulk Send" -> navController.navigate(Screen.GroupPartyBulkSend.route)
+                                                        "All Items" -> navController.navigate(Screen.Items.route)
+                                                        "Raw Materials" -> navController.navigate(Screen.RawMaterial.route)
                                                         "All Sales" -> navController.navigate(Screen.Sales.route)
                                                         "Create Sale" -> navController.navigate(Screen.CreateInvoice.route)
                                                         "Invoice Templates" -> navController.navigate(Screen.InvoiceTemplates.route)
+                                                        "Estimates" -> navController.navigate(Screen.Estimate.route)
                                                         "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
                                                         "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                         "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
                                                         "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
                                                         "Cash Book" -> navController.navigate(Screen.CashBook.route)
                                                         "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
+                                                        "App Settings" -> navController.navigate(Screen.Settings.route)
+                                                        "Custom Header/Footer" -> navController.navigate(Screen.CustomHeaderFooter.route)
+                                                        "Transaction Theme" -> navController.navigate(Screen.TransactionThemeChooser.route)
+                                                        "Item Columns" -> navController.navigate(Screen.AdditionalItemColumns.route)
+                                                        "Theme Switcher" -> navController.navigate(Screen.ThemeSwitcher.route)
                                                         "Store Settings" -> navController.navigate(Screen.StoreManagement.route)
                                                         "Products" -> navController.navigate(Screen.Items.route)
                                                         "Auto Backup" -> navController.navigate(Screen.BackupRestore.route)
+                                                        "Auto Sync" -> navController.navigate(Screen.AutoSyncSettings.route)
                                                         "Backup to phone" -> navController.navigate(Screen.BackupRestore.route)
                                                         "Backup to e-mail" -> navController.navigate(Screen.ExportData.route)
                                                         "Restore backup" -> navController.navigate(Screen.BackupRestore.route)
                                                         "GSTIN Verify" -> navController.navigate(Screen.GstinVerify.createRoute())
+                                                        "Other Income Report" -> navController.navigate(Screen.OtherIncomeReport.route)
+                                                        "VAT 201 Return" -> navController.navigate(Screen.Vat201Return.route)
                                                         "Barcode Scanner" -> navController.navigate(Screen.BarcodeScanner.route)
                                                         "Thermal Printer" -> navController.navigate(Screen.ThermalPrinter.route)
                                                         "Import Data" -> navController.navigate(Screen.ImportData.route)
                                                         "Vyapar Import" -> navController.navigate(Screen.VyaparDataImport.route)
                                                         "FAQs" -> navController.navigate(Screen.About.route)
+                                                        "Learning Hub" -> navController.navigate(Screen.LearningHub.route)
+                                                        "Getting Started" -> navController.navigate(Screen.Onboarding.route)
+                                                        "Greeting Cards" -> navController.navigate(Screen.GreetingOfferCards.route)
                                                         "Contact Support" -> {
                                                             val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
                                                                 putExtra(android.content.Intent.EXTRA_SUBJECT, "Support Request - Mimo GST Billing")
