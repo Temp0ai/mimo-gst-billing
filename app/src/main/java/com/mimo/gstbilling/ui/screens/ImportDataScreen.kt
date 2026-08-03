@@ -53,6 +53,8 @@ class ImportViewModel @Inject constructor(
         }
     }
 
+    val companyId: Long get() = _cachedCompanyId
+
     suspend fun insertCompany(company: CompanyEntity): Long {
         return try { companyDao.insertCompany(company) } catch (_: Exception) { 0L }
     }
@@ -432,12 +434,12 @@ fun ImportDataScreen(
                     val header = lines[0].lowercase().split(",").map { h -> h.trim().removeSurrounding("\"") }
 
                     if (importType.contains("item", ignoreCase = true)) {
-                        val result = parseItemsCsv(header, lines)
+                        val result = parseItemsCsv(header, lines, viewModel.companyId)
                         importedCount = viewModel.insertItems(result.first)
                         failedCount = result.first.size - importedCount
                         errors = result.second
                     } else {
-                        val result = parsePartiesCsv(header, lines)
+                        val result = parsePartiesCsv(header, lines, viewModel.companyId)
                         importedCount = viewModel.insertParties(result.first)
                         failedCount = result.first.size - importedCount
                         errors = result.second
@@ -494,7 +496,7 @@ fun ImportDataScreen(
 
                                 items.add(
                                     ItemEntity(
-                                        companyId = _cachedCompanyId, name = name,
+                                        companyId = viewModel.companyId, name = name,
                                         hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         description = name,
                                         salePrice = priceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
@@ -540,7 +542,7 @@ fun ImportDataScreen(
 
                                 parties.add(
                                     PartyEntity(
-                                        companyId = _cachedCompanyId, name = name,
+                                        companyId = viewModel.companyId, name = name,
                                         phone = phoneIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         gstin = gstinIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         email = emailIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
@@ -679,7 +681,7 @@ fun ImportDataScreen(
     }
 }
 
-private fun parseItemsCsv(header: List<String>, lines: List<String>): Pair<List<ItemEntity>, List<String>> {
+private fun parseItemsCsv(header: List<String>, lines: List<String>, companyId: Long): Pair<List<ItemEntity>, List<String>> {
     val nameIdx = header.indexOfFirst { it.contains("name") || it.contains("item") }
     val priceIdx = header.indexOfFirst { it.contains("price") || it.contains("rate") || it.contains("selling") }
     val purchasePriceIdx = header.indexOfFirst { it.contains("purchase price") || it.contains("cost") }
@@ -700,7 +702,7 @@ private fun parseItemsCsv(header: List<String>, lines: List<String>): Pair<List<
             if (name.isBlank()) { errs.add("Row ${i + 1}: empty name"); continue }
             items.add(
                 ItemEntity(
-                    companyId = _cachedCompanyId, name = name,
+                    companyId = companyId, name = name,
                     hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     description = descIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     salePrice = priceIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "0" }?.trim()?.toDoubleOrNull() } ?: 0.0,
@@ -716,7 +718,7 @@ private fun parseItemsCsv(header: List<String>, lines: List<String>): Pair<List<
     return Pair(items, errs)
 }
 
-private fun parsePartiesCsv(header: List<String>, lines: List<String>): Pair<List<PartyEntity>, List<String>> {
+private fun parsePartiesCsv(header: List<String>, lines: List<String>, companyId: Long): Pair<List<PartyEntity>, List<String>> {
     val nameIdx = header.indexOfFirst { it.contains("name") || it.contains("party") || it.contains("customer") || it.contains("company") }
     val phoneIdx = header.indexOfFirst { it.contains("phone") || it.contains("mobile") || it.contains("contact") }
     val gstinIdx = header.indexOfFirst { it.contains("gstin") || it.contains("gst") || it.contains("tax") }
@@ -743,7 +745,7 @@ private fun parsePartiesCsv(header: List<String>, lines: List<String>): Pair<Lis
             }
             parties.add(
                 PartyEntity(
-                    companyId = _cachedCompanyId, name = name,
+                    companyId = companyId, name = name,
                     phone = phoneIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     gstin = gstinIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     email = emailIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },

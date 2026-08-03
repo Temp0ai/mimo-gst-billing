@@ -19,8 +19,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.InvoiceViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,12 +26,11 @@ fun Vat201ReturnScreen(
     navController: NavController,
     invoiceViewModel: InvoiceViewModel = hiltViewModel()
 ) {
-    val invoices by invoiceViewModel.invoices.collectAsState()
-    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val dateFormat = remember { SimpleDateFormat("MMM yyyy", Locale.US) }
+    val invoices by invoiceViewModel.getInvoices().collectAsState(initial = emptyList())
+    val currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)
 
-    val totalSales = invoices.sumOf { it.totalAmount }
-    val totalOutputTax = invoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
+    val totalSales = invoices.filter { it.invoiceType == "sales" }.sumOf { it.totalAmount }
+    val totalOutputTax = invoices.filter { it.invoiceType == "sales" }.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
     val totalPurchases = invoices.filter { it.invoiceType == "purchase" }.sumOf { it.totalAmount }
     val totalInputTax = invoices.filter { it.invoiceType == "purchase" }.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal }
     val netVatPayable = totalOutputTax - totalInputTax
@@ -50,15 +47,18 @@ fun Vat201ReturnScreen(
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding).background(LightBlueBg)) {
             item {
                 Card(modifier = Modifier.fillMaxWidth().padding(16.dp), shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(modifier = Modifier.padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("VAT Summary - $currentYear", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                        HorizontalDivider()
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Sales", fontSize = 14.sp); Text("₹${"%.2f".format(totalSales)}", fontSize = 14.sp, fontWeight = FontWeight.Medium) }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Output Tax", fontSize = 14.sp); Text("₹${"%.2f".format(totalOutputTax)}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparRed) }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Purchases", fontSize = 14.sp); Text("₹${"%.2f".format(totalPurchases)}", fontSize = 14.sp, fontWeight = FontWeight.Medium) }
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Input Tax", fontSize = 14.sp); Text("₹${"%.2f".format(totalInputTax)}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparGreen) }
-                        HorizontalDivider()
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Net VAT Payable", fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("₹${"%.2f".format(netVatPayable)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = if (netVatPayable > 0) VyaparRed else VyaparGreen) }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Sales", fontSize = 14.sp); Text("₹${String.format("%,.2f", totalSales)}", fontSize = 14.sp, fontWeight = FontWeight.Medium) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Output Tax", fontSize = 14.sp); Text("₹${String.format("%,.2f", totalOutputTax)}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparRed) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Total Purchases", fontSize = 14.sp); Text("₹${String.format("%,.2f", totalPurchases)}", fontSize = 14.sp, fontWeight = FontWeight.Medium) }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Input Tax", fontSize = 14.sp); Text("₹${String.format("%,.2f", totalInputTax)}", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = VyaparGreen) }
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text("Net VAT Payable", fontSize = 16.sp, fontWeight = FontWeight.Bold); Text("₹${String.format("%,.2f", netVatPayable)}", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = if (netVatPayable > 0) VyaparRed else VyaparGreen) }
                     }
                 }
             }
