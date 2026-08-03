@@ -121,9 +121,9 @@ fun AiAnomaliesScreen(
 
             item {
                 AnomalySummaryCard(
-                    highCount = uiState.highSeverityCount,
-                    mediumCount = uiState.mediumSeverityCount,
-                    lowCount = uiState.lowSeverityCount,
+                    highCount = uiState.highCount,
+                    mediumCount = uiState.mediumCount,
+                    lowCount = uiState.lowCount,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -137,7 +137,7 @@ fun AiAnomaliesScreen(
 
             item {
                 RunDetectionButton(
-                    isRunning = uiState.isDetecting,
+                    isRunning = uiState.isScanning,
                     onClick = { viewModel.runDetection() },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -329,24 +329,27 @@ private fun AnomalyCard(
     modifier: Modifier = Modifier
 ) {
     val severityColor = when (anomaly.severity) {
-        AnomalySeverity.HIGH -> VyaparRed
-        AnomalySeverity.MEDIUM -> Color(0xFFFF9800)
-        AnomalySeverity.LOW -> VyaparGreen
+        "high" -> VyaparRed
+        "medium" -> Color(0xFFFF9800)
+        "low" -> VyaparGreen
+        else -> VyaparTextSecondary
     }
     val severityLabel = when (anomaly.severity) {
-        AnomalySeverity.HIGH -> "High"
-        AnomalySeverity.MEDIUM -> "Medium"
-        AnomalySeverity.LOW -> "Low"
+        "high" -> "High"
+        "medium" -> "Medium"
+        "low" -> "Low"
+        else -> "Unknown"
     }
     val typeIcon = when (anomaly.type) {
-        AnomalyType.TAX_MISMATCH -> Icons.Filled.AccountBalance
-        AnomalyType.AMOUNT_DISCREPANCY -> Icons.Filled.AttachMoney
-        AnomalyType.DUPLICATE_ENTRY -> Icons.Filled.Group
-        AnomalyType.UNUSUAL_PATTERN -> Icons.Filled.ShowChart
-        AnomalyType.THRESHOLD_BREACH -> Icons.Filled.PriorityHigh
-        AnomalyType.FREQUENCY_ANOMALY -> Icons.Filled.BarChart
-        AnomalyType.DATA_INCONSISTENCY -> Icons.Filled.ErrorOutline
-        AnomalyType.FRAUD_INDICATOR -> Icons.Filled.BugReport
+        "tax_mismatch" -> Icons.Filled.AccountBalance
+        "amount_discrepancy" -> Icons.Filled.AttachMoney
+        "duplicate_entry" -> Icons.Filled.Group
+        "unusual_pattern" -> Icons.Filled.ShowChart
+        "threshold_breach" -> Icons.Filled.PriorityHigh
+        "frequency_anomaly" -> Icons.Filled.BarChart
+        "data_inconsistency" -> Icons.Filled.ErrorOutline
+        "fraud_indicator" -> Icons.Filled.BugReport
+        else -> Icons.Filled.HelpOutline
     }
 
     Card(
@@ -370,14 +373,14 @@ private fun AnomalyCard(
                 ) {
                     Icon(
                         imageVector = typeIcon,
-                        contentDescription = anomaly.type.name,
+                        contentDescription = anomaly.type,
                         tint = VyaparBlue,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = anomaly.type.name.replace("_", " ").lowercase()
+                            text = anomaly.type.replace("_", " ").lowercase()
                                 .replaceFirstChar { it.uppercase() },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -410,7 +413,7 @@ private fun AnomalyCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Divider(
+            HorizontalDivider(
                 color = LightBlueBg,
                 thickness = 1.dp
             )
@@ -472,8 +475,7 @@ private fun RunDetectionButton(
             contentColor = VyaparBlue,
             disabledContainerColor = Color.White.copy(alpha = 0.5f),
             disabledContentColor = VyaparBlue.copy(alpha = 0.5f)
-        ),
-        border = ButtonDefaults.outlinedButtonBorder(enabled = !isRunning)
+        )
     ) {
         if (isRunning) {
             CircularProgressIndicator(
@@ -502,29 +504,3 @@ private fun RunDetectionButton(
         }
     }
 }
-
-enum class AnomalySeverity {
-    HIGH,
-    MEDIUM,
-    LOW
-}
-
-enum class AnomalyType {
-    TAX_MISMATCH,
-    AMOUNT_DISCREPANCY,
-    DUPLICATE_ENTRY,
-    UNUSUAL_PATTERN,
-    THRESHOLD_BREACH,
-    FREQUENCY_ANOMALY,
-    DATA_INCONSISTENCY,
-    FRAUD_INDICATOR
-}
-
-data class AiAnomaly(
-    val id: String,
-    val severity: AnomalySeverity,
-    val type: AnomalyType,
-    val description: String,
-    val detectedValue: String,
-    val expectedRange: String
-)

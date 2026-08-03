@@ -75,17 +75,19 @@ fun AiCashFlowScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                SummaryCard(
-                    currentBalance = uiState.currentBalance,
-                    monthlyAverageIncome = uiState.monthlyAverageIncome,
-                    monthlyAverageExpenses = uiState.monthlyAverageExpenses,
-                    runwayMonths = uiState.runwayMonths
-                )
+                uiState.summary?.let { summary ->
+                    SummaryCard(
+                        currentBalance = summary.currentBalance,
+                        monthlyAverageIncome = summary.monthlyAverageIncome,
+                        monthlyAverageExpenses = summary.monthlyAverageExpenses,
+                        runwayMonths = summary.runwayMonths
+                    )
+                }
             }
 
             item {
                 ChartSection(
-                    monthlyForecasts = uiState.monthlyForecasts
+                    monthlyForecasts = uiState.forecasts
                 )
             }
 
@@ -98,7 +100,7 @@ fun AiCashFlowScreen(
                 )
             }
 
-            items(uiState.monthlyForecasts) { forecast ->
+            items(uiState.forecasts) { forecast ->
                 MonthlyForecastItem(forecast = forecast)
             }
 
@@ -237,7 +239,7 @@ private fun SummaryCard(
 
 @Composable
 private fun ChartSection(
-    monthlyForecasts: List<com.mimo.gstbilling.ui.viewmodel.MonthlyForecast>
+    monthlyForecasts: List<com.mimo.gstbilling.utils.AiCashFlowForecaster.CashFlowForecast>
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -357,7 +359,7 @@ private fun ChartSection(
 
 @Composable
 private fun MonthlyForecastItem(
-    forecast: com.mimo.gstbilling.ui.viewmodel.MonthlyForecast
+    forecast: com.mimo.gstbilling.utils.AiCashFlowForecaster.CashFlowForecast
 ) {
     val trendColor = when {
         forecast.netCashFlow > 0 -> VyaparGreen
