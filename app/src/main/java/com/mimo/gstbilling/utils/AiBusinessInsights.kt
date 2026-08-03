@@ -4,7 +4,6 @@ import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.ExpenseEntity
 import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.util.Calendar
-import java.util.concurrent.TimeUnit
 
 object AiBusinessInsights {
 
@@ -53,20 +52,15 @@ object AiBusinessInsights {
 
         if (trends.size >= 2) {
             val recentChange = trends.last().changePercent
-            val trendDirection = when {
-                recentChange > 5.0 -> "up"
-                recentChange < -5.0 -> "down"
-                else -> "stable"
-            }
             insights.add(
                 BusinessInsight(
                     id = "revenue_trend_${System.currentTimeMillis()}",
                     title = "Revenue Trend",
                     description = "Revenue has ${if (recentChange > 0) "increased" else "decreased"} by ${String.format("%.1f", kotlin.math.abs(recentChange))}% over the last period.",
                     metric = "₹${String.format("%.2f", metrics.totalRevenue)}",
-                    trend = trendDirection,
+                    trend = if (recentChange > 5.0) "up" else if (recentChange < -5.0) "down" else "stable",
                     impact = if (recentChange > 0) "positive" else "negative",
-                    suggestion = if (recentChange > 0) "Maintain current momentum and consider scaling successful strategies." else "Review pricing strategy and identify areas to reduce costs."
+                    suggestion = if (recentChange > 0) "Maintain current momentum." else "Review pricing strategy."
                 )
             )
         }
@@ -78,24 +72,24 @@ object AiBusinessInsights {
                     id = "customer_concentration_${System.currentTimeMillis()}",
                     title = "Customer Concentration",
                     description = "Top customer contributes ${String.format("%.1f", topConcentration)}% of total revenue.",
-                    metric = "${topCustomers.first().partyName}",
+                    metric = topCustomers.first().partyName,
                     trend = if (topConcentration > 30) "up" else "stable",
                     impact = if (topConcentration > 30) "negative" else "neutral",
-                    suggestion = if (topConcentration > 30) "Diversify customer base to reduce dependency on single customer." else "Maintain healthy customer distribution."
+                    suggestion = if (topConcentration > 30) "Diversify customer base." else "Maintain healthy distribution."
                 )
             )
         }
 
-        if (metrics.profitMargin < 20) {
+        if (metrics.profitMargin < 20 && metrics.totalRevenue > 0) {
             insights.add(
                 BusinessInsight(
                     id = "low_margin_${System.currentTimeMillis()}",
                     title = "Low Profit Margin",
-                    description = "Current profit margin is ${String.format("%.1f", metrics.profitMargin)}%, which is below healthy threshold.",
+                    description = "Current profit margin is ${String.format("%.1f", metrics.profitMargin)}%, below healthy threshold.",
                     metric = "${String.format("%.1f", metrics.profitMargin)}%",
                     trend = "down",
                     impact = "negative",
-                    suggestion = "Consider increasing prices or reducing operational costs to improve margins."
+                    suggestion = "Consider increasing prices or reducing costs."
                 )
             )
         }
@@ -112,31 +106,28 @@ object AiBusinessInsights {
                         metric = "₹${String.format("%.2f", avgExpense)} avg",
                         trend = "up",
                         impact = "negative",
-                        suggestion = "Review high expenses to identify potential cost optimization opportunities."
+                        suggestion = "Review high expenses for cost optimization."
                     )
                 )
             }
         }
 
-        if (metrics.averageOrderValue > 0 && metrics.customerRetentionRate < 50) {
+        if (metrics.totalRevenue > 0 && metrics.customerRetentionRate < 50) {
             insights.add(
                 BusinessInsight(
                     id = "retention_opportunity_${System.currentTimeMillis()}",
                     title = "Customer Retention Opportunity",
-                    description = "Customer retention rate is ${String.format("%.1f", metrics.customerRetentionRate)}%. There's room for improvement.",
+                    description = "Customer retention rate is ${String.format("%.1f", metrics.customerRetentionRate)}%.",
                     metric = "${String.format("%.1f", metrics.customerRetentionRate)}%",
                     trend = "down",
                     impact = "negative",
-                    suggestion = "Implement customer loyalty programs and follow-up strategies to improve retention."
+                    suggestion = "Implement loyalty programs to improve retention."
                 )
             )
         }
 
-        if (metrics.totalRevenue > 0) {
-            val growthRate = if (trends.size >= 2) {
-                ((trends.last().amount - trends.first().amount) / trends.first().amount) * 100
-            } else 0.0
-
+        if (metrics.totalRevenue > 0 && trends.size >= 2) {
+            val growthRate = ((trends.last().amount - trends.first().amount) / trends.first().amount) * 100
             if (growthRate > 10) {
                 insights.add(
                     BusinessInsight(
@@ -146,7 +137,7 @@ object AiBusinessInsights {
                         metric = "${String.format("%.1f", growthRate)}%",
                         trend = "up",
                         impact = "positive",
-                        suggestion = "Consider expanding operations or investing in growth initiatives."
+                        suggestion = "Consider expanding operations."
                     )
                 )
             }
@@ -161,7 +152,7 @@ object AiBusinessInsights {
         limit: Int = 10
     ): List<TopCustomer> {
         val partyMap = parties.associateBy { it.id }
-        val customerData = invoices
+        return invoices
             .filter { it.partyId > 0 }
             .groupBy { it.partyId }
             .mapValues { (partyId, partyInvoices) ->
@@ -177,16 +168,15 @@ object AiBusinessInsights {
                     averageOrderValue = averageOrderValue
                 )
             }
+            .values
             .sortedByDescending { it.totalAmount }
-
-        return customerData.take(limit)
+            .take(limit)
     }
 
     fun getSalesTrends(
         invoices: List<InvoiceEntity>,
         months: Int = 6
     ): List<SalesTrend> {
-        val calendar = Calendar.getInstance()
         val monthlyData = mutableMapOf<String, Double>()
 
         for (i in 0 until months) {
@@ -215,14 +205,8 @@ object AiBusinessInsights {
         sortedEntries.forEachIndexed { index, (period, amount) ->
             val changePercent = if (index > 0) {
                 val previousAmount = sortedEntries[index - 1].value
-                if (previousAmount > 0) {
-                    ((amount - previousAmount) / previousAmount) * 100
-                } else {
-                    0.0
-                }
-            } else {
-                0.0
-            }
+                if (previousAmount > 0) ((amount - previousAmount) / previousAmount) * 100 else 0.0
+            } else 0.0
             trends.add(SalesTrend(period, amount, changePercent))
         }
 
@@ -236,19 +220,12 @@ object AiBusinessInsights {
     ): BusinessMetrics {
         val totalRevenue = invoices.sumOf { it.totalAmount }
         val totalExpenses = expenses.sumOf { it.amount }
-        val profitMargin = if (totalRevenue > 0) {
-            ((totalRevenue - totalExpenses) / totalRevenue) * 100
-        } else 0.0
-
-        val averageOrderValue = if (invoices.isNotEmpty()) {
-            totalRevenue / invoices.size
-        } else 0.0
+        val profitMargin = if (totalRevenue > 0) ((totalRevenue - totalExpenses) / totalRevenue) * 100 else 0.0
+        val averageOrderValue = if (invoices.isNotEmpty()) totalRevenue / invoices.size else 0.0
 
         val uniqueParties = invoices.map { it.partyId }.distinct().size
-        val totalTransactions = invoices.size
-        val customerRetentionRate = if (totalTransactions > 0 && uniqueParties > 0) {
-            val repeatCustomers = invoices.groupBy { it.partyId }
-                .count { it.value.size > 1 }
+        val customerRetentionRate = if (uniqueParties > 0) {
+            val repeatCustomers = invoices.groupBy { it.partyId }.count { it.value.size > 1 }
             (repeatCustomers.toDouble() / uniqueParties) * 100
         } else 0.0
 

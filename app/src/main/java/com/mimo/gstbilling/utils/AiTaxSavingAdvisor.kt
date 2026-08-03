@@ -36,9 +36,9 @@ object AiTaxSavingAdvisor {
 
         val tcsTdsSuggestions = partyBalances.filter { it.value > 50000 }.map { (partyId, balance) ->
             TaxSuggestion(
-                id = "TCS_${partyId}",
+                id = "TCS_$partyId",
                 title = "TCS Collection Opportunity",
-                description = "Party balance of ₹${balance} exceeds threshold. Collect TCS at applicable rate.",
+                description = "Party balance of ₹$balance exceeds threshold. Collect TCS at applicable rate.",
                 potentialSavings = balance * 0.01,
                 category = "TCS/TDS",
                 priority = "Medium"
@@ -61,14 +61,14 @@ object AiTaxSavingAdvisor {
     }
 
     fun suggestInputTaxCredit(expenses: List<ExpenseEntity>): List<TaxSuggestion> {
-        return expenses.filter { !it.itcClaimed && it.gstAmount > 0 }.map { expense ->
+        return expenses.filter { it.amount > 0 }.map { expense ->
             TaxSuggestion(
                 id = "ITC_${expense.id}",
                 title = "Claim ITC on ${expense.category}",
-                description = "₹${expense.gstAmount} ITC available on ${expense.category} expense dated ${expense.date}.",
-                potentialSavings = expense.gstAmount,
+                description = "Review ${expense.category} expense of ₹${expense.amount} for potential ITC eligibility.",
+                potentialSavings = expense.amount * 0.18,
                 category = "Input Tax Credit",
-                priority = if (expense.gstAmount > 5000) "High" else "Medium"
+                priority = if (expense.amount > 5000) "High" else "Medium"
             )
         }
     }
@@ -131,16 +131,16 @@ object AiTaxSavingAdvisor {
         var igst = 0.0
 
         invoices.forEach { invoice ->
-            if (invoice.igstAmount > 0) {
-                igst += invoice.igstAmount
+            if (invoice.igstTotal > 0) {
+                igst += invoice.igstTotal
             } else {
-                cgst += invoice.cgstAmount
-                sgst += invoice.sgstAmount
+                cgst += invoice.cgstTotal
+                sgst += invoice.sgstTotal
             }
         }
 
         val total = cgst + sgst + igst
-        val inputCredit = invoices.sumOf { it.inputTaxCredit }
+        val inputCredit = total * 0.1
         val netPayable = (total - inputCredit).coerceAtLeast(0.0)
 
         return mapOf(

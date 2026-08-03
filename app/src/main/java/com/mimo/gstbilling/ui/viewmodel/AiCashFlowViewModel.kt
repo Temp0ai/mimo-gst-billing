@@ -2,10 +2,9 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
-import com.mimo.gstbilling.data.local.entity.ExpenseEntity
-import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.utils.AiCashFlowForecaster
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,7 +20,8 @@ data class AiCashFlowUiState(
 @HiltViewModel
 class AiCashFlowViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiCashFlowUiState())
@@ -30,7 +30,12 @@ class AiCashFlowViewModel @Inject constructor(
     private var companyId: Long = 1L
 
     init {
-        generateForecast()
+        viewModelScope.launch {
+            companyDao.getSelectedCompany().first()?.let { company ->
+                companyId = company.id
+            }
+            generateForecast()
+        }
     }
 
     fun generateForecast() {
@@ -41,9 +46,9 @@ class AiCashFlowViewModel @Inject constructor(
             val expenses = expenseDao.getExpensesByCompany(companyId).first()
 
             val forecasts = AiCashFlowForecaster.forecastCashFlow(invoices, expenses, 6)
-            val totalIncome = invoices.sumOf { it.grandTotal }
+            val totalIncome = invoices.sumOf { it.totalAmount }
             val totalExpenses = expenses.sumOf { it.amount }
-            val summary = AiCashFlowForecaster.generateSummary(expenses, totalIncome - totalExpenses)
+            val summary = AiCashFlowForecaster.generateSummary(invoices, totalIncome - totalExpenses)
 
             _uiState.value = AiCashFlowUiState(
                 forecasts = forecasts,

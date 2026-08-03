@@ -56,7 +56,7 @@ object AiDuplicateDetector {
                     val inv = invoices[idx]
                     DuplicateEntry(inv.id, inv.invoiceNumber, inv.totalAmount, inv.invoiceDate, avgScore)
                 }
-                groups.add(DuplicateGroup("invoice_${i}", entries, avgScore, "invoice"))
+                groups.add(DuplicateGroup("invoice_$i", entries, avgScore, "invoice"))
                 used.add(i)
             }
         }
@@ -77,20 +77,20 @@ object AiDuplicateDetector {
                 val b = parties[j]
                 var score = 0f
                 var components = 0
-                if (a.gstin.isNotBlank() && b.gstin.isNotBlank()) {
-                    val gstSimilarity = calculateSimilarity(a.gstin, b.gstin)
+                if (!a.gstin.isNullOrBlank() && !b.gstin.isNullOrBlank()) {
+                    val gstSimilarity = calculateSimilarity(a.gstin!!, b.gstin!!)
                     if (gstSimilarity > 0.8f) score += gstSimilarity * 2f
                     components += 2
                 }
-                if (a.phone.isNotBlank() && b.phone.isNotBlank()) {
+                if (!a.phone.isNullOrBlank() && !b.phone.isNullOrBlank()) {
                     if (a.phone == b.phone) score += 1.5f
                     components += 1
                 }
-                if (a.email.isNotBlank() && b.email.isNotBlank()) {
+                if (!a.email.isNullOrBlank() && !b.email.isNullOrBlank()) {
                     if (a.email.equals(b.email, ignoreCase = true)) score += 1.5f
                     components += 1
                 }
-                val nameSimilarity = calculateSimilarity(a.partyName.lowercase(), b.partyName.lowercase())
+                val nameSimilarity = calculateSimilarity(a.name.lowercase(), b.name.lowercase())
                 score += nameSimilarity
                 components += 1
                 val finalScore = if (components > 0) score / components else 0f
@@ -104,9 +104,9 @@ object AiDuplicateDetector {
                 val avgScore = scores.average().toFloat()
                 val entries = group.map { idx ->
                     val party = parties[idx]
-                    DuplicateEntry(party.id, party.partyName, 0.0, 0L, avgScore)
+                    DuplicateEntry(party.id, party.name, 0.0, 0L, avgScore)
                 }
-                groups.add(DuplicateGroup("party_${i}", entries, avgScore, "party"))
+                groups.add(DuplicateGroup("party_$i", entries, avgScore, "party"))
                 used.add(i)
             }
         }
@@ -130,7 +130,10 @@ object AiDuplicateDetector {
                 val dateDiff = kotlin.math.abs(a.date - b.date)
                 val dateWindow = TimeUnit.DAYS.toMillis(3)
                 val dateSimilarity = if (dateDiff <= dateWindow) 1f - (dateDiff.toFloat() / dateWindow) else 0f
-                val descSimilarity = calculateSimilarity(a.description.lowercase(), b.description.lowercase())
+                val descSimilarity = calculateSimilarity(
+                    (a.description ?: "").lowercase(),
+                    (b.description ?: "").lowercase()
+                )
                 val score = amountSimilarity * 0.4f + dateSimilarity * 0.2f + descSimilarity * 0.4f
                 if (score >= 0.65f) {
                     group.add(j)
@@ -142,9 +145,9 @@ object AiDuplicateDetector {
                 val avgScore = scores.average().toFloat()
                 val entries = group.map { idx ->
                     val exp = expenses[idx]
-                    DuplicateEntry(exp.id, exp.description, exp.amount, exp.date, avgScore)
+                    DuplicateEntry(exp.id, exp.description ?: exp.category, exp.amount, exp.date, avgScore)
                 }
-                groups.add(DuplicateGroup("expense_${i}", entries, avgScore, "expense"))
+                groups.add(DuplicateGroup("expense_$i", entries, avgScore, "expense"))
                 used.add(i)
             }
         }
@@ -157,30 +160,6 @@ object AiDuplicateDetector {
         if (maxLen == 0) return 1f
         val distance = levenshteinDistance(str1, str2)
         return (1f - distance.toFloat() / maxLen).coerceIn(0f, 1f)
-    }
-
-    fun findExactDuplicates(amounts: List<Double>, threshold: Double = 0.01): List<List<Int>> {
-        if (amounts.size < 2) return emptyList()
-        val indexedAmounts = amounts.mapIndexed { index, amount -> Pair(index, amount) }
-        val used = mutableSetOf<Int>()
-        val groups = mutableListOf<List<Int>>()
-        for (i in indexedAmounts.indices) {
-            if (i in used) continue
-            val group = mutableListOf(indexedAmounts[i].first)
-            for (j in i + 1 until indexedAmounts.size) {
-                if (j in used) continue
-                val diff = kotlin.math.abs(indexedAmounts[i].second - indexedAmounts[j].second)
-                if (diff <= threshold) {
-                    group.add(indexedAmounts[j].first)
-                    used.add(j)
-                }
-            }
-            if (group.size > 1) {
-                groups.add(group.sorted())
-                used.add(i)
-            }
-        }
-        return groups
     }
 
     private fun levenshteinDistance(s1: String, s2: String): Int {

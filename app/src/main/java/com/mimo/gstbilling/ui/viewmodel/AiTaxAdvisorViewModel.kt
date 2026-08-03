@@ -2,10 +2,9 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
-import com.mimo.gstbilling.data.local.entity.ExpenseEntity
-import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.utils.AiTaxSavingAdvisor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,7 +20,8 @@ data class AiTaxAdvisorUiState(
 @HiltViewModel
 class AiTaxAdvisorViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiTaxAdvisorUiState())
@@ -30,7 +30,12 @@ class AiTaxAdvisorViewModel @Inject constructor(
     private var companyId: Long = 1L
 
     init {
-        analyzeTaxSavings()
+        viewModelScope.launch {
+            companyDao.getSelectedCompany().first()?.let { company ->
+                companyId = company.id
+            }
+            analyzeTaxSavings()
+        }
     }
 
     fun analyzeTaxSavings() {

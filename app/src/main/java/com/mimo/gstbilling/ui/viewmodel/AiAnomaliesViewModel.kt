@@ -2,12 +2,10 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
-import com.mimo.gstbilling.data.local.entity.ExpenseEntity
-import com.mimo.gstbilling.data.local.entity.InvoiceEntity
-import com.mimo.gstbilling.data.local.entity.PartyEntity
 import com.mimo.gstbilling.utils.AiAnomalyDetector
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -27,13 +25,22 @@ data class AiAnomaliesUiState(
 class AiAnomaliesViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
     private val partyDao: PartyDao,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiAnomaliesUiState())
     val uiState: StateFlow<AiAnomaliesUiState> = _uiState.asStateFlow()
 
     private var companyId: Long = 1L
+
+    init {
+        viewModelScope.launch {
+            companyDao.getSelectedCompany().first()?.let { company ->
+                companyId = company.id
+            }
+        }
+    }
 
     fun runDetection() {
         viewModelScope.launch {

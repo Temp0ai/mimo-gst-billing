@@ -52,16 +52,35 @@ fun AiDuplicatesScreen(navController: NavController, viewModel: AiDuplicatesView
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Duplicates Found", fontSize = 14.sp, color = VyaparTextSecondary)
                         Text(
-                            "${uiState.duplicateCount}",
+                            "${uiState.totalDuplicates}",
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (uiState.duplicateCount > 0) VyaparRed else VyaparGreen
+                            color = if (uiState.totalDuplicates > 0) VyaparRed else VyaparGreen
                         )
                     }
                 }
             }
 
             item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    listOf("all" to "All", "invoice" to "Invoices", "party" to "Parties", "expense" to "Expenses").forEach { (filter, label) ->
+                        FilterChip(
+                            selected = uiState.selectedFilter == filter,
+                            onClick = { viewModel.setFilter(filter) },
+                            label = { Text(label, fontSize = 12.sp) },
+                            shape = RoundedCornerShape(50)
+                        )
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
                 Button(
                     onClick = { viewModel.scanForDuplicates() },
                     modifier = Modifier
@@ -83,7 +102,7 @@ fun AiDuplicatesScreen(navController: NavController, viewModel: AiDuplicatesView
                 }
             }
 
-            items(uiState.duplicateGroups) { group ->
+            items(uiState.filteredGroups) { group ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -102,13 +121,13 @@ fun AiDuplicatesScreen(navController: NavController, viewModel: AiDuplicatesView
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         group.entries.forEach { entry ->
-                            Text("• ${entry.first} - ₹${String.format("%,.2f", entry.second)}", fontSize = 14.sp, color = TextPrimary)
+                            Text("• ${entry.name} - ₹${String.format("%,.2f", entry.amount)}", fontSize = 14.sp, color = TextPrimary)
                         }
                     }
                 }
             }
 
-            if (uiState.duplicateGroups.isEmpty() && !uiState.isScanning) {
+            if (uiState.filteredGroups.isEmpty() && !uiState.isScanning) {
                 item {
                     Card(
                         modifier = Modifier

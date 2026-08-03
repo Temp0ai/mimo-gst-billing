@@ -2,10 +2,9 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
-import com.mimo.gstbilling.data.local.entity.InvoiceEntity
-import com.mimo.gstbilling.data.local.entity.PartyEntity
 import com.mimo.gstbilling.utils.AiSmartReminders
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -23,7 +22,8 @@ data class AiSmartRemindersUiState(
 @HiltViewModel
 class AiSmartRemindersViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
-    private val partyDao: PartyDao
+    private val partyDao: PartyDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiSmartRemindersUiState())
@@ -32,7 +32,12 @@ class AiSmartRemindersViewModel @Inject constructor(
     private var companyId: Long = 1L
 
     init {
-        generateReminders()
+        viewModelScope.launch {
+            companyDao.getSelectedCompany().first()?.let { company ->
+                companyId = company.id
+            }
+            generateReminders()
+        }
     }
 
     fun generateReminders() {

@@ -3,9 +3,7 @@ package com.mimo.gstbilling.utils
 import com.mimo.gstbilling.data.local.entity.InvoiceEntity
 import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.util.concurrent.TimeUnit
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 object AiSmartReminders {
 
@@ -31,7 +29,7 @@ object AiSmartReminders {
         val reminders = mutableListOf<SmartReminder>()
 
         for (invoice in invoices) {
-            if (invoice.isPaid) continue
+            if (invoice.paymentStatus == "paid") continue
 
             val party = partyMap[invoice.partyId] ?: continue
             val daysOverdue = calculateDaysOverdue(invoice, currentDate)
@@ -44,7 +42,7 @@ object AiSmartReminders {
             }
 
             val message = generateReminderMessage(party, invoice, daysOverdue)
-            val priority = calculatePriority(invoice.amount, daysOverdue)
+            val priority = calculatePriority(invoice.totalAmount, daysOverdue)
 
             reminders.add(
                 SmartReminder(
@@ -53,7 +51,7 @@ object AiSmartReminders {
                     partyName = party.name,
                     invoiceId = invoice.id,
                     invoiceNumber = invoice.invoiceNumber,
-                    amount = invoice.amount,
+                    amount = invoice.totalAmount,
                     daysOverdue = daysOverdue,
                     reminderType = reminderType,
                     suggestedMessage = message,
@@ -72,7 +70,7 @@ object AiSmartReminders {
     ): String {
         val partyName = party.name
         val invoiceNumber = invoice.invoiceNumber
-        val amount = String.format("%.2f", invoice.amount)
+        val amount = String.format("%.2f", invoice.totalAmount)
 
         return when {
             daysOverdue <= 15 -> {
@@ -130,7 +128,7 @@ object AiSmartReminders {
     }
 
     private fun calculateDaysOverdue(invoice: InvoiceEntity, currentDate: Date): Int {
-        val dueDate = invoice.dueDate
+        val dueDate = invoice.dueDate ?: return 0
         val diffMillis = currentDate.time - dueDate
         return TimeUnit.MILLISECONDS.toDays(diffMillis).toInt().coerceAtLeast(0)
     }

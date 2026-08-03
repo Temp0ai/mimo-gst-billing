@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
@@ -26,7 +27,8 @@ data class AiInsightsUiState(
 class AiInsightsViewModel @Inject constructor(
     private val invoiceDao: InvoiceDao,
     private val partyDao: PartyDao,
-    private val expenseDao: ExpenseDao
+    private val expenseDao: ExpenseDao,
+    private val companyDao: CompanyDao
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AiInsightsUiState())
@@ -35,18 +37,24 @@ class AiInsightsViewModel @Inject constructor(
     private var allInvoices: List<InvoiceEntity> = emptyList()
     private var allParties: List<PartyEntity> = emptyList()
     private var allExpenses: List<ExpenseEntity> = emptyList()
+    private var companyId: Long = 1L
 
     init {
-        loadData()
+        viewModelScope.launch {
+            companyDao.getSelectedCompany().first()?.let { company ->
+                companyId = company.id
+            }
+            loadData()
+        }
     }
 
     private fun loadData() {
         viewModelScope.launch {
-            invoiceDao.getInvoicesByCompany(1L).collect { invoices ->
+            invoiceDao.getInvoicesByCompany(companyId).collect { invoices ->
                 allInvoices = invoices
-                partyDao.getPartiesByCompany(1L).collect { parties ->
+                partyDao.getPartiesByCompany(companyId).collect { parties ->
                     allParties = parties
-                    expenseDao.getExpensesByCompany(1L).collect { expenses ->
+                    expenseDao.getExpensesByCompany(companyId).collect { expenses ->
                         allExpenses = expenses
                         refreshInsights()
                     }

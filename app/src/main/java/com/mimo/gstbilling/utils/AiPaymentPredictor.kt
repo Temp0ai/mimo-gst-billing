@@ -5,10 +5,6 @@ import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
-/**
- * AI Payment Predictor - Predicts when customers will pay based on
- * historical payment patterns, party behavior, and invoice characteristics.
- */
 object AiPaymentPredictor {
 
     data class PaymentPrediction(
@@ -17,7 +13,7 @@ object AiPaymentPredictor {
         val predictedDays: Int,
         val predictedDate: Long,
         val confidence: Float,
-        val riskLevel: String, // Low, Medium, High
+        val riskLevel: String,
         val factors: List<String>
     )
 
@@ -25,15 +21,12 @@ object AiPaymentPredictor {
         val partyId: Long,
         val partyName: String,
         val averagePaymentDays: Double,
-        val paymentConsistency: Float, // 0.0 to 1.0
+        val paymentConsistency: Float,
         val totalInvoices: Int,
         val paidOnTimeRate: Float,
         val outstandingAmount: Double
     )
 
-    /**
-     * Predict payment date for an invoice
-     */
     fun predictPaymentDate(
         invoice: InvoiceEntity,
         partyHistory: List<InvoiceEntity>,
@@ -43,23 +36,21 @@ object AiPaymentPredictor {
         val paidInvoices = partyInvoices.filter { it.paymentStatus == "paid" }
 
         val factors = mutableListOf<String>()
-        var baseDays = 30 // Default net 30
+        var baseDays = 30
 
-        // Factor 1: Historical average payment days
         if (paidInvoices.isNotEmpty()) {
             val avgDays = paidInvoices.map { inv ->
-                val paymentDate = inv.updatedAt
-                val invoiceDate = inv.createdAt
-                TimeUnit.MILLISECONDS.toDays(paymentDate - invoiceDate).toDouble()
+                val createdMs = inv.createdAt
+                val now = System.currentTimeMillis()
+                TimeUnit.MILLISECONDS.toDays(now - createdMs).toDouble()
             }.average()
-            baseDays = avgDays.toInt()
+            baseDays = avgDays.toInt().coerceIn(1, 90)
             factors.add("Historical average: ${avgDays.toInt()} days")
         }
 
-        // Factor 2: Party reliability
         val onTimeRate = if (paidInvoices.isNotEmpty()) {
             val onTimeCount = paidInvoices.count { inv ->
-                val days = TimeUnit.MILLISECONDS.toDays(inv.updatedAt - inv.createdAt)
+                val days = TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - inv.createdAt)
                 days <= 30
             }
             onTimeCount.toFloat() / paidInvoices.size
@@ -75,32 +66,30 @@ object AiPaymentPredictor {
             factors.add("Frequent late payer (${(onTimeRate * 100).toInt()}% on time)")
         }
 
-        // Factor 3: Invoice amount impact
-        if (invoice.grandTotal > 100000) {
+        if (invoice.totalAmount > 100000) {
             baseDays += 5
-            factors.add("Large invoice amount (₹${invoice.grandTotal.toInt()})")
-        } else if (invoice.grandTotal < 5000) {
+            factors.add("Large invoice amount (₹${invoice.totalAmount.toInt()})")
+        } else if (invoice.totalAmount < 5000) {
             baseDays -= 3
             factors.add("Small invoice amount")
         }
 
-        // Factor 4: Outstanding balance impact
         val totalOutstanding = partyInvoices
             .filter { it.paymentStatus != "paid" }
-            .sumOf { it.grandTotal }
+            .sumOf { it.totalAmount }
         if (totalOutstanding > 500000) {
             baseDays += 7
             factors.add("High outstanding balance (₹${totalOutstanding.toInt()})")
         }
 
-        // Factor 5: Seasonal patterns
         val month = Calendar.getInstance().get(Calendar.MONTH)
-        if (month in 2..3) { // March-April (year end)
+        if (month in 2..3) {
             baseDays += 5
             factors.add("Year-end period (typically slower payments)")
         }
 
-        // Calculate confidence
+        baseDays = baseDays.coerceIn(1, 90)
+
         val confidence = when {
             paidInvoices.size >= 10 -> 0.85f
             paidInvoices.size >= 5 -> 0.7f
@@ -108,7 +97,6 @@ object AiPaymentPredictor {
             else -> 0.4f
         }
 
-        // Determine risk level
         val riskLevel = when {
             baseDays > 45 || onTimeRate < 0.3f -> "High"
             baseDays > 30 || onTimeRate < 0.6f -> "Medium"
@@ -128,9 +116,6 @@ object AiPaymentPredictor {
         )
     }
 
-    /**
-     * Generate party payment profile
-     */
     fun generatePartyProfile(
         party: PartyEntity,
         invoices: List<InvoiceEntity>
@@ -140,7 +125,7 @@ object AiPaymentPredictor {
 
         val avgPaymentDays = if (paidInvoices.isNotEmpty()) {
             paidInvoices.map { inv ->
-                TimeUnit.MILLISECONDS.toDays(inv.updatedAt - inv.createdAt).toDouble()
+                TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - inv.createdAt).toDouble()
             }.average()
         } else {
             30.0
@@ -148,10 +133,10 @@ object AiPaymentPredictor {
 
         val consistency = if (paidInvoices.size > 1) {
             val days = paidInvoices.map {
-                TimeUnit.MILLISECONDS.toDays(it.updatedAt - it.createdAt).toDouble()
+                TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it.createdAt).toDouble()
             }
             val avg = days.average()
-            val variance = days.map { (it - avg) * (it - avg).toDouble() }.average()
+            val variance = days.map { (it - avg) * (it - avg) }.average()
             val stdDev = Math.sqrt(variance)
             (1.0 - (stdDev / avg)).coerceIn(0.0, 1.0).toFloat()
         } else {
@@ -160,7 +145,7 @@ object AiPaymentPredictor {
 
         val onTimeRate = if (paidInvoices.isNotEmpty()) {
             paidInvoices.count {
-                TimeUnit.MILLISECONDS.toDays(it.updatedAt - it.createdAt) <= 30
+                TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - it.createdAt) <= 30
             }.toFloat() / paidInvoices.size
         } else {
             0.5f
@@ -168,7 +153,7 @@ object AiPaymentPredictor {
 
         val outstanding = partyInvoices
             .filter { it.paymentStatus != "paid" }
-            .sumOf { it.grandTotal }
+            .sumOf { it.totalAmount }
 
         return PartyPaymentProfile(
             partyId = party.id,
@@ -181,9 +166,6 @@ object AiPaymentPredictor {
         )
     }
 
-    /**
-     * Generate payment risk scores for all parties
-     */
     fun generateRiskScores(
         parties: List<PartyEntity>,
         invoices: List<InvoiceEntity>

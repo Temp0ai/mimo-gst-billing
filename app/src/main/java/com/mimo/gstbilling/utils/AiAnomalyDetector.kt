@@ -6,7 +6,6 @@ import com.mimo.gstbilling.data.local.entity.PartyEntity
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.math.sqrt
-import kotlin.math.abs
 
 object AiAnomalyDetector {
 
@@ -42,11 +41,11 @@ object AiAnomalyDetector {
             if (amount > mean + 2 * stdDev) {
                 anomalies.add(
                     Anomaly(
-                        id = "INV-${invoice.invoiceId}-HIGH",
+                        id = "INV-${invoice.id}-HIGH",
                         type = "high_amount",
                         severity = "high",
                         description = "Invoice amount significantly above average",
-                        entityId = invoice.invoiceId,
+                        entityId = invoice.id,
                         entityType = "invoice",
                         detectedValue = amount,
                         expectedRange = "0 - %.2f".format(mean + 2 * stdDev)
@@ -56,11 +55,11 @@ object AiAnomalyDetector {
             if (stdDev > 0 && amount < mean - 2 * stdDev) {
                 anomalies.add(
                     Anomaly(
-                        id = "INV-${invoice.invoiceId}-LOW",
+                        id = "INV-${invoice.id}-LOW",
                         type = "low_amount",
                         severity = "medium",
                         description = "Invoice amount significantly below average",
-                        entityId = invoice.invoiceId,
+                        entityId = invoice.id,
                         entityType = "invoice",
                         detectedValue = amount,
                         expectedRange = "%.2f - %.2f".format(mean - 2 * stdDev, mean + 2 * stdDev)
@@ -70,11 +69,11 @@ object AiAnomalyDetector {
             if (amount > 0 && amount % 1000.0 == 0.0) {
                 anomalies.add(
                     Anomaly(
-                        id = "INV-${invoice.invoiceId}-ROUND",
+                        id = "INV-${invoice.id}-ROUND",
                         type = "round_number",
                         severity = "low",
                         description = "Invoice amount is suspiciously round number",
-                        entityId = invoice.invoiceId,
+                        entityId = invoice.id,
                         entityType = "invoice",
                         detectedValue = amount,
                         expectedRange = "Non-round amounts expected"
@@ -82,16 +81,16 @@ object AiAnomalyDetector {
                 )
             }
             val cal = Calendar.getInstance()
-            cal.time = invoice.invoiceDate
+            cal.timeInMillis = invoice.invoiceDate
             val dayOfWeek = cal.get(Calendar.DAY_OF_WEEK)
             if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
                 anomalies.add(
                     Anomaly(
-                        id = "INV-${invoice.invoiceId}-WEEKEND",
+                        id = "INV-${invoice.id}-WEEKEND",
                         type = "weekend_invoice",
                         severity = "low",
                         description = "Invoice created on weekend",
-                        entityId = invoice.invoiceId,
+                        entityId = invoice.id,
                         entityType = "invoice",
                         detectedValue = 0.0,
                         expectedRange = "Weekdays only"
@@ -107,11 +106,11 @@ object AiAnomalyDetector {
             if (currentNum != -1L && previousNum != -1L && currentNum - previousNum > 1) {
                 anomalies.add(
                     Anomaly(
-                        id = "INV-GAP-${sortedInvoices[i - 1].invoiceId}-${sortedInvoices[i].invoiceId}",
+                        id = "INV-GAP-${sortedInvoices[i - 1].id}-${sortedInvoices[i].id}",
                         type = "sequential_gap",
                         severity = "medium",
                         description = "Invoice number gap detected",
-                        entityId = sortedInvoices[i - 1].invoiceId,
+                        entityId = sortedInvoices[i - 1].id,
                         entityType = "invoice",
                         detectedValue = (currentNum - previousNum).toDouble(),
                         expectedRange = "Sequential numbers"
@@ -136,11 +135,11 @@ object AiAnomalyDetector {
             if (expense.amount > mean + 2 * stdDev) {
                 anomalies.add(
                     Anomaly(
-                        id = "EXP-${expense.expenseId}-LARGE",
+                        id = "EXP-${expense.id}-LARGE",
                         type = "large_expense",
                         severity = "high",
                         description = "Expense significantly above average",
-                        entityId = expense.expenseId,
+                        entityId = expense.id,
                         entityType = "expense",
                         detectedValue = expense.amount,
                         expectedRange = "0 - %.2f".format(mean + 2 * stdDev)
@@ -149,15 +148,15 @@ object AiAnomalyDetector {
             }
         }
 
-        val groupedByDate = expenses.groupBy { it.expenseDate?.time ?: 0L }
+        val groupedByDate = expenses.groupBy { it.date }
         groupedByDate.values.filter { it.size > 1 }.forEach { duplicateGroup ->
             anomalies.add(
                 Anomaly(
-                    id = "EXP-DUP-${duplicateGroup.first().expenseId}",
+                    id = "EXP-DUP-${duplicateGroup.first().id}",
                     type = "duplicate_time",
                     severity = "medium",
                     description = "Multiple expenses at same time",
-                    entityId = duplicateGroup.first().expenseId,
+                    entityId = duplicateGroup.first().id,
                     entityType = "expense",
                     detectedValue = duplicateGroup.size.toDouble(),
                     expectedRange = "1 expense per timestamp"
@@ -165,17 +164,17 @@ object AiAnomalyDetector {
             )
         }
 
-        val categoryExpenses = expenses.groupBy { it.categoryId }
-        categoryExpenses.forEach { (categoryId, categoryExpenses) ->
-            val catMean = categoryExpenses.map { it.amount }.average()
-            categoryExpenses.filter { it.amount > catMean * 3 }.forEach { expense ->
+        val categoryExpenses = expenses.groupBy { it.category }
+        categoryExpenses.forEach { (category, catExpenses) ->
+            val catMean = catExpenses.map { it.amount }.average()
+            catExpenses.filter { it.amount > catMean * 3 }.forEach { expense ->
                 anomalies.add(
                     Anomaly(
-                        id = "EXP-${expense.expenseId}-CAT",
+                        id = "EXP-${expense.id}-CAT",
                         type = "category_excess",
                         severity = "medium",
                         description = "Expense exceeds category average",
-                        entityId = expense.expenseId,
+                        entityId = expense.id,
                         entityType = "expense",
                         detectedValue = expense.amount,
                         expectedRange = "Category avg: %.2f".format(catMean)
@@ -194,15 +193,15 @@ object AiAnomalyDetector {
         val anomalies = mutableListOf<Anomaly>()
 
         val partyInvoices = invoices.groupBy { it.partyId }
-        partyInvoices.forEach { (partyId, partyInvoices) ->
-            if (partyInvoices.size < 3) return@forEach
+        partyInvoices.forEach { (partyId, partyInvList) ->
+            if (partyInvList.size < 3) return@forEach
 
-            val amounts = partyInvoices.map { it.totalAmount }
+            val amounts = partyInvList.map { it.totalAmount }
             val mean = amounts.average()
             val variance = amounts.map { (it - mean) * (it - mean) }.average()
             val stdDev = sqrt(variance)
 
-            partyInvoices.forEach { invoice ->
+            partyInvList.forEach { invoice ->
                 if (invoice.totalAmount > mean + 2 * stdDev) {
                     anomalies.add(
                         Anomaly(
@@ -242,14 +241,15 @@ object AiAnomalyDetector {
         }
 
         parties.forEach { party ->
-            if (party.gstin != null && !isValidGstin(party.gstin!!)) {
+            val gstin = party.gstin
+            if (!gstin.isNullOrBlank() && !isValidGstin(gstin)) {
                 anomalies.add(
                     Anomaly(
-                        id = "PARTY-${party.partyId}-GSTIN",
+                        id = "PARTY-${party.id}-GSTIN",
                         type = "invalid_gstin",
                         severity = "high",
                         description = "Invalid GSTIN format",
-                        entityId = party.partyId,
+                        entityId = party.id,
                         entityType = "party",
                         detectedValue = 0.0,
                         expectedRange = "Valid 15-char GSTIN"
