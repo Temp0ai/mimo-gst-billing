@@ -108,7 +108,7 @@ fun SettingsScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Settings", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif, fontSize = 18.sp)
+                    Text("Settings", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default, fontSize = 18.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -166,7 +166,7 @@ fun SettingsScreen(navController: NavController) {
                         Icon(Icons.Filled.DarkMode, contentDescription = null, tint = Color(0xFF6750A4), modifier = Modifier.size(22.dp))
                     }
                     Spacer(modifier = Modifier.width(14.dp))
-                    Text("Dark Mode", fontSize = 15.sp, color = TextPrimary, fontFamily = FontFamily.SansSerif, modifier = Modifier.weight(1f))
+                    Text("Dark Mode", fontSize = 15.sp, color = TextPrimary, fontFamily = FontFamily.Default, modifier = Modifier.weight(1f))
                     Switch(
                         checked = isDarkMode,
                         onCheckedChange = { ThemeManager.toggleDarkMode() },
@@ -190,7 +190,7 @@ fun SettingsScreen(navController: NavController) {
                             Icon(category.icon, contentDescription = null, tint = category.iconTint, modifier = Modifier.size(22.dp))
                         }
                         Spacer(modifier = Modifier.width(14.dp))
-                        Text(category.title, fontSize = 15.sp, color = TextPrimary, fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
+                        Text(category.title, fontSize = 15.sp, color = TextPrimary, fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                         Icon(
                             if (expandedSection == category.title) Icons.Filled.ExpandLess else Icons.Filled.ChevronRight,
                             contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp)
@@ -211,7 +211,7 @@ fun SettingsScreen(navController: NavController) {
                             ) {
                                 Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(VyaparBlue.copy(alpha = 0.3f)))
                                 Spacer(modifier = Modifier.width(14.dp))
-                                Text(subItem.title, fontSize = 14.sp, color = TextPrimary, fontFamily = FontFamily.SansSerif)
+                                Text(subItem.title, fontSize = 14.sp, color = TextPrimary, fontFamily = FontFamily.Default)
                             }
                         }
                     }

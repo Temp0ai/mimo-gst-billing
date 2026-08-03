@@ -115,7 +115,7 @@ fun SettingsDetailScreen(navController: NavController, title: String) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif, fontSize = 18.sp) },
+                title = { Text(title, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default, fontSize = 18.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
@@ -152,7 +152,7 @@ fun SettingsDetailScreen(navController: NavController, title: String) {
                                         label,
                                         fontSize = 14.sp,
                                         color = TextPrimary,
-                                        fontFamily = FontFamily.SansSerif,
+                                        fontFamily = FontFamily.Default,
                                         modifier = Modifier.weight(1f)
                                     )
                                     Switch(
@@ -178,9 +178,9 @@ fun SettingsDetailScreen(navController: NavController, title: String) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Filled.Settings, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(56.dp))
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary, fontFamily = FontFamily.SansSerif)
+                            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary, fontFamily = FontFamily.Default)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("Settings will be available soon", fontSize = 13.sp, color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                            Text("Settings will be available soon", fontSize = 13.sp, color = TextSecondary, fontFamily = FontFamily.Default)
                         }
                     }
                 }

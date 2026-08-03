@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import com.mimo.gstbilling.ui.viewmodel.CompanySwitchViewModel
 
@@ -48,7 +50,7 @@ fun CompanySwitchScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Switch Company", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif, fontSize = 18.sp)
+                    Text("Switch Company", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default, fontSize = 18.sp)
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -88,8 +90,8 @@ fun CompanySwitchScreen(
                         }
                         Spacer(modifier = Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
-                            Text("Manage Companies", fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium, fontFamily = FontFamily.SansSerif)
-                            Text("${companies.size} companies", fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                            Text("Manage Companies", fontSize = 15.sp, color = TextPrimary, fontWeight = FontWeight.Medium, fontFamily = FontFamily.Default)
+                            Text("${companies.size} companies", fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.Default)
                         }
                         Icon(Icons.Filled.ChevronRight, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
                     }
@@ -128,7 +130,7 @@ fun CompanySwitchScreen(
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White,
-                                fontFamily = FontFamily.SansSerif
+                                fontFamily = FontFamily.Default
                             )
                         }
                         Spacer(modifier = Modifier.width(14.dp))
@@ -138,13 +140,13 @@ fun CompanySwitchScreen(
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = TextPrimary,
-                                fontFamily = FontFamily.SansSerif
+                                fontFamily = FontFamily.Default
                             )
                             if (!company.gstin.isNullOrBlank()) {
-                                Text("GSTIN: ${company.gstin}", fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                                Text("GSTIN: ${company.gstin}", fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.Default)
                             }
                             if (!company.state.isNullOrBlank()) {
-                                Text(company.state, fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                                Text(company.state, fontSize = 12.sp, color = TextSecondary, fontFamily = FontFamily.Default)
                             }
                         }
                         if (company.id == selectedCompanyId) {
@@ -161,56 +163,56 @@ fun CompanySwitchScreen(
     if (showAddDialog) {
         AlertDialog(
             onDismissRequest = { showAddDialog = false },
-            title = { Text("Add Company", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif, fontSize = 18.sp) },
+            title = { Text("Add Company", fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default, fontSize = 18.sp) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     OutlinedTextField(
                         value = newCompanyName,
                         onValueChange = { newCompanyName = it },
-                        label = { Text("Company Name *", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("Company Name *", fontFamily = FontFamily.Default) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                     OutlinedTextField(
                         value = newCompanyGstin,
                         onValueChange = { newCompanyGstin = it },
-                        label = { Text("GSTIN", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("GSTIN", fontFamily = FontFamily.Default) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                     OutlinedTextField(
                         value = newCompanyState,
                         onValueChange = { newCompanyState = it },
-                        label = { Text("State", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("State", fontFamily = FontFamily.Default) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                     OutlinedTextField(
                         value = newCompanyPhone,
                         onValueChange = { newCompanyPhone = it },
-                        label = { Text("Phone", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("Phone", fontFamily = FontFamily.Default) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                     OutlinedTextField(
                         value = newCompanyEmail,
                         onValueChange = { newCompanyEmail = it },
-                        label = { Text("Email", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("Email", fontFamily = FontFamily.Default) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                     OutlinedTextField(
                         value = newCompanyAddress,
                         onValueChange = { newCompanyAddress = it },
-                        label = { Text("Address", fontFamily = FontFamily.SansSerif) },
+                        label = { Text("Address", fontFamily = FontFamily.Default) },
                         maxLines = 3,
                         modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.SansSerif)
+                        textStyle = LocalTextStyle.current.copy(fontFamily = FontFamily.Default)
                     )
                 }
             },
@@ -231,12 +233,12 @@ fun CompanySwitchScreen(
                     shape = RoundedCornerShape(50),
                     colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)
                 ) {
-                    Text("Add Company", color = Color.White, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif)
+                    Text("Add Company", color = Color.White, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.Default)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showAddDialog = false }) {
-                    Text("Cancel", color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                    Text("Cancel", color = TextSecondary, fontFamily = FontFamily.Default)
                 }
             }
         )
