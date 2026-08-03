@@ -2,6 +2,7 @@ package com.mimo.gstbilling.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,10 +22,6 @@ import com.mimo.gstbilling.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsDetailScreen(navController: NavController, title: String) {
-    var toggle1 by remember { mutableStateOf(true) }
-    var toggle2 by remember { mutableStateOf(false) }
-    var textValue by remember { mutableStateOf("") }
-
     val settingsConfig = when (title) {
         "Tax Configuration" -> listOf(
             "Enable GST" to true,
@@ -101,7 +99,7 @@ fun SettingsDetailScreen(navController: NavController, title: String) {
             "Enable Item Variants" to false
         )
         "Currency Settings" -> listOf(
-            "Use Indian Rupee (₹)" to true,
+            "Use Indian Rupee (INR)" to true,
             "Show Currency Symbol" to true,
             "Decimal Places: 2" to true
         )
@@ -117,53 +115,77 @@ fun SettingsDetailScreen(navController: NavController, title: String) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(title, fontWeight = FontWeight.Bold) },
+                title = { Text(title, fontWeight = FontWeight.SemiBold, fontFamily = FontFamily.SansSerif, fontSize = 18.sp) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextPrimary)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary, navigationIconContentColor = TextPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White, titleContentColor = TextPrimary)
             )
         }
     ) { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(LightBlueBg)
+                .background(VyaparBackground)
         ) {
             if (settingsConfig.isNotEmpty()) {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        settingsConfig.forEach { (label, defaultValue) ->
-                            var checked by remember { mutableStateOf(defaultValue) }
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(label, fontSize = 15.sp, color = TextPrimary, modifier = Modifier.weight(1f))
-                                Switch(checked = checked, onCheckedChange = { checked = it }, colors = SwitchDefaults.colors(checkedTrackColor = Primary))
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Column {
+                            settingsConfig.forEachIndexed { index, (label, defaultValue) ->
+                                var checked by remember { mutableStateOf(defaultValue) }
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        label,
+                                        fontSize = 14.sp,
+                                        color = TextPrimary,
+                                        fontFamily = FontFamily.SansSerif,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Switch(
+                                        checked = checked,
+                                        onCheckedChange = { checked = it },
+                                        colors = SwitchDefaults.colors(
+                                            checkedTrackColor = VyaparBlue,
+                                            checkedThumbColor = Color.White,
+                                            uncheckedTrackColor = Color(0xFFE0E0E0)
+                                        )
+                                    )
+                                }
+                                if (index < settingsConfig.lastIndex) {
+                                    HorizontalDivider(color = Color(0xFFF0F0F0), thickness = 0.5.dp, modifier = Modifier.padding(horizontal = 16.dp))
+                                }
                             }
-                            HorizontalDivider(color = Color(0xFFF5F5F5), modifier = Modifier.padding(horizontal = 16.dp))
                         }
                     }
                 }
             } else {
-                Box(modifier = Modifier.fillMaxSize().padding(48.dp), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Filled.Settings, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(64.dp))
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TextPrimary)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Settings will be available soon", fontSize = 14.sp, color = TextSecondary)
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(48.dp), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Filled.Settings, contentDescription = null, tint = TextSecondary.copy(alpha = 0.5f), modifier = Modifier.size(56.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = TextPrimary, fontFamily = FontFamily.SansSerif)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text("Settings will be available soon", fontSize = 13.sp, color = TextSecondary, fontFamily = FontFamily.SansSerif)
+                        }
                     }
                 }
             }
+            item { Spacer(modifier = Modifier.height(16.dp)) }
         }
     }
 }
