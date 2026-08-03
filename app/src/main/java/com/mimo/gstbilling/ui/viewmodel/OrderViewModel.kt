@@ -23,8 +23,10 @@ class OrderViewModel @Inject constructor(
     private val invoiceItemDao: InvoiceItemDao,
     private val companyDao: CompanyDao
 ) : ViewModel() {
+    private var _cachedCompanyId: Long = 1L
     private suspend fun getCurrentCompanyId(): Long {
-        return companyDao.getSelectedCompany().first()?.id ?: 1L
+        if (_cachedCompanyId == 1L) _cachedCompanyId = companyDao.getSelectedCompany().first()?.id ?: 1L
+        return _cachedCompanyId
     }
 
     fun getOrders(orderType: String = "sales_order"): Flow<List<OrderEntity>> = flow {
@@ -51,6 +53,8 @@ class OrderViewModel @Inject constructor(
         val prefix = if (orderType == "sales_order") "SO" else "PO"
         return "$prefix-${String.format("%04d", count + 1)}"
     }
+
+    suspend fun companyId(): Long = getCurrentCompanyId()
 
     fun createOrder(order: OrderEntity, items: List<OrderItemEntity>): Flow<Long> = flow {
         val orderId = orderDao.insertOrder(order)

@@ -334,7 +334,7 @@ fun CreateOrderScreen(
                             scope.launch {
                                 val orderNum = viewModel.getOrderNumber(orderType)
                                 val order = com.mimo.gstbilling.data.local.entity.OrderEntity(
-                                    companyId = 1L,
+                                    companyId = viewModel.companyId(),
                                     partyId = selectedPartyId,
                                     orderNumber = orderNum,
                                     orderDate = orderDate,

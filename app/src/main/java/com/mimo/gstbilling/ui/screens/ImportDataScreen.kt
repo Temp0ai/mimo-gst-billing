@@ -30,6 +30,7 @@ import com.mimo.gstbilling.ui.navigation.Screen
 import com.mimo.gstbilling.ui.theme.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -44,6 +45,13 @@ class ImportViewModel @Inject constructor(
     private val transactionDao: TransactionDao,
     private val companyDao: CompanyDao
 ) : ViewModel() {
+
+    private var _cachedCompanyId: Long = 1L
+    init {
+        viewModelScope.launch {
+            try { _cachedCompanyId = companyDao.getSelectedCompany().first()?.id ?: 1L } catch (_: Exception) {}
+        }
+    }
 
     suspend fun insertCompany(company: CompanyEntity): Long {
         return try { companyDao.insertCompany(company) } catch (_: Exception) { 0L }
@@ -108,7 +116,7 @@ class ImportViewModel @Inject constructor(
             val existing = partyDao.getPartyByName(1L, name)
             if (existing == null) {
                 partyDao.insertParty(PartyEntity(
-                    companyId = 1L, name = name, phone = phone, email = email, gstin = gstin,
+                    companyId = _cachedCompanyId, name = name, phone = phone, email = email, gstin = gstin,
                     address = address, state = state, stateCode = stateCode, balance = balance, partyType = partyType
                 ))
             }
@@ -118,7 +126,7 @@ class ImportViewModel @Inject constructor(
     fun addItem(name: String, hsnCode: String?, description: String?, salePrice: Double, purchasePrice: Double, gstRate: Double, unit: String, stockQuantity: Double, isService: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             itemDao.insertItem(ItemEntity(
-                companyId = 1L, name = name, hsnCode = hsnCode, description = description,
+                companyId = _cachedCompanyId, name = name, hsnCode = hsnCode, description = description,
                 salePrice = salePrice, purchasePrice = purchasePrice, gstRate = gstRate,
                 unit = unit, stockQuantity = stockQuantity, isService = isService
             ))
@@ -135,7 +143,7 @@ class ImportViewModel @Inject constructor(
                 result
             }
             invoiceDao.insertInvoice(InvoiceEntity(
-                companyId = 1L, partyId = parties?.id ?: 0L, invoiceNumber = invoiceNumber, invoiceDate = dateMillis,
+                companyId = _cachedCompanyId, partyId = parties?.id ?: 0L, invoiceNumber = invoiceNumber, invoiceDate = dateMillis,
                 dueDate = null, subTotal = subTotal, discount = discount, taxableAmount = taxableAmount,
                 cgstTotal = cgst, sgstTotal = sgst, igstTotal = igst, totalAmount = total, amountPaid = paid,
                 paymentStatus = status, invoiceType = type
@@ -216,7 +224,7 @@ class ImportViewModel @Inject constructor(
                             } else {
                                 val stateCode = gstin?.take(2) ?: ""
                                 val id = partyDao.insertParty(PartyEntity(
-                                    companyId = 1L, name = partyName, phone = phone, gstin = gstin,
+                                    companyId = _cachedCompanyId, name = partyName, phone = phone, gstin = gstin,
                                     email = null, address = null, state = stateCode, stateCode = stateCode,
                                     balance = 0.0, partyType = "customer"
                                 ))
@@ -239,7 +247,7 @@ class ImportViewModel @Inject constructor(
                         }
 
                         invoiceDao.insertInvoice(InvoiceEntity(
-                            companyId = 1L, partyId = partyId, invoiceNumber = invoiceNo,
+                            companyId = _cachedCompanyId, partyId = partyId, invoiceNumber = invoiceNo,
                             invoiceDate = dateMillis, dueDate = null,
                             subTotal = totalAmount, discount = 0.0, taxableAmount = totalAmount,
                             cgstTotal = 0.0, sgstTotal = 0.0, igstTotal = 0.0,
@@ -301,7 +309,7 @@ class ImportViewModel @Inject constructor(
                     existingParty.id
                 } else {
                     partyDao.insertParty(PartyEntity(
-                        companyId = 1L, name = pd.name, phone = pd.phone,
+                        companyId = _cachedCompanyId, name = pd.name, phone = pd.phone,
                         email = "${pd.name.lowercase().replace(" ", "").replace("&", "and")}@email.com",
                         gstin = pd.gstin, address = pd.addr,
                         state = states[pd.stateIdx].first, stateCode = states[pd.stateIdx].second,
@@ -340,7 +348,7 @@ class ImportViewModel @Inject constructor(
 
             itemList.forEach { item ->
                 itemDao.insertItem(ItemEntity(
-                    companyId = 1L, name = item.name, hsnCode = item.hsn, description = item.name,
+                    companyId = _cachedCompanyId, name = item.name, hsnCode = item.hsn, description = item.name,
                     salePrice = item.salePrice, purchasePrice = item.purchasePrice, gstRate = item.gst,
                     unit = item.unit, stockQuantity = item.stock, isService = item.isService
                 ))
@@ -373,7 +381,7 @@ class ImportViewModel @Inject constructor(
                 val partyId = partyIdMap[inv.partyName] ?: 0L
 
                 invoiceDao.insertInvoice(InvoiceEntity(
-                    companyId = 1L, partyId = partyId, invoiceNumber = inv.invNum, invoiceDate = dateMillis,
+                    companyId = _cachedCompanyId, partyId = partyId, invoiceNumber = inv.invNum, invoiceDate = dateMillis,
                     dueDate = dateMillis + 86400000L * 30, subTotal = inv.sub, discount = inv.disc,
                     discountType = "amount", taxableAmount = inv.taxable, cgstTotal = inv.cgst,
                     sgstTotal = inv.sgst, igstTotal = inv.igst, totalAmount = inv.total,
@@ -486,7 +494,7 @@ fun ImportDataScreen(
 
                                 items.add(
                                     ItemEntity(
-                                        companyId = 1L, name = name,
+                                        companyId = _cachedCompanyId, name = name,
                                         hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         description = name,
                                         salePrice = priceIdx.takeIf { it >= 0 }?.let { cols[it] }?.toDoubleOrNull() ?: 0.0,
@@ -532,7 +540,7 @@ fun ImportDataScreen(
 
                                 parties.add(
                                     PartyEntity(
-                                        companyId = 1L, name = name,
+                                        companyId = _cachedCompanyId, name = name,
                                         phone = phoneIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         gstin = gstinIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
                                         email = emailIdx.takeIf { it >= 0 }?.let { cols[it] }?.ifBlank { null },
@@ -692,7 +700,7 @@ private fun parseItemsCsv(header: List<String>, lines: List<String>): Pair<List<
             if (name.isBlank()) { errs.add("Row ${i + 1}: empty name"); continue }
             items.add(
                 ItemEntity(
-                    companyId = 1L, name = name,
+                    companyId = _cachedCompanyId, name = name,
                     hsnCode = hsnIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     description = descIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     salePrice = priceIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "0" }?.trim()?.toDoubleOrNull() } ?: 0.0,
@@ -735,7 +743,7 @@ private fun parsePartiesCsv(header: List<String>, lines: List<String>): Pair<Lis
             }
             parties.add(
                 PartyEntity(
-                    companyId = 1L, name = name,
+                    companyId = _cachedCompanyId, name = name,
                     phone = phoneIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     gstin = gstinIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },
                     email = emailIdx.takeIf { it >= 0 }?.let { cols.getOrElse(it) { "" }?.trim() }?.ifBlank { null },

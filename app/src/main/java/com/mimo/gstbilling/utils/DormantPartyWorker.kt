@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
 import dagger.assisted.Assisted
@@ -15,12 +16,13 @@ class DormantPartyWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted workerParams: WorkerParameters,
     private val partyDao: PartyDao,
-    private val invoiceDao: InvoiceDao
+    private val invoiceDao: InvoiceDao,
+    private val companyDao: CompanyDao
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
         return try {
-            val companyId = 1L
+            val companyId = companyDao.getSelectedCompany().first()?.id ?: return Result.failure()
             val parties = partyDao.getPartiesByCompany(companyId).first()
             val invoices = invoiceDao.getInvoicesByCompany(companyId).first()
             val now = System.currentTimeMillis()

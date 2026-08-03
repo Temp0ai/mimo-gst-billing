@@ -3,9 +3,11 @@ package com.mimo.gstbilling.utils
 import android.content.Context
 import android.net.Uri
 import com.mimo.gstbilling.data.local.AppDatabase
+import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.entity.ItemEntity
 import com.mimo.gstbilling.data.local.entity.PartyEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import javax.inject.Inject
@@ -14,11 +16,15 @@ import javax.inject.Singleton
 @Singleton
 class CsvImporter @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val companyDao: CompanyDao
 ) {
     data class ImportResult(val success: Int, val failed: Int, val errors: List<String>)
 
+    private suspend fun getCompanyId(): Long = companyDao.getSelectedCompany().first()?.id ?: 1L
+
     suspend fun importItems(uri: Uri): ImportResult {
+        val companyId = getCompanyId()
         val errors = mutableListOf<String>()
         var success = 0
         var failed = 0
@@ -39,7 +45,7 @@ class CsvImporter @Inject constructor(
                         val name = cols.getOrElse(nameIdx) { "" }
                         if (name.isBlank()) { failed++; errors.add("Row ${i + 1}: empty name"); continue }
                         val item = ItemEntity(
-                            companyId = 1L,
+                            companyId = companyId,
                             name = name,
                             hsnCode = cols.getOrElse(hsnIdx) { "" },
                             description = null,
@@ -63,6 +69,7 @@ class CsvImporter @Inject constructor(
     }
 
     suspend fun importParties(uri: Uri): ImportResult {
+        val companyId = getCompanyId()
         val errors = mutableListOf<String>()
         var success = 0
         var failed = 0
@@ -84,7 +91,7 @@ class CsvImporter @Inject constructor(
                         val name = cols.getOrElse(nameIdx) { "" }
                         if (name.isBlank()) { failed++; errors.add("Row ${i + 1}: empty name"); continue }
                         val party = PartyEntity(
-                            companyId = 1L,
+                            companyId = companyId,
                             name = name,
                             phone = cols.getOrElse(phoneIdx) { "" },
                             gstin = cols.getOrElse(gstinIdx) { "" },
