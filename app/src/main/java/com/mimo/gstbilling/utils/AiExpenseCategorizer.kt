@@ -103,7 +103,7 @@ object AiExpenseCategorizer {
         val categoryPatterns = mutableMapOf<String, MutableMap<String, Int>>()
 
         for (expense in historicalExpenses) {
-            val words = expense.description.lowercase().split(" ", ",", ".", "-")
+            val words = (expense.description ?: "").lowercase().split(" ", ",", ".", "-")
             val category = expense.category
 
             if (!categoryPatterns.containsKey(category)) {

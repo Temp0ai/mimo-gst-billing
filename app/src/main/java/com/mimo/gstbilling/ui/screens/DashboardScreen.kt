@@ -110,7 +110,7 @@ fun DashboardScreen(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement", "Party Review", "Bulk Send")),
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Items", "Raw Materials")),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
-        DrawerMenuItem("AI Dashboard", Icons.Filled.Star, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection")),
+        DrawerMenuItem("AI Dashboard", Icons.Filled.Lightbulb, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection")),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
