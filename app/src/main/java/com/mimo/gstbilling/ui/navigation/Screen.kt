@@ -75,6 +75,9 @@ sealed class Screen(val route: String) {
     object EditParty : Screen("edit_party/{partyId}") {
         fun createRoute(partyId: Long) = "edit_party/$partyId"
     }
+    object EditItem : Screen("edit_item/{itemId}") {
+        fun createRoute(itemId: Long) = "edit_item/$itemId"
+    }
     object InvoiceTemplates : Screen("invoice_templates")
     object SettingsDetail : Screen("settings_detail/{title}") {
         fun createRoute(title: String) = "settings_detail/$title"

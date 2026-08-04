@@ -114,6 +114,10 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
             val partyId = backStackEntry.arguments?.getLong("partyId") ?: 0L
             EditPartyScreen(navController, partyId)
         }
+        composable(route = Screen.EditItem.route, arguments = listOf(navArgument("itemId") { type = NavType.LongType })) { backStackEntry ->
+            val itemId = backStackEntry.arguments?.getLong("itemId") ?: 0L
+            EditItemScreen(navController, itemId)
+        }
         composable(route = Screen.EditInvoice.route, arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })) { backStackEntry ->
             val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
             EditInvoiceScreen(navController, invoiceId)

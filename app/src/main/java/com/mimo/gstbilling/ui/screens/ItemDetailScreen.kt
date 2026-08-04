@@ -66,7 +66,7 @@ fun ItemDetailScreen(
                 navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
                 actions = {
                     IconButton(onClick = {
-                        navController.navigate(Screen.AddItem.route)
+                        navController.navigate(Screen.EditItem.createRoute(item?.id ?: 0L))
                     }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Item")
                     }
