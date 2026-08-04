@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.*
 import com.mimo.gstbilling.data.local.entity.*
+import com.mimo.gstbilling.utils.RecycleBinHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -39,7 +40,8 @@ class DashboardViewModel @Inject constructor(
     private val itemDao: ItemDao,
     private val invoiceDao: InvoiceDao,
     private val expenseDao: ExpenseDao,
-    private val transactionDao: TransactionDao
+    private val transactionDao: TransactionDao,
+    private val recycleBinHelper: RecycleBinHelper
 ) : ViewModel() {
 
     private val _data = MutableStateFlow(DashboardData())
@@ -63,14 +65,14 @@ class DashboardViewModel @Inject constructor(
 
     fun deleteInvoice(invoiceId: Long) {
         viewModelScope.launch {
-            invoiceDao.getInvoiceById(invoiceId)?.let { invoiceDao.deleteInvoice(it) }
+            invoiceDao.getInvoiceById(invoiceId)?.let { recycleBinHelper.deleteInvoiceToBin(it) }
             refresh()
         }
     }
 
     fun deleteItem(itemId: Long) {
         viewModelScope.launch {
-            itemDao.getItemById(itemId)?.let { itemDao.deleteItem(it) }
+            itemDao.getItemById(itemId)?.let { recycleBinHelper.deleteItemToBin(it) }
             refresh()
         }
     }

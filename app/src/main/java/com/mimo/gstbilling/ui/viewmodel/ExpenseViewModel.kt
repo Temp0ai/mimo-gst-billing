@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.ExpenseDao
 import com.mimo.gstbilling.data.local.entity.ExpenseEntity
+import com.mimo.gstbilling.utils.RecycleBinHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ExpenseViewModel @Inject constructor(
     private val expenseDao: ExpenseDao,
-    private val companyDao: CompanyDao
+    private val companyDao: CompanyDao,
+    private val recycleBinHelper: RecycleBinHelper
 ) : ViewModel() {
 
     private suspend fun getCurrentCompanyId(): Long {
@@ -65,7 +67,7 @@ class ExpenseViewModel @Inject constructor(
 
     fun deleteExpense(expense: ExpenseEntity) {
         viewModelScope.launch {
-            expenseDao.deleteExpense(expense)
+            recycleBinHelper.deleteExpenseToBin(expense)
             loadExpenses()
             loadTotal()
         }

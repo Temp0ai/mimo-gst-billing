@@ -15,6 +15,9 @@ interface InvoiceItemDao {
     @Query("SELECT ii.* FROM invoice_items ii INNER JOIN invoices i ON ii.invoiceId = i.id WHERE i.companyId = :companyId")
     fun getAllInvoiceItemsByCompany(companyId: Long): Flow<List<InvoiceItemEntity>>
 
+    @Query("DELETE FROM invoice_items WHERE invoiceId = :invoiceId")
+    suspend fun deleteItemsForInvoice(invoiceId: Long)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<InvoiceItemEntity>)
 }

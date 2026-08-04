@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
 import com.mimo.gstbilling.data.local.entity.PartyEntity
+import com.mimo.gstbilling.utils.RecycleBinHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class PartyViewModel @Inject constructor(
     private val partyDao: PartyDao,
-    private val companyDao: CompanyDao
+    private val companyDao: CompanyDao,
+    private val recycleBinHelper: RecycleBinHelper
 ) : ViewModel() {
 
     private val _parties = MutableStateFlow<List<PartyEntity>>(emptyList())
@@ -109,7 +111,7 @@ class PartyViewModel @Inject constructor(
 
     fun deleteParty(party: PartyEntity) {
         viewModelScope.launch {
-            partyDao.deleteParty(party)
+            recycleBinHelper.deletePartyToBin(party)
         }
     }
 

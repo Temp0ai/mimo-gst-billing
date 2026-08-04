@@ -46,9 +46,10 @@ import com.mimo.gstbilling.data.local.entity.*
         LedgerEntryEntity::class,
         RawMaterialEntity::class,
         EstimateEntity::class,
-        OtherIncomeEntity::class
+        OtherIncomeEntity::class,
+        DeletedItemEntity::class
     ],
-    version = 18,
+    version = 19,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -89,6 +90,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun rawMaterialDao(): RawMaterialDao
     abstract fun estimateDao(): EstimateDao
     abstract fun otherIncomeDao(): OtherIncomeDao
+    abstract fun deletedItemDao(): DeletedItemDao
 
     companion object {
         val MIGRATION_17_18 = object : Migration(17, 18) {
@@ -138,6 +140,24 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """)
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_other_income_companyId` ON `other_income` (`companyId`)")
+            }
+        }
+
+        val MIGRATION_18_19 = object : Migration(18, 19) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `deleted_items` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `entityType` TEXT NOT NULL,
+                        `entityId` INTEGER NOT NULL,
+                        `entityName` TEXT NOT NULL,
+                        `amount` REAL NOT NULL,
+                        `entityData` TEXT NOT NULL,
+                        `deletedAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_deleted_items_companyId` ON `deleted_items` (`companyId`)")
             }
         }
 

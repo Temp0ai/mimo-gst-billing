@@ -22,7 +22,7 @@ object AppModule {
             AppDatabase::class.java,
             "mimo_gst_billing_db"
         ).fallbackToDestructiveMigration()
-            .addMigrations(AppDatabase.MIGRATION_14_15, AppDatabase.MIGRATION_15_16, AppDatabase.MIGRATION_16_17, AppDatabase.MIGRATION_17_18)
+            .addMigrations(AppDatabase.MIGRATION_14_15, AppDatabase.MIGRATION_15_16, AppDatabase.MIGRATION_16_17, AppDatabase.MIGRATION_17_18, AppDatabase.MIGRATION_18_19)
             .build()
     }
 
@@ -63,4 +63,5 @@ object AppModule {
     @Provides fun provideRawMaterialDao(db: AppDatabase) = db.rawMaterialDao()
     @Provides fun provideEstimateDao(db: AppDatabase) = db.estimateDao()
     @Provides fun provideOtherIncomeDao(db: AppDatabase) = db.otherIncomeDao()
+    @Provides fun provideDeletedItemDao(db: AppDatabase) = db.deletedItemDao()
 }

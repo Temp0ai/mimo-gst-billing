@@ -9,6 +9,7 @@ import com.mimo.gstbilling.data.local.dao.PartyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.InvoiceItemDao
 import com.mimo.gstbilling.data.local.entity.*
+import com.mimo.gstbilling.utils.RecycleBinHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -21,7 +22,8 @@ class OrderViewModel @Inject constructor(
     private val partyDao: PartyDao,
     private val invoiceDao: InvoiceDao,
     private val invoiceItemDao: InvoiceItemDao,
-    private val companyDao: CompanyDao
+    private val companyDao: CompanyDao,
+    private val recycleBinHelper: RecycleBinHelper
 ) : ViewModel() {
     private var _cachedCompanyId: Long = 1L
     private suspend fun getCurrentCompanyId(): Long {
@@ -119,9 +121,8 @@ class OrderViewModel @Inject constructor(
 
     fun deleteOrder(orderId: Long) {
         viewModelScope.launch {
-            orderItemDao.deleteItemsForOrder(orderId)
             val order = orderDao.getOrderById(orderId)
-            if (order != null) orderDao.deleteOrder(order)
+            if (order != null) recycleBinHelper.deleteOrderToBin(order)
         }
     }
 }
