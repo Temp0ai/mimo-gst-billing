@@ -48,7 +48,8 @@ import com.mimo.gstbilling.data.local.entity.*
         EstimateEntity::class,
         OtherIncomeEntity::class,
         DeletedItemEntity::class,
-        CaAccessEntity::class
+        CaAccessEntity::class,
+        EWayBillEntity::class
     ],
     version = 19,
     exportSchema = false
@@ -93,6 +94,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun otherIncomeDao(): OtherIncomeDao
     abstract fun deletedItemDao(): DeletedItemDao
     abstract fun caAccessDao(): CaAccessDao
+    abstract fun ewayBillDao(): EWayBillDao
 
     companion object {
         val MIGRATION_17_18 = object : Migration(17, 18) {
@@ -177,6 +179,35 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """)
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_ca_access_companyId` ON `ca_access` (`companyId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `eway_bills` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `ewbNumber` TEXT NOT NULL,
+                        `invoiceNumber` TEXT NOT NULL,
+                        `invoiceId` INTEGER,
+                        `partyId` INTEGER,
+                        `partyName` TEXT NOT NULL,
+                        `partyGstin` TEXT,
+                        `placeOfSupply` TEXT NOT NULL,
+                        `invoiceValue` REAL NOT NULL,
+                        `hsnCode` TEXT NOT NULL,
+                        `transporterName` TEXT,
+                        `transporterGstin` TEXT,
+                        `vehicleNumber` TEXT,
+                        `distance` INTEGER,
+                        `supplyType` TEXT NOT NULL DEFAULT 'Outward',
+                        `subSupplyType` TEXT NOT NULL DEFAULT 'Supply',
+                        `documentType` TEXT NOT NULL DEFAULT 'Tax Invoice',
+                        `generatedDate` INTEGER NOT NULL,
+                        `validUntil` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL DEFAULT 'ACTIVE',
+                        `qrCodeData` TEXT,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_eway_bills_companyId` ON `eway_bills` (`companyId`)")
             }
         }
 
