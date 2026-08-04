@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CloudSync
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
@@ -125,7 +126,7 @@ fun DashboardScreen(
         DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Auto Sync", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
         DrawerMenuItem("Share with CA", Icons.Filled.Share),
-        DrawerMenuItem("Recycle Bin", Icons.Filled.Star),
+        DrawerMenuItem("Recycle Bin", Icons.Filled.Delete),
         DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Learning Hub", "Getting Started", "Greeting Cards", "Contact Support")),
     )
 
