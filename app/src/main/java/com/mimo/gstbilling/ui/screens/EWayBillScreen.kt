@@ -161,12 +161,12 @@ private fun CreateEWayBillForm(viewModel: EWayBillViewModel, isGenerating: Boole
                 Icon(Icons.Filled.Verified, contentDescription = null, tint = VyaparGreen, modifier = Modifier.size(48.dp))
                 Text("E-Way Bill Generated!", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = VyaparGreen)
                 HorizontalDivider(color = VyaparDivider)
-                DetailRow("EWB Number", ewb.ewbNumber)
-                DetailRow("Invoice", ewb.invoiceNumber)
-                DetailRow("Party", ewb.partyName)
-                DetailRow("Place of Supply", ewb.placeOfSupply)
-                DetailRow("Value", String.format(Locale.US, "\u20B9%,.2f", ewb.invoiceValue))
-                DetailRow("Valid Until", SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.US).format(Date(ewb.validUntil)))
+                EwbDetailRow("EWB Number", ewb.ewbNumber)
+                EwbDetailRow("Invoice", ewb.invoiceNumber)
+                EwbDetailRow("Party", ewb.partyName)
+                EwbDetailRow("Place of Supply", ewb.placeOfSupply)
+                EwbDetailRow("Value", String.format(Locale.US, "\u20B9%,.2f", ewb.invoiceValue))
+                EwbDetailRow("Valid Until", SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.US).format(Date(ewb.validUntil)))
 
                 if (ewb.qrCodeData != null) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -221,10 +221,10 @@ private fun EWayBillCard(ewb: EWayBillEntity, viewModel: EWayBillViewModel) {
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            DetailRow("Value", String.format(Locale.US, "\u20B9%,.2f", ewb.invoiceValue))
-            DetailRow("Place", ewb.placeOfSupply)
-            DetailRow("Generated", dateFormat.format(Date(ewb.generatedDate)))
-            DetailRow("Valid Until", dateFormat.format(Date(ewb.validUntil)))
+            EwbDetailRow("Value", String.format(Locale.US, "\u20B9%,.2f", ewb.invoiceValue))
+            EwbDetailRow("Place", ewb.placeOfSupply)
+            EwbDetailRow("Generated", dateFormat.format(Date(ewb.generatedDate)))
+            EwbDetailRow("Valid Until", dateFormat.format(Date(ewb.validUntil)))
 
             if (ewb.status == "ACTIVE") {
                 Spacer(modifier = Modifier.height(8.dp))
@@ -239,7 +239,7 @@ private fun EWayBillCard(ewb: EWayBillEntity, viewModel: EWayBillViewModel) {
 }
 
 @Composable
-private fun DetailRow(label: String, value: String) {
+private fun EwbEwbDetailRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, fontSize = 13.sp, color = TextSecondary)
         Text(value, fontSize = 13.sp, color = TextPrimary, fontWeight = FontWeight.Medium)

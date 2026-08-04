@@ -47,7 +47,7 @@ class RecurringInvoiceWorker @AssistedInject constructor(
                     paymentStatus = "unpaid",
                     invoiceType = recurring.invoiceType
                 )
-                val invoiceId = invoiceDao.insert(invoice)
+                val invoiceId = invoiceDao.insertInvoice(invoice)
 
                 // Update recurring invoice
                 val nextDueDate = calculateNextDueDate(recurring.nextDueDate, recurring.frequency)

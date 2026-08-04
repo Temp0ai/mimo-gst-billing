@@ -74,7 +74,7 @@ class EWayBillViewModel @Inject constructor(
             val stateCode = getStateCode(placeOfSupply)
             val datePart = SimpleDateFormat("yyyyMMdd", Locale.US).format(Date())
             val serialPart = String.format("%04d", (System.currentTimeMillis() % 10000))
-            val ewbNumber = "$statePart$datePart$serialPart"
+            val ewbNumber = "$stateCode$datePart$serialPart"
 
             // Generate QR code data
             val qrData = "EWB:$ewbNumber|INV:$invoiceNumber|FROM:${getCompanyGstin()}|TO:${partyGstin ?: "URD"}|VALUE:$invoiceValue|DATE:${SimpleDateFormat("ddMMyyyy", Locale.US).format(Date())}"
