@@ -239,7 +239,7 @@ private fun EWayBillCard(ewb: EWayBillEntity, viewModel: EWayBillViewModel) {
 }
 
 @Composable
-private fun EwbEwbDetailRow(label: String, value: String) {
+private fun EwbDetailRow(label: String, value: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(label, fontSize = 13.sp, color = TextSecondary)
         Text(value, fontSize = 13.sp, color = TextPrimary, fontWeight = FontWeight.Medium)

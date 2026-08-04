@@ -1,6 +1,7 @@
 package com.mimo.gstbilling.ui.viewmodel
 
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mimo.gstbilling.data.local.dao.CaAccessDao
@@ -9,11 +10,12 @@ import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.InvoiceItemDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
 import com.mimo.gstbilling.data.local.entity.CaAccessEntity
-import com.mimo.gstbilling.utils.PdfGenerator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -79,9 +81,23 @@ class CaShareViewModel @Inject constructor(
                     _shareResult.emit("No invoices to share")
                     return@launch
                 }
-                PdfGenerator.generateGstr1Pdf(context, invoices, invoiceItemDao, partyDao)
+                val summary = buildString {
+                    appendLine("GSTR-1 Summary for ${SimpleDateFormat("MMMM yyyy", Locale.US).format(Date())}")
+                    appendLine("Total Invoices: ${invoices.size}")
+                    appendLine("Total Sales: \u20B9${String.format(Locale.US, "%,.2f", invoices.sumOf { it.totalAmount })}")
+                    appendLine("Total Tax: \u20B9${String.format(Locale.US, "%,.2f", invoices.sumOf { it.cgstTotal + it.sgstTotal + it.igstTotal })}")
+                    invoices.forEach { inv ->
+                        appendLine("${inv.invoiceNumber} | ${SimpleDateFormat("dd/MM", Locale.US).format(Date(inv.invoiceDate))} | \u20B9${String.format(Locale.US, "%,.2f", inv.totalAmount)}")
+                    }
+                }
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, summary)
+                    putExtra(Intent.EXTRA_SUBJECT, "GSTR-1 Report")
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share with ${ca.caName}"))
                 caAccessDao.updateLastShared(ca.id, System.currentTimeMillis())
-                _shareResult.emit("GSTR-1 report generated. Choose share method.")
+                _shareResult.emit("GSTR-1 shared with ${ca.caName}")
             } catch (e: Exception) {
                 _shareResult.emit("Error: ${e.message}")
             }
@@ -92,9 +108,23 @@ class CaShareViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val invoices = invoiceDao.getInvoicesByCompany(_companyId.value).first()
-                PdfGenerator.generateGstr1Pdf(context, invoices, invoiceItemDao, partyDao)
+                val parties = partyDao.getPartiesByCompany(_companyId.value).first()
+                val summary = buildString {
+                    appendLine("Business Data Export")
+                    appendLine("Date: ${SimpleDateFormat("dd MMM yyyy", Locale.US).format(Date())}")
+                    appendLine("---")
+                    appendLine("Parties: ${parties.size}")
+                    appendLine("Invoices: ${invoices.size}")
+                    appendLine("Total Sales: \u20B9${String.format(Locale.US, "%,.2f", invoices.sumOf { it.totalAmount })}")
+                }
+                val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, summary)
+                    putExtra(Intent.EXTRA_SUBJECT, "Business Data Export")
+                }
+                context.startActivity(Intent.createChooser(shareIntent, "Share with ${ca.caName}"))
                 caAccessDao.updateLastShared(ca.id, System.currentTimeMillis())
-                _shareResult.emit("All data exported. Choose share method.")
+                _shareResult.emit("Data shared with ${ca.caName}")
             } catch (e: Exception) {
                 _shareResult.emit("Error: ${e.message}")
             }

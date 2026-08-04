@@ -109,33 +109,33 @@ class RecycleBinViewModel @Inject constructor(
                     map?.let {
                         val invoiceJson = gson.toJson(it["invoice"])
                         val invoice = gson.fromJson(invoiceJson, InvoiceEntity::class.java)
-                        invoiceDao.insert(invoice)
+                        invoiceDao.insertInvoice(invoice)
                         val itemsJson = gson.toJson(it["items"])
                         val items = gson.fromJson(itemsJson, Array<InvoiceItemEntity>::class.java)?.toList() ?: emptyList()
-                        items.forEach { item -> invoiceItemDao.insert(item) }
+                        items.forEach { item -> invoiceItemDao.insertInvoiceItem(item) }
                     }
                 }
                 "Item" -> {
                     val item = gson.fromJson(deletedItem.entityData, ItemEntity::class.java)
-                    itemDao.insert(item)
+                    itemDao.insertItem(item)
                 }
                 "Party" -> {
                     val party = gson.fromJson(deletedItem.entityData, PartyEntity::class.java)
-                    partyDao.insert(party)
+                    partyDao.insertParty(party)
                 }
                 "Expense" -> {
                     val expense = gson.fromJson(deletedItem.entityData, ExpenseEntity::class.java)
-                    expenseDao.insert(expense)
+                    expenseDao.insertExpense(expense)
                 }
                 "Order" -> {
                     val map = gson.fromJson(deletedItem.entityData, Map::class.java) as? Map<*, *>
                     map?.let {
                         val orderJson = gson.toJson(it["order"])
                         val order = gson.fromJson(orderJson, OrderEntity::class.java)
-                        orderDao.insert(order)
+                        orderDao.insertOrder(order)
                         val itemsJson = gson.toJson(it["items"])
                         val items = gson.fromJson(itemsJson, Array<OrderItemEntity>::class.java)?.toList() ?: emptyList()
-                        items.forEach { item -> orderItemDao.insert(item) }
+                        items.forEach { item -> orderItemDao.insertAll(listOf(item)) }
                     }
                 }
             }
