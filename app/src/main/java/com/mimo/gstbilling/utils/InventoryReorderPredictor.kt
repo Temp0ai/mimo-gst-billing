@@ -60,7 +60,7 @@ object InventoryReorderPredictor {
                     daysUntilStockout = daysUntilStockout,
                     suggestedReorderQty = String.format("%.0f", suggestedReorderQty).toDouble(),
                     urgency = urgency,
-                    reorderValue = suggestedReorderQty * item.costPrice
+                    reorderValue = suggestedReorderQty * item.purchasePrice
                 )
             } else null
         }.sortedBy { it.daysUntilStockout }.take(20)

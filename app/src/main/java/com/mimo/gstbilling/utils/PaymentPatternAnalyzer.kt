@@ -33,15 +33,15 @@ object PaymentPatternAnalyzer {
             val partyPaid = paidInvoices.filter { it.partyId == party.id }
             if (partyPaid.size < 2) return@mapNotNull null
 
-            val daysToPay = partyPaid.map { inv ->
-                ((inv.updatedAt - inv.invoiceDate) / (24 * 60 * 60 * 1000)).toInt().coerceAtLeast(0)
+            val daysToPay = paidInvoices.map { inv ->
+                ((inv.createdAt - inv.invoiceDate) / (24 * 60 * 60 * 1000)).toInt().coerceAtLeast(0)
             }
 
             val avgDays = daysToPay.average()
             val onTimePayments = daysToPay.count { it <= 30 }
             val onTimeRate = if (partyPaid.isNotEmpty()) onTimePayments.toDouble() / partyPaid.size else 0.0
 
-            val payDays = partyPaid.map { Date(it.updatedAt) }
+            val payDays = partyPaid.map { Date(it.createdAt) }
             val dayOfWeek = payDays.groupBy { dateFormat.format(it) }.maxByOrNull { it.value.size }?.key ?: "Unknown"
             val month = payDays.groupBy { monthFormat.format(it) }.maxByOrNull { it.value.size }?.key ?: "Unknown"
 
