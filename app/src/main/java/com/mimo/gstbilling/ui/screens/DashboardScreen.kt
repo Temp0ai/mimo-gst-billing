@@ -111,7 +111,7 @@ fun DashboardScreen(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement", "Party Review", "Bulk Send")),
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Items", "Raw Materials")),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
-        DrawerMenuItem("AI Dashboard", Icons.Filled.Assessment, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection")),
+        DrawerMenuItem("AI Dashboard", Icons.Filled.Assessment, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection", "Smart Pricing", "Inventory Reorder", "Customer Churn", "Sales Trend", "Party Risk Score", "GST Filing", "Expense Optimizer", "Business Health", "Invoice Suggestions", "Payment Patterns")),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
@@ -341,6 +341,16 @@ fun DashboardScreen(
                                                         "Business Insights" -> navController.navigate(Screen.AiInsights.route)
                                                         "Duplicate Check" -> navController.navigate(Screen.AiDuplicates.route)
                                                         "Anomaly Detection" -> navController.navigate(Screen.AiAnomalies.route)
+                                                        "Smart Pricing" -> navController.navigate(Screen.SmartPricing.route)
+                                                        "Inventory Reorder" -> navController.navigate(Screen.InventoryReorder.route)
+                                                        "Customer Churn" -> navController.navigate(Screen.CustomerChurn.route)
+                                                        "Sales Trend" -> navController.navigate(Screen.SalesTrend.route)
+                                                        "Party Risk Score" -> navController.navigate(Screen.PartyRisk.route)
+                                                        "GST Filing" -> navController.navigate(Screen.GstFiling.route)
+                                                        "Expense Optimizer" -> navController.navigate(Screen.ExpenseOptimizer.route)
+                                                        "Business Health" -> navController.navigate(Screen.BusinessHealth.route)
+                                                        "Invoice Suggestions" -> navController.navigate(Screen.SmartInvoiceSuggest.route)
+                                                        "Payment Patterns" -> navController.navigate(Screen.PaymentPattern.route)
                                                         "Contact Support" -> {
                                                             val emailIntent = android.content.Intent(android.content.Intent.ACTION_SENDTO).apply {
                                                                 putExtra(android.content.Intent.EXTRA_SUBJECT, "Support Request - Mimo GST Billing")

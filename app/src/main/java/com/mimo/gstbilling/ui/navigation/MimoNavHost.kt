@@ -307,5 +307,15 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.AiInsights.route) { AiInsightsScreen(navController) }
         composable(Screen.AiDuplicates.route) { AiDuplicatesScreen(navController) }
         composable(Screen.AiAnomalies.route) { AiAnomaliesScreen(navController) }
+        composable(Screen.SmartPricing.route) { SmartPricingScreen(navController) }
+        composable(Screen.InventoryReorder.route) { InventoryReorderScreen(navController) }
+        composable(Screen.CustomerChurn.route) { CustomerChurnScreen(navController) }
+        composable(Screen.SalesTrend.route) { SalesTrendScreen(navController) }
+        composable(Screen.PartyRisk.route) { PartyRiskScreen(navController) }
+        composable(Screen.GstFiling.route) { GstFilingScreen(navController) }
+        composable(Screen.ExpenseOptimizer.route) { ExpenseOptimizerScreen(navController) }
+        composable(Screen.BusinessHealth.route) { BusinessHealthScreen(navController) }
+        composable(Screen.SmartInvoiceSuggest.route) { SmartInvoiceSuggestScreen(navController) }
+        composable(Screen.PaymentPattern.route) { PaymentPatternScreen(navController) }
     }
 }

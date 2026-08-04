@@ -18,15 +18,18 @@ import androidx.core.view.WindowCompat
 object ThemeManager {
     var isDarkMode = mutableStateOf(false)
     private var prefs: android.content.SharedPreferences? = null
+    private var currentActivity: Activity? = null
 
     fun init(context: android.content.Context) {
         prefs = context.getSharedPreferences("mimo_prefs", android.content.Context.MODE_PRIVATE)
         isDarkMode.value = prefs?.getBoolean("dark_mode", false) ?: false
+        if (context is Activity) currentActivity = context
     }
 
     fun toggleDarkMode() {
         isDarkMode.value = !isDarkMode.value
         prefs?.edit()?.putBoolean("dark_mode", isDarkMode.value)?.apply()
+        currentActivity?.recreate()
     }
 }
 
@@ -35,7 +38,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,
     secondary = Secondary,
     onSecondary = Color.White,
-    background = LightBlueBg,
+    background = Color(0xFFF5F6F6),
     surface = Color.White,
     surfaceVariant = Color(0xFFF5F6F6),
     onSurface = TextPrimary,
@@ -185,7 +188,9 @@ fun MimoGstBillingTheme(content: @Composable () -> Unit) {
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = if (darkMode) Color(0xFF121212).toArgb() else Primary.toArgb()
+            window.navigationBarColor = if (darkMode) Color(0xFF1E1E1E).toArgb() else Color.White.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkMode
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkMode
         }
     }
     MaterialTheme(
