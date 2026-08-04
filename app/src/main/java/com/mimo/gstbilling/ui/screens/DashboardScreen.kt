@@ -125,7 +125,7 @@ fun DashboardScreen(
         DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Auto Sync", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
         DrawerMenuItem("Share with CA", Icons.Filled.Share),
-        DrawerMenuItem("Recycle Bin", Icons.Filled.DeleteOutline),
+        DrawerMenuItem("Recycle Bin", Icons.AutoMirrored.Filled.List),
         DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Learning Hub", "Getting Started", "Greeting Cards", "Contact Support")),
     )
 
