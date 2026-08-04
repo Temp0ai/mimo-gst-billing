@@ -64,4 +64,5 @@ object AppModule {
     @Provides fun provideEstimateDao(db: AppDatabase) = db.estimateDao()
     @Provides fun provideOtherIncomeDao(db: AppDatabase) = db.otherIncomeDao()
     @Provides fun provideDeletedItemDao(db: AppDatabase) = db.deletedItemDao()
+    @Provides fun provideCaAccessDao(db: AppDatabase) = db.caAccessDao()
 }

@@ -47,7 +47,8 @@ import com.mimo.gstbilling.data.local.entity.*
         RawMaterialEntity::class,
         EstimateEntity::class,
         OtherIncomeEntity::class,
-        DeletedItemEntity::class
+        DeletedItemEntity::class,
+        CaAccessEntity::class
     ],
     version = 19,
     exportSchema = false
@@ -91,6 +92,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun estimateDao(): EstimateDao
     abstract fun otherIncomeDao(): OtherIncomeDao
     abstract fun deletedItemDao(): DeletedItemDao
+    abstract fun caAccessDao(): CaAccessDao
 
     companion object {
         val MIGRATION_17_18 = object : Migration(17, 18) {
@@ -158,6 +160,23 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                 """)
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_deleted_items_companyId` ON `deleted_items` (`companyId`)")
+
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS `ca_access` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `companyId` INTEGER NOT NULL,
+                        `caName` TEXT NOT NULL,
+                        `caEmail` TEXT NOT NULL,
+                        `caPhone` TEXT,
+                        `caGstin` TEXT,
+                        `firmName` TEXT,
+                        `accessLevel` TEXT NOT NULL DEFAULT 'view_only',
+                        `lastSharedAt` INTEGER NOT NULL DEFAULT 0,
+                        `isActive` INTEGER NOT NULL DEFAULT 1,
+                        `createdAt` INTEGER NOT NULL
+                    )
+                """)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_ca_access_companyId` ON `ca_access` (`companyId`)")
             }
         }
 

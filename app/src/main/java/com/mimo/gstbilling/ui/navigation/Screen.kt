@@ -104,6 +104,7 @@ sealed class Screen(val route: String) {
     object TaxSettings : Screen("tax_settings")
     object BankAccounts : Screen("bank_accounts")
     object RecycleBin : Screen("recycle_bin")
+    object CaShare : Screen("ca_share")
     object AgingReport : Screen("aging_report")
     object PaymentTerms : Screen("payment_terms")
     object TransactionPrefixes : Screen("transaction_prefixes")

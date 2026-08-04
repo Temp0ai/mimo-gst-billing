@@ -124,6 +124,8 @@ fun DashboardScreen(
         DrawerMenuItem("Reports & Utilities", Icons.Filled.TrendingUp, hasExpand = true, subItems = listOf("GSTIN Verify", "Other Income Report", "VAT 201 Return", "Barcode Scanner", "Thermal Printer", "Import Data", "Vyapar Import")),
         DrawerMenuItem("Sync & Backup", Icons.Filled.CloudSync, hasExpand = true, subItems = listOf("Auto Backup", "Auto Sync", "Backup to phone", "Backup to e-mail", "Restore backup")),
         DrawerMenuItem("Online Store", Icons.Filled.Store, hasExpand = true, subItems = listOf("Store Settings", "Products")),
+        DrawerMenuItem("Share with CA", Icons.Filled.Share),
+        DrawerMenuItem("Recycle Bin", Icons.Filled.DeleteSweep),
         DrawerMenuItem("Help & Support", Icons.Filled.Warning, hasExpand = true, subItems = listOf("FAQs", "Learning Hub", "Getting Started", "Greeting Cards", "Contact Support")),
     )
 
@@ -248,6 +250,8 @@ fun DashboardScreen(
                                                     "Items" -> navController.navigate(Screen.Items.route)
                                                     "Business Dashboard" -> navController.navigate(Screen.AnalyticsDashboard.route)
                                                     "AI Dashboard" -> navController.navigate(Screen.AiDashboard.route)
+                                                    "Share with CA" -> navController.navigate(Screen.CaShare.route)
+                                                    "Recycle Bin" -> navController.navigate(Screen.RecycleBin.route)
                                                     "Reports" -> navController.navigate(Screen.Reports.route)
                                                     "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
                                                     "Expense" -> navController.navigate(Screen.Expenses.route)
