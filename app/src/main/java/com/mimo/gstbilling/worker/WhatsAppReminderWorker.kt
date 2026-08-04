@@ -9,8 +9,6 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
-import com.mimo.gstbilling.MainActivity
-import com.mimo.gstbilling.R
 import com.mimo.gstbilling.data.local.dao.CompanyDao
 import com.mimo.gstbilling.data.local.dao.InvoiceDao
 import com.mimo.gstbilling.data.local.dao.PartyDao
@@ -95,12 +93,13 @@ class WhatsAppReminderWorker @AssistedInject constructor(
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(message)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(launchPendingIntent)
-            .addAction(R.mipmap.ic_launcher, "Send WhatsApp", pendingIntent)
+            .addAction(android.R.drawable.ic_dialog_info, "Send WhatsApp", pendingIntent)
             .setAutoCancel(true)
             .build()
 

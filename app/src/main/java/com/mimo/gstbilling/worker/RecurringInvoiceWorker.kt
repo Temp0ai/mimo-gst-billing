@@ -39,13 +39,18 @@ class RecurringInvoiceWorker @AssistedInject constructor(
                 val invoice = InvoiceEntity(
                     companyId = companyId,
                     partyId = recurring.partyId,
-                    partyName = recurring.partyName,
                     invoiceNumber = invoiceNumber,
                     invoiceDate = now,
-                    totalAmount = recurring.amount,
+                    dueDate = now + (30L * 24 * 60 * 60 * 1000),
+                    subTotal = recurring.amount,
                     taxableAmount = recurring.amount,
+                    cgstTotal = 0.0,
+                    sgstTotal = 0.0,
+                    igstTotal = 0.0,
+                    totalAmount = recurring.amount,
                     paymentStatus = "unpaid",
-                    invoiceType = recurring.invoiceType
+                    invoiceType = recurring.invoiceType,
+                    notes = recurring.description
                 )
                 val invoiceId = invoiceDao.insertInvoice(invoice)
 
