@@ -15,6 +15,7 @@ import com.mimo.gstbilling.ui.theme.MimoGstBillingTheme
 import com.mimo.gstbilling.ui.theme.ThemeManager
 import com.mimo.gstbilling.utils.BiometricHelper
 import com.mimo.gstbilling.utils.DormantPartyNotifier
+import com.mimo.gstbilling.worker.RecurringInvoiceWorker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,6 +27,7 @@ class MainActivity : FragmentActivity() {
 
         DormantPartyNotifier.createNotificationChannel(this)
         DormantPartyNotifier.scheduleDailyCheck(this)
+        RecurringInvoiceWorker.schedule(this)
 
         val startDestination = if (BiometricHelper.isBiometricLockEnabled(this)) {
             Screen.BiometricLock.route
