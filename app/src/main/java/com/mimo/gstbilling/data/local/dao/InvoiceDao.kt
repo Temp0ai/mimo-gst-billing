@@ -24,6 +24,9 @@ interface InvoiceDao {
     @Delete
     suspend fun deleteInvoice(invoice: InvoiceEntity)
 
+    @Query("SELECT * FROM invoices WHERE companyId = :companyId AND paymentStatus != 'paid' ORDER BY invoiceDate DESC")
+    fun getUnpaidInvoices(companyId: Long): Flow<List<InvoiceEntity>>
+
     @Query("SELECT COUNT(*) FROM invoices WHERE companyId = :companyId AND invoiceType = 'sales'")
     suspend fun getSalesInvoiceCount(companyId: Long): Int
 
