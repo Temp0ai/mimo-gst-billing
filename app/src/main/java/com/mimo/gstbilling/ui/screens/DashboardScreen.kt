@@ -7,8 +7,10 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Assessment
@@ -111,7 +113,7 @@ fun DashboardScreen(
         DrawerMenuItem("Parties", Icons.Filled.Group, hasExpand = true, subItems = listOf("All Parties", "Party Groups", "Party Statement", "Party Review", "Bulk Send")),
         DrawerMenuItem("Items", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Items", "Raw Materials")),
         DrawerMenuItem("Business Dashboard", Icons.Filled.Category),
-        DrawerMenuItem("AI Dashboard", Icons.Filled.Assessment, hasExpand = true, subItems = listOf("AI Overview", "Smart Reminders", "Cash Flow Forecast", "Tax Advisor", "Business Insights", "Duplicate Check", "Anomaly Detection", "Smart Pricing", "Inventory Reorder", "Customer Churn", "Sales Trend", "Party Risk Score", "GST Filing", "Expense Optimizer", "Business Health", "Invoice Suggestions", "Payment Patterns")),
+        DrawerMenuItem("AI Dashboard", Icons.Filled.Assessment, hasExpand = false),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
         DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
@@ -132,7 +134,7 @@ fun DashboardScreen(
                 modifier = Modifier.width(300.dp),
                 drawerContainerColor = Color.White
             ) {
-                Column(modifier = Modifier.statusBarsPadding()) {
+                Column(modifier = Modifier.statusBarsPadding().verticalScroll(rememberScrollState())) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -245,6 +247,7 @@ fun DashboardScreen(
                                                     "Parties" -> navController.navigate(Screen.Parties.route)
                                                     "Items" -> navController.navigate(Screen.Items.route)
                                                     "Business Dashboard" -> navController.navigate(Screen.AnalyticsDashboard.route)
+                                                    "AI Dashboard" -> navController.navigate(Screen.AiDashboard.route)
                                                     "Reports" -> navController.navigate(Screen.Reports.route)
                                                     "Delivery Challans" -> navController.navigate(Screen.DeliveryChallan.route)
                                                     "Expense" -> navController.navigate(Screen.Expenses.route)
