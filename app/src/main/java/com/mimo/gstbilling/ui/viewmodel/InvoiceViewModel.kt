@@ -504,4 +504,11 @@ class InvoiceViewModel @Inject constructor(
         loadReferenceData()
         return savedItem
     }
+
+    suspend fun savePurchaseInvoice(invoice: InvoiceEntity, items: List<InvoiceItemEntity>) {
+        val invoiceId = invoiceDao.insertInvoice(invoice)
+        items.forEach { item ->
+            invoiceItemDao.insertInvoiceItem(item.copy(invoiceId = invoiceId))
+        }
+    }
 }

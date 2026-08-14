@@ -322,5 +322,6 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.BusinessHealth.route) { BusinessHealthScreen(navController) }
         composable(Screen.SmartInvoiceSuggest.route) { SmartInvoiceSuggestScreen(navController) }
         composable(Screen.PaymentPattern.route) { PaymentPatternScreen(navController) }
+        composable(Screen.AutoCapturePurchase.route) { AutoCapturePurchaseScreen(navController) }
     }
 }

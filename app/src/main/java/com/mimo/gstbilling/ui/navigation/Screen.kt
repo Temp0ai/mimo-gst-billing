@@ -263,6 +263,7 @@ sealed class Screen(val route: String) {
     object AiInsights : Screen("ai_insights")
     object AiDuplicates : Screen("ai_duplicates")
     object AiAnomalies : Screen("ai_anomalies")
+    object AutoCapturePurchase : Screen("auto_capture_purchase")
     object SmartPricing : Screen("smart_pricing")
     object InventoryReorder : Screen("inventory_reorder")
     object CustomerChurn : Screen("customer_churn")

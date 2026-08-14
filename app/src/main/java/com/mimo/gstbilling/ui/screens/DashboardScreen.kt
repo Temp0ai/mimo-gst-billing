@@ -117,7 +117,7 @@ fun DashboardScreen(
         DrawerMenuItem("AI Dashboard", Icons.Filled.Assessment, hasExpand = false),
         DrawerMenuItem("Reports", Icons.Filled.PieChart),
         DrawerMenuItem("Sale", Icons.Filled.FormatListBulleted, hasExpand = true, subItems = listOf("All Sales", "Create Sale", "Invoice Templates", "Estimates", "Credit Notes")),
-        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Debit Notes")),
+        DrawerMenuItem("Purchase", Icons.Filled.ShoppingCart, hasExpand = true, subItems = listOf("All Purchases", "Create Purchase", "Auto Capture Bill", "Debit Notes")),
         DrawerMenuItem("Delivery Challans", Icons.Filled.LocalShipping),
         DrawerMenuItem("Expense", Icons.Filled.Note, hasAddIcon = true),
         DrawerMenuItem("Cash & Bank", Icons.Filled.Store, hasExpand = true, subItems = listOf("Cash Book", "Bank Accounts")),
@@ -316,6 +316,7 @@ fun DashboardScreen(
                                                         "Credit Notes" -> navController.navigate(Screen.CreditNote.route)
                                                         "All Purchases" -> navController.navigate(Screen.Purchases.route)
                                                         "Create Purchase" -> navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "purchase"))
+                                                        "Auto Capture Bill" -> navController.navigate(Screen.AutoCapturePurchase.route)
                                                         "Debit Notes" -> navController.navigate(Screen.DebitNote.route)
                                                         "Cash Book" -> navController.navigate(Screen.CashBook.route)
                                                         "Bank Accounts" -> navController.navigate(Screen.BankAccounts.route)
