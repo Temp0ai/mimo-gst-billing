@@ -239,6 +239,7 @@ fun AutoCapturePurchaseScreen(
                                 partyId = 0L,
                                 invoiceNumber = invoiceNumber,
                                 invoiceDate = System.currentTimeMillis(),
+                                dueDate = null,
                                 subTotal = taxableAmount,
                                 taxableAmount = taxableAmount,
                                 cgstTotal = cgst,
@@ -252,13 +253,13 @@ fun AutoCapturePurchaseScreen(
                             invoiceViewModel.savePurchaseInvoice(invoice, items.map { item ->
                                 InvoiceItemEntity(
                                     invoiceId = 0L,
-                                    companyId = companyId,
                                     itemId = 0L,
                                     itemName = item.name,
                                     hsnCode = "",
                                     quantity = item.quantity,
                                     unit = "Pcs",
                                     price = item.rate,
+                                    gstRate = taxRate,
                                     taxableAmount = item.amount / (1 + taxRate / 100),
                                     cgstAmount = item.amount / (1 + taxRate / 100) * taxRate / 200,
                                     sgstAmount = item.amount / (1 + taxRate / 100) * taxRate / 200,
