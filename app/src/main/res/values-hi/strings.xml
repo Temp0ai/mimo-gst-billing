@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">मिमो GST बिलिंग</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard">डैशबोर्ड</string>
+    <string name="business_dashboard">व्यापार डैशबोर्ड</string>
+    <string name="you_will_get">आपको मिलेगा</string>
+    <string name="you_will_give">आपको देना है</string>
+    <string name="sale_this_month">बिक्री (%s)</string>
+    <string name="purchase_this_month">खरीद (%s)</string>
+    <string name="total_sales">कुल बिक्री</string>
+    <string name="total_purchase">कुल खरीद</string>
+    <string name="receivable">प्राप्य</string>
+    <string name="payable">देय</string>
+    <string name="pending_amount">लंबित राशि</string>
+    <string name="total_transactions">कुल लेनदेन</string>
+
+    <!-- Navigation -->
+    <string name="parties">पक्ष</string>
+    <string name="items">वस्तुएँ</string>
+    <string name="invoices">चालान</string>
+    <string name="reports">रिपोर्ट</string>
+    <string name="settings">सेटिंग्स</string>
+    <string name="sales">बिक्री</string>
+    <string name="purchases">खरीद</string>
+    <string name="expenses">व्यय</string>
+    <string name="orders">ऑर्डर</string>
+    <string name="cash_bank">नकद और बैंक</string>
+    <string name="delivery_challans">डिलीवरी चालान</string>
+    <string name="credit_notes">क्रेडिट नोट</string>
+    <string name="debit_notes">डेबिट नोट</string>
+    <string name="reports_utilities">रिपोर्ट और उपयोगिताएँ</string>
+    <string name="sync_backup">सिंक और बैकअप</string>
+    <string name="online_store">ऑनलाइन स्टोर</string>
+    <string name="help_support">सहायता और समर्थन</string>
+
+    <!-- Party / Contact -->
+    <string name="add_party">पक्ष जोड़ें</string>
+    <string name="edit_party">पक्ष संपादित करें</string>
+    <string name="party_details">पक्ष विवरण</string>
+    <string name="party_name">पक्ष का नाम</string>
+    <string name="party_type">पक्ष का प्रकार</string>
+    <string name="customer">ग्राहक</string>
+    <string name="supplier">आपूर्तिकर्ता</string>
+    <string name="both">दोनों</string>
+    <string name="phone_number">फ़ोन नंबर</string>
+    <string name="email">ईमेल</string>
+    <string name="gstin">GSTIN</string>
+    <string name="billing_address">बिलिंग पता</string>
+    <string name="shipping_address">शिपिंग पता</string>
+    <string name="opening_balance">प्रारंभिक शेष</string>
+    <string name="party_groups">पक्ष समूह</string>
+    <string name="party_statement">पक्ष विवरण</string>
+    <string name="all_parties">सभी पक्ष</string>
+    <string name="customers">ग्राहक</string>
+    <string name="suppliers">आपूर्तिकर्ता</string>
+    <string name="search_party">पक्ष खोजें</string>
+
+    <!-- Item / Inventory -->
+    <string name="add_item">वस्तु जोड़ें</string>
+    <string name="edit_item">वस्तु संपादित करें</string>
+    <string name="item_name">वस्तु का नाम</string>
+    <string name="hsn_code">HSN कोड</string>
+    <string name="sale_price">बिक्री मूल्य</string>
+    <string name="purchase_price">खरीद मूल्य</string>
+    <string name="gst_rate">GST दर</string>
+    <string name="opening_stock">प्रारंभिक स्टॉक</string>
+    <string name="unit">इकाई</string>
+    <string name="service_item">सेवा वस्तु</string>
+    <string name="product">उत्पाद</string>
+    <string name="service">सेवा</string>
+    <string name="categories">श्रेणियाँ</string>
+    <string name="units">इकाइयाँ</string>
+    <string name="in_stock">स्टॉक में</string>
+    <string name="out_of_stock">स्टॉक समाप्त</string>
+    <string name="low_stock">कम स्टॉक</string>
+    <string name="search_items">नाम या कोड से वस्तु खोजें</string>
+    <string name="variants">वेरिएंट</string>
+    <string name="add_variant">वेरिएंट जोड़ें</string>
+    <string name="variant_name">वेरिएंट का नाम</string>
+    <string name="sku">SKU</string>
+    <string name="barcode">बारकोड</string>
+
+    <!-- Invoice / Billing -->
+    <string name="create_invoice">चालान बनाएं</string>
+    <string name="edit_invoice">चालान संपादित करें</string>
+    <string name="invoice_details">चालान विवरण</string>
+    <string name="invoice_number">चालान संख्या</string>
+    <string name="invoice_date">चालान तिथि</string>
+    <string name="due_date">देय तिथि</string>
+    <string name="subtotal">उप-कुल</string>
+    <string name="discount">छूट</string>
+    <string name="tax">कर</string>
+    <string name="total">कुल</string>
+    <string name="amount_paid">भुगतान राशि</string>
+    <string name="balance">शेष</string>
+    <string name="payment_status">भुगतान स्थिति</string>
+    <string name="paid">भुगतान किया</string>
+    <string name="unpaid">अवैतनिक</string>
+    <string name="partial">आंशिक</string>
+    <string name="overdue">अतिदेय</string>
+    <string name="sale_invoice">बिक्री चालान</string>
+    <string name="purchase_invoice">खरीद चालान</string>
+    <string name="proforma_invoice">प्रोफॉर्मा चालान</string>
+    <string name="quotation">कोटेशन</string>
+    <string name="estimate">अनुमान</string>
+    <string name="delivery_note">डिलीवरी नोट</string>
+    <string name="credit_note">क्रेडिट नोट</string>
+    <string name="debit_note">डेबिट नोट</string>
+
+    <!-- Transaction Fields -->
+    <string name="transaction_date">लेनदेन तिथि</string>
+    <string name="payment_mode">भुगतान मोड</string>
+    <string name="cash">नकद</string>
+    <string name="bank_transfer">बैंक हस्तांतरण</string>
+    <string name="upi">UPI</string>
+    <string name="cheque">चेक</string>
+    <string name="credit_card">क्रेडिट कार्ड</string>
+    <string name="debit_card">डेबिट कार्ड</string>
+    <string name="online">ऑनलाइन</string>
+    <string name="other">अन्य</string>
+    <string name="reference_number">संदर्भ संख्या</string>
+    <string name="notes">नोट्स</string>
+    <string name="terms_conditions">नियम और शर्तें</string>
+
+    <!-- Tax / GST -->
+    <string name="cgst">CGST</string>
+    <string name="sgst">SGST</string>
+    <string name="igst">IGST</string>
+    <string name="cess">Cess</string>
+    <string name="tds">TDS</string>
+    <string name="tcs">TCS</string>
+    <string name="tax_type">कर प्रकार</string>
+    <string name="intra_state">अंतर-राज्य</string>
+    <string name="inter_state">अंतर-राज्य</string>
+    <string name="gst_settings">GST सेटिंग्स</string>
+    <string name="hsn_summary">HSN सारांश</string>
+    <string name="gstr1">GSTR-1</string>
+    <string name="gstr3b">GSTR-3B</string>
+    <string name="gstr9">GSTR-9</string>
+
+    <!-- Reports -->
+    <string name="day_book">दैनिक पुस्तक</string>
+    <string name="cash_flow">नकद प्रवाह</string>
+    <string name="balance_sheet">तुलन पत्र</string>
+    <string name="profit_loss">लाभ और हानि</string>
+    <string name="expense_report">व्यय रिपोर्ट</string>
+    <string name="sales_report">बिक्री रिपोर्ट</string>
+    <string name="purchase_report">खरीद रिपोर्ट</string>
+    <string name="tax_report">कर रिपोर्ट</string>
+    <string name="party_report">पक्ष रिपोर्ट</string>
+    <string name="item_report">वस्तु रिपोर्ट</string>
+    <string name="stock_report">स्टॉक रिपोर्ट</string>
+    <string name="receivable_report">प्राप्य रिपोर्ट</string>
+    <string name="payable_report">देय रिपोर्ट</string>
+    <string name="aging_report">एजिंग रिपोर्ट</string>
+    <string name="daily_report">दैनिक रिपोर्ट</string>
+    <string name="monthly_report">मासिक रिपोर्ट</string>
+    <string name="yearly_report">वार्षिक रिपोर्ट</string>
+    <string name="custom_report">कस्टम रिपोर्ट</string>
+    <string name="export_data">डेटा निर्यात</string>
+    <string name="import_data">डेटा आयात</string>
+
+    <!-- Settings -->
+    <string name="account_plans">खाता और योजनाएँ</string>
+    <string name="business_profile">व्यापार प्रोफ़ाइल</string>
+    <string name="business_name">व्यापार का नाम</string>
+    <string name="business_address">व्यापार का पता</string>
+    <string name="business_logo">व्यापार लोगो</string>
+    <string name="business_card">व्यापार कार्ड</string>
+    <string name="company_settings">कंपनी सेटिंग्स</string>
+    <string name="add_company">कंपनी जोड़ें</string>
+    <string name="switch_company">कंपनी बदलें</string>
+    <string name="operations">संचालन</string>
+    <string name="transaction_settings">लेनदेन सेटिंग्स</string>
+    <string name="item_settings">वस्तु सेटिंग्स</string>
+    <string name="party_settings">पक्ष सेटिंग्स</string>
+    <string name="tax_settings">कर सेटिंग्स</string>
+    <string name="notification_settings">सूचना सेटिंग्स</string>
+    <string name="app_lock">ऐप लॉक</string>
+    <string name="print_settings">प्रिंट सेटिंग्स</string>
+    <string name="email_settings">ईमेल सेटिंग्स</string>
+    <string name="backup_restore">बैकअप और पुनर्स्थापना</string>
+    <string name="auto_backup">ऑटो बैकअप</string>
+    <string name="dark_mode">डार्क मोड</string>
+    <string name="language">भाषा</string>
+    <string name="about">के बारे में</string>
+    <string name="version">संस्करण</string>
+    <string name="rate_us">हमें रेट करें</string>
+    <string name="share_app">ऐप शेयर करें</string>
+    <string name="privacy_policy">गोपनीयता नीति</string>
+    <string name="terms_of_service">सेवा की शर्तें</string>
+
+    <!-- Buttons / Actions -->
+    <string name="save">सहेजें</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="delete">हटाएं</string>
+    <string name="edit">संपादित करें</string>
+    <string name="search">खोजें</string>
+    <string name="add">जोड़ें</string>
+    <string name="update">अपडेट करें</string>
+    <string name="confirm">पुष्टि करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+    <string name="share">शेयर करें</string>
+    <string name="print">प्रिंट करें</string>
+    <string name="download">डाउनलोड</string>
+    <string name="upload">अपलोड</string>
+    <string name="send">भेजें</string>
+    <string name="receive">प्राप्त करें</string>
+    <string name="pay">भुगतान करें</string>
+    <string name="collect">वसूल करें</string>
+    <string name="create_sale">बिक्री बनाएं</string>
+    <string name="create_purchase">खरीद बनाएं</string>
+    <string name="add_expense">व्यय जोड़ें</string>
+    <string name="take_payment">भुगतान लें</string>
+    <string name="add_sale">बिक्री जोड़ें</string>
+    <string name="new_party">+ नया पक्ष</string>
+    <string name="new_item">+ नई वस्तु</string>
+
+    <!-- Tab Labels -->
+    <string name="all">सभी</string>
+    <string name="products">उत्पाद</string>
+    <string name="services">सेवाएँ</string>
+    <string name="transactions">लेनदेन</string>
+    <string name="items_tab">वस्तुएँ</string>
+    <string name="parties_tab">पक्ष</string>
+    <string name="active">सक्रिय</string>
+    <string name="inactive">निष्क्रिय</string>
+    <string name="pending">लंबित</string>
+    <string name="completed">पूर्ण</string>
+    <string name="cancelled">रद्द</string>
+
+    <!-- Dialog Messages -->
+    <string name="delete_confirm">क्या आप वाकई इसे हटाना चाहते हैं?</string>
+    <string name="delete_party_confirm">क्या आप वाकई %s को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="delete_item_confirm">क्या आप वाकई %s को हटाना चाहते हैं?</string>
+    <string name="delete_invoice_confirm">क्या आप वाकई इस चालान को हटाना चाहते हैं?</string>
+    <string name="unsaved_changes">आपके पास असहेजे परिवर्तन हैं। छोड़ दें?</string>
+    <string name="confirm_receipt">क्या आप वाकई प्राप्ति की पुष्टि करना चाहते हैं?</string>
+
+    <!-- Error Messages -->
+    <string name="field_required">यह फ़ील्ड आवश्यक है</string>
+    <string name="invalid_email">अमान्य ईमेल पता</string>
+    <string name="invalid_phone">अमान्य फ़ोन नंबर</string>
+    <string name="invalid_gstin">अमान्य GSTIN</string>
+    <string name="invalid_amount">अमान्य राशि</string>
+    <string name="insufficient_stock">अपर्याप्त स्टॉक</string>
+    <string name="party_exists">पक्ष पहले से मौजूद है</string>
+    <string name="item_exists">वस्तु पहले से मौजूद है</string>
+    <string name="no_data">कोई डेटा नहीं मिला</string>
+    <string name="network_error">नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।</string>
+    <string name="server_error">सर्वर त्रुटि। कृपया बाद में पुनः प्रयास करें।</string>
+
+    <!-- Placeholders / Hints -->
+    <string name="enter_name">नाम दर्ज करें</string>
+    <string name="enter_phone">फ़ोन नंबर दर्ज करें</string>
+    <string name="enter_email">ईमेल पता दर्ज करें</string>
+    <string name="enter_amount">राशि दर्ज करें</string>
+    <string name="enter_gstin">GSTIN दर्ज करें</string>
+    <string name="enter_hsn">HSN कोड दर्ज करें</string>
+    <string name="enter_address">पता दर्ज करें</string>
+    <string name="enter_notes">नोट्स दर्ज करें</string>
+    <string name="search_placeholder">खोजें...</string>
+    <string name="no_parties_yet">अभी तक कोई पक्ष नहीं</string>
+    <string name="no_items_yet">अभी तक कोई वस्तु नहीं</string>
+    <string name="no_invoices_yet">अभी तक कोई चालान नहीं</string>
+    <string name="no_transactions_yet">अभी तक कोई लेनदेन नहीं</string>
+    <string name="tap_to_add_party">पक्ष जोड़ने के लिए + दबाएं</string>
+    <string name="tap_to_add_item">वस्तु जोड़ने के लिए + दबाएं</string>
+    <string name="tap_to_add_transaction">लेनदेन बनाने के लिए + दबाएं</string>
+</resources>

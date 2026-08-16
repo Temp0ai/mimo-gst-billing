@@ -23,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Share
@@ -217,6 +218,14 @@ fun InvoiceDetailScreen(
                                     navController.navigate(Screen.CreateInvoice.createRoute(invoiceType = "credit_note"))
                                 },
                                 leadingIcon = { Icon(Icons.Filled.Receipt, contentDescription = null, tint = RedAccent) }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Generate E-Way Bill") },
+                                onClick = {
+                                    showMoreMenu = false
+                                    navController.navigate(Screen.EWayBill.route)
+                                },
+                                leadingIcon = { Icon(Icons.Filled.LocalShipping, contentDescription = null, tint = VyaparBlue) }
                             )
                             HorizontalDivider()
                             DropdownMenuItem(

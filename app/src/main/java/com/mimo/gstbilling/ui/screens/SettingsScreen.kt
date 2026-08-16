@@ -13,6 +13,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import android.widget.Toast
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,11 +47,14 @@ data class SettingsSubItem(
 fun SettingsScreen(navController: NavController) {
     var expandedSection by remember { mutableStateOf("") }
     val isDarkMode by ThemeManager.isDarkMode
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     val categories = listOf(
         SettingsCategory("General", Icons.Filled.Settings, Color(0xFFE3F2FD), VyaparBlue, listOf(
             SettingsSubItem("Business Profile", Screen.BusinessProfile.route),
             SettingsSubItem("Switch Company", Screen.CompanySwitch.route),
+            SettingsSubItem("Language", "language"),
             SettingsSubItem("Invoice Settings", Screen.InvoiceSettings.route),
             SettingsSubItem("Item Settings", Screen.ItemSettings.route),
             SettingsSubItem("Party Settings", Screen.PartySettings.route),
@@ -103,6 +110,52 @@ fun SettingsScreen(navController: NavController) {
             SettingsSubItem("GSTR-9 Return", Screen.Gstr9.route)
         ))
     )
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text("Select Language", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    listOf("English" to "en", "हिन्दी" to "hi").forEach { (name, code) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    val locale = java.util.Locale(code)
+                                    java.util.Locale.setDefault(locale)
+                                    val config = android.content.res.Configuration()
+                                    config.setLocale(locale)
+                                    context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                                    showLanguageDialog = false
+                                    Toast.makeText(context, "Language changed to $name", Toast.LENGTH_SHORT).show()
+                                }
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = context.resources.configuration.locales[0].language == code,
+                                onClick = {
+                                    val locale = java.util.Locale(code)
+                                    java.util.Locale.setDefault(locale)
+                                    val config = android.content.res.Configuration()
+                                    config.setLocale(locale)
+                                    context.resources.updateConfiguration(config, context.resources.displayMetrics)
+                                    showLanguageDialog = false
+                                    Toast.makeText(context, "Language changed to $name", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(name, fontSize = 16.sp)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) { Text("Cancel") }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -204,7 +257,11 @@ fun SettingsScreen(navController: NavController) {
                                     .fillMaxWidth()
                                     .background(Color(0xFFF8F9FA))
                                     .clickable {
-                                        navController.navigate(subItem.route)
+                                        if (subItem.route == "language") {
+                                            showLanguageDialog = true
+                                        } else {
+                                            navController.navigate(subItem.route)
+                                        }
                                     }
                                     .padding(start = 70.dp, end = 16.dp, top = 13.dp, bottom = 13.dp),
                                 verticalAlignment = Alignment.CenterVertically

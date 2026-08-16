@@ -1,5 +1,6 @@
 package com.mimo.gstbilling.ui.screens
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -191,6 +192,7 @@ private fun CreateEWayBillForm(viewModel: EWayBillViewModel, isGenerating: Boole
 @Composable
 private fun EWayBillCard(ewb: EWayBillEntity, viewModel: EWayBillViewModel) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.US) }
+    val context = LocalContext.current
     var showCancelDialog by remember { mutableStateOf(false) }
 
     if (showCancelDialog) {
@@ -228,10 +230,55 @@ private fun EWayBillCard(ewb: EWayBillEntity, viewModel: EWayBillViewModel) {
 
             if (ewb.status == "ACTIVE") {
                 Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { showCancelDialog = true }, colors = ButtonDefaults.textButtonColors(contentColor = RedAccent)) {
-                    Icon(Icons.Filled.Cancel, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Cancel E-Way Bill", fontSize = 13.sp)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            val file = viewModel.generateEwbPdf(context, ewb)
+                            if (file != null) {
+                                val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                                val intent = Intent(Intent.ACTION_SEND).apply {
+                                    type = "application/pdf"
+                                    putExtra(Intent.EXTRA_STREAM, uri)
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    setPackage("com.whatsapp")
+                                    putExtra(Intent.EXTRA_TEXT, "E-Way Bill: ${ewb.ewbNumber}\nInvoice: ${ewb.invoiceNumber}\nParty: ${ewb.partyName}\nValue: ₹${String.format(Locale.US, "%,.2f", ewb.invoiceValue)}")
+                                }
+                                context.startActivity(Intent.createChooser(intent, "Share E-Way Bill"))
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF25D366))
+                    ) {
+                        Icon(Icons.Filled.Share, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("WhatsApp", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Button(
+                        onClick = {
+                            val file = viewModel.generateEwbPdf(context, ewb)
+                            if (file != null) {
+                                val uri = androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                    setDataAndType(uri, "application/pdf")
+                                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                }
+                                context.startActivity(intent)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = VyaparBlue)
+                    ) {
+                        Icon(Icons.Filled.PictureAsPdf, contentDescription = null, tint = Color.White, modifier = Modifier.size(14.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("View PDF", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
+                    TextButton(onClick = { showCancelDialog = true }, colors = ButtonDefaults.textButtonColors(contentColor = RedAccent)) {
+                        Icon(Icons.Filled.Cancel, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Cancel", fontSize = 11.sp)
+                    }
                 }
             }
         }
