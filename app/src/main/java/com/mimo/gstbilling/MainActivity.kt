@@ -16,6 +16,7 @@ import com.mimo.gstbilling.ui.theme.ThemeManager
 import com.mimo.gstbilling.utils.BiometricHelper
 import com.mimo.gstbilling.utils.DormantPartyNotifier
 import com.mimo.gstbilling.utils.AutoBackupScheduler
+import com.mimo.gstbilling.worker.GstFilingNotificationWorker
 import com.mimo.gstbilling.worker.RecurringInvoiceWorker
 import com.mimo.gstbilling.worker.WhatsAppReminderWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +32,7 @@ class MainActivity : FragmentActivity() {
         DormantPartyNotifier.scheduleDailyCheck(this)
         RecurringInvoiceWorker.schedule(this)
         WhatsAppReminderWorker.schedule(this)
+        GstFilingNotificationWorker.schedule(this)
 
         val startDestination = if (BiometricHelper.isBiometricLockEnabled(this)) {
             Screen.BiometricLock.route

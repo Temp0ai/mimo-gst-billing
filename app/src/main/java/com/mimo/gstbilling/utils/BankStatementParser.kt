@@ -43,17 +43,42 @@ object BankStatementParser {
     }
 
     fun parsePdf(context: Context, uri: Uri): List<BankTxn> {
-        return emptyList()
+        val txns = mutableListOf<BankTxn>()
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return emptyList()
+            val file = File(context.cacheDir, "temp_bank_pdf.pdf")
+            file.outputStream().use { output -> inputStream.copyTo(output) }
+            inputStream.close()
+
+            val image = com.google.mlkit.vision.common.InputImage.fromFilePath(context, uri)
+            val recognizer = com.google.mlkit.vision.text.TextRecognition.getClient(
+                com.google.mlkit.vision.text.latin.TextRecognizerOptions.DEFAULT_OPTIONS
+            )
+
+            var ocrText = ""
+            recognizer.process(image)
+                .addOnSuccessListener { visionText -> ocrText = visionText.text }
+                .addOnFailureListener { return@addOnFailureListener }
+                .addOnCompleteListener {
+                    file.delete()
+                }
+            Thread.sleep(5000)
+
+            if (ocrText.isNotBlank()) {
+                val lines = ocrText.lines().map { it.trim() }.filter { it.isNotEmpty() }
+                for (line in lines) {
+                    val txn = parseBankLine(line)
+                    if (txn != null) txns.add(txn)
+                }
+            }
+        } catch (_: Exception) {}
+        return txns
     }
 
     private fun parseBankLine(line: String): BankTxn? {
-        // Common formats:
-        // DD/MM/YYYY  Description  Debit  Credit  Balance
-        // DD-MM-YYYY  Description  Amount  Balance
         val datePatterns = listOf("dd/MM/yyyy", "dd-MM-yyyy", "yyyy-MM-dd", "dd MMM yyyy", "MM/dd/yyyy")
         for (pattern in datePatterns) {
             try {
-                val sdf = SimpleDateFormat(pattern, Locale.US)
                 val dateEndIdx = findDateEnd(line, pattern)
                 if (dateEndIdx > 0) {
                     val dateStr = line.substring(0, dateEndIdx).trim()
