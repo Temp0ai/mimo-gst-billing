@@ -15,6 +15,7 @@ import com.mimo.gstbilling.ui.theme.MimoGstBillingTheme
 import com.mimo.gstbilling.ui.theme.ThemeManager
 import com.mimo.gstbilling.utils.BiometricHelper
 import com.mimo.gstbilling.utils.DormantPartyNotifier
+import com.mimo.gstbilling.utils.AutoBackupScheduler
 import com.mimo.gstbilling.worker.RecurringInvoiceWorker
 import com.mimo.gstbilling.worker.WhatsAppReminderWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,5 +46,10 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoBackupScheduler.autoBackupOnClose(this)
     }
 }

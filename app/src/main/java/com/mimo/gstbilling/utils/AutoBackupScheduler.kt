@@ -138,4 +138,21 @@ class AutoBackupWorker(
             backups.drop(10).forEach { it.delete() }
         }
     }
+
+    fun autoBackupOnClose(context: Context) {
+        val prefs = getPrefs(context)
+        val frequency = prefs.getString(KEY_AUTO_BACKUP_FREQUENCY, "disabled") ?: "disabled"
+        if (frequency == "disabled") return
+
+        try {
+            val dbFile = context.getDatabasePath("mimo_gst_billing_db")
+            val backupDir = File(context.filesDir, "backups").apply { mkdirs() }
+            val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
+            val backupFile = File(backupDir, "backup_$timestamp.db")
+            dbFile.copyTo(backupFile, overwrite = true)
+            cleanupOldBackups(backupDir)
+            val now = SimpleDateFormat("dd MMM yyyy HH:mm", Locale.US).format(Date())
+            prefs.edit().putString("last_backup", now).apply()
+        } catch (_: Exception) {}
+    }
 }
