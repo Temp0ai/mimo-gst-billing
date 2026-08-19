@@ -26,6 +26,10 @@ class ItemViewModel @Inject constructor(
         return companyDao.getSelectedCompany().first()?.id ?: 1L
     }
 
+    fun getCompanyId(): Long {
+        return _cachedCompanyId
+    }
+
     private val _allItems = MutableStateFlow<List<ItemEntity>>(emptyList())
     val allItems: StateFlow<List<ItemEntity>> = _allItems.asStateFlow()
 

@@ -24,7 +24,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BankDetailScreen(navController: NavController) {
+fun BankDetailScreen(navController: NavController, bankId: Long = 0L) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val transactions = remember {

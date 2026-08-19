@@ -262,7 +262,13 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
         composable(Screen.CashInHandDetail.route) { CashInHandDetailScreen(navController) }
         composable(Screen.TransferMoney.route) { TransferMoneyScreen(navController) }
         composable(Screen.BankStatementDetail.route) { BankStatementScreen(navController) }
-        composable(Screen.BankDetail.route) { BankDetailScreen(navController) }
+         composable(
+             route = Screen.BankDetail.route,
+             arguments = listOf(navArgument("bankId") { type = NavType.LongType })
+         ) { backStackEntry ->
+             val bankId = backStackEntry.arguments?.getLong("bankId") ?: 0L
+             BankDetailScreen(navController, bankId)
+         }
         composable(Screen.ChequeList.route) { ChequeListScreen(navController) }
         composable(Screen.ChequeDetail.route) { ChequeDetailScreen(navController) }
         composable(Screen.ChequeClose.route) { ChequeCloseScreen(navController) }
@@ -272,8 +278,8 @@ fun MimoNavHost(navController: NavHostController, startDestination: String = Scr
             route = Screen.LoanDetail.route,
             arguments = listOf(navArgument("loanId") { type = NavType.LongType })
         ) { backStackEntry ->
-            val loanId = backStackEntry.arguments?.getLong("loanId") ?: 0L
-            LoanDetailScreen(navController)
+             val loanId = backStackEntry.arguments?.getLong("loanId") ?: 0L
+             LoanDetailScreen(navController, loanId)
         }
         composable(Screen.LoanTransaction.route) { LoanTransactionScreen(navController) }
         composable(Screen.LoanExpense.route) { LoanExpenseScreen(navController) }

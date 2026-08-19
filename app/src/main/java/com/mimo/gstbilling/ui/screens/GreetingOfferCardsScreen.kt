@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,6 +30,7 @@ data class GreetingCard(val id: String, val title: String, val emoji: String, va
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GreetingOfferCardsScreen(navController: NavController) {
+    val context = LocalContext.current
     val greetings = listOf(
         GreetingCard("1", "Happy Birthday", "\uD83C\uDF82", "Wishing you a very Happy Birthday! May this year bring success and happiness.", "Birthday"),
         GreetingCard("2", "Happy Diwali", "\uD83D\uDD36", "Wishing you and your family a prosperous Diwali! May Maa Lakshmi bless you.", "Festival"),
@@ -70,7 +72,14 @@ fun GreetingOfferCardsScreen(navController: NavController) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(card.message, fontSize = 11.sp, color = VyaparTextSecondary, textAlign = TextAlign.Center, maxLines = 3)
                             Spacer(modifier = Modifier.height(8.dp))
-                            Button(onClick = { }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(vertical = 6.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
+                            Button(onClick = {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                                    type = "text/plain"
+                                    putExtra(android.content.Intent.EXTRA_TEXT, "${card.emoji} ${card.title}\n\n${card.message}")
+                                    setPackage("com.whatsapp")
+                                }
+                                context.startActivity(android.content.Intent.createChooser(intent, "Share via"))
+                            }, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(vertical = 6.dp), colors = ButtonDefaults.buttonColors(containerColor = RedAccent)) {
                                 Text("Send", fontSize = 11.sp, color = Color.White)
                             }
                         }

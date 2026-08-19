@@ -18,50 +18,24 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mimo.gstbilling.ui.theme.*
+import com.mimo.gstbilling.ui.viewmodel.ItemViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CatalogueItemDetailScreen(navController: NavController, itemId: Long) {
+fun CatalogueItemDetailScreen(navController: NavController, itemId: Long, viewModel: ItemViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var quantity by remember { mutableIntStateOf(1) }
+    val allItems by viewModel.allItems.collectAsState()
+    val item = allItems.find { it.id == itemId }
 
-    val productName = when (itemId) {
-        1L -> "Wireless Mouse"
-        2L -> "USB-C Cable"
-        3L -> "Notebook Set"
-        4L -> "Bluetooth Speaker"
-        5L -> "Phone Case"
-        6L -> "Desk Lamp"
-        7L -> "Keyboard"
-        8L -> "Webcam"
-        else -> "Product #$itemId"
-    }
-    val price = when (itemId) {
-        1L -> 599.0
-        2L -> 299.0
-        3L -> 189.0
-        4L -> 1299.0
-        5L -> 399.0
-        6L -> 899.0
-        7L -> 1599.0
-        8L -> 2499.0
-        else -> 0.0
-    }
-    val stock = when (itemId) {
-        1L -> 45
-        2L -> 120
-        3L -> 80
-        4L -> 25
-        5L -> 200
-        6L -> 15
-        7L -> 30
-        8L -> 0
-        else -> 0
-    }
+    val productName = item?.name ?: "Item #$itemId"
+    val price = item?.salePrice ?: 0.0
+    val stock = item?.stockQuantity?.toInt() ?: 0
 
     Scaffold(
         topBar = {

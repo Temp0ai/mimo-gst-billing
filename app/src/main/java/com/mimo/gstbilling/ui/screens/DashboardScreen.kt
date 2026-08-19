@@ -959,7 +959,7 @@ fun DashboardScreen(
                                     Icon(Icons.Filled.MoreVert, contentDescription = "More", tint = VyaparTextSecondary)
                                 }
                                 DropdownMenu(expanded = showItemOptionsMenu, onDismissRequest = { showItemOptionsMenu = false }) {
-                                    DropdownMenuItem(text = { Text("Edit Item") }, onClick = { showItemOptionsMenu = false; navController.navigate(Screen.AddItem.route); android.widget.Toast.makeText(context, "Create a new item to edit details", android.widget.Toast.LENGTH_SHORT).show() })
+                                    DropdownMenuItem(text = { Text("Edit Item") }, onClick = { showItemOptionsMenu = false; if (data.recentItems.isNotEmpty()) navController.navigate(Screen.EditItem.createRoute(data.recentItems.first().id)) else android.widget.Toast.makeText(context, "No items to edit", android.widget.Toast.LENGTH_SHORT).show() })
                                     DropdownMenuItem(text = { Text("Share") }, onClick = {
                                         showItemOptionsMenu = false
                                         val shareText = data.recentItems.joinToString("\n") { "${it.name} - ₹${String.format(Locale.US, "%,.2f", it.salePrice)} (${String.format(Locale.US, "%.1f", it.stockQuantity)} in stock)" }

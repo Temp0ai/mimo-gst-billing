@@ -26,7 +26,7 @@ data class EmiEntry(val month: Int, val amount: Double, val principal: Double, v
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoanDetailScreen(navController: NavController) {
+fun LoanDetailScreen(navController: NavController, loanId: Long = 0L) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy", Locale.US) }
     val emiSchedule = remember {
         listOf(

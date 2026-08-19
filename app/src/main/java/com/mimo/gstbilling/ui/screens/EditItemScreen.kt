@@ -96,11 +96,11 @@ fun EditItemScreen(navController: NavController, itemId: Long, viewModel: ItemVi
                 }
                 Button(onClick = {
                     if (itemName.isNotBlank() && salePrice.isNotBlank()) {
-                        viewModel.updateItem(
-                            com.mimo.gstbilling.data.local.entity.ItemEntity(
-                                id = itemId,
-                                companyId = 1,
-                                name = itemName,
+                         viewModel.updateItem(
+                             com.mimo.gstbilling.data.local.entity.ItemEntity(
+                                 id = itemId,
+                                 companyId = viewModel.getCompanyId(),
+                                 name = itemName,
                                 hsnCode = hsnCode.ifBlank { null },
                                 description = null,
                                 salePrice = salePrice.toDouble(),
